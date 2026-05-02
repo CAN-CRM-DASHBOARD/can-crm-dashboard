@@ -101,6 +101,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 .cal-dh{text-align:center;font-size:9px;font-weight:700;color:#7a8aaa;padding:4px;text-transform:uppercase}
 .cal-cell{min-height:58px;border:1px solid #eef0f5;border-radius:5px;padding:3px;background:#fff;cursor:pointer}
 .cal-cell:hover{background:#edf4ff}.cal-cell.today{border-color:#1a5fb4;background:#edf4ff}
+.cal-dot{font-size:9px;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;cursor:pointer;opacity:.9;transition:transform .1s}
+.cal-dot:hover{transform:scale(1.3);opacity:1}
 .cal-num{font-size:9px;font-weight:700;color:#0d1b36;margin-bottom:2px}
 .cal-ev{font-size:8px;padding:1px 3px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
 .credit-review{background:#fff3e0;border:1px solid #ffcc02;border-radius:8px;padding:12px;margin-top:12px}
@@ -266,7 +268,29 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
         <div class="fg"><div class="fl">Loan Amount</div><input placeholder="₹ Amount" id="ab-amount"></div>
         <div class="fg"><div class="fl">Monthly Income</div><input placeholder="₹ Monthly income" id="ab-income"></div>
         <div class="fg"><div class="fl">Location</div><input placeholder="City / District" id="ab-location"></div>
-        <div class="fg"><div class="fl">Status</div><select id="ab-status"><option value="ACTIVE">Applied</option><option value="LEAD">Lead</option><option value="FOLLOW UP">Follow up</option><option value="SANCTIONED">Approved / Sanctioned</option><option value="DISBURSED">Disbursed</option><option value="REJECTED">Rejected</option></select></div>
+        <div class="fg"><div class="fl">Follow-up Status</div><select id="ab-status">
+  <optgroup label="── Lead Status ──">
+    <option value="LEAD">💡 Lead</option>
+    <option value="ACTIVE">📋 Applied</option>
+    <option value="FOLLOW UP">🔄 Follow Up</option>
+  </optgroup>
+  <optgroup label="── Follow-up Outcome ──">
+    <option value="NOT INTERESTED">❌ Not Interested</option>
+    <option value="BUSY">📵 Busy</option>
+    <option value="WILL UPDATE">🕐 Will Update</option>
+    <option value="SWITCHED OFF">📴 Switched Off</option>
+    <option value="REFERENCE">👥 Reference</option>
+    <option value="CALL U LATER">📞 Call U Later</option>
+    <option value="SEND DOCUMENTS">📂 Send the Documents</option>
+    <option value="NEED">✅ Need</option>
+  </optgroup>
+  <optgroup label="── Loan Status ──">
+    <option value="SANCTIONED">🔵 Approved / Sanctioned</option>
+    <option value="DISBURSED">💰 Disbursed</option>
+    <option value="REJECTED">❌ Rejected</option>
+    <option value="CLOSED">🔒 Closed</option>
+  </optgroup>
+</select></div>
         <div class="fg"><div class="fl">Date & Time</div><input type="datetime-local" id="ab-date"></div>
       </div>
       <div class="fg"><div class="fl">Notes / Remarks</div><textarea rows="3" placeholder="Enter remarks…" id="ab-notes"></textarea></div>
@@ -290,7 +314,26 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
         <div class="fg"><div class="fl">Loan Type</div><select id="fu-loan"><option>Personal Loan</option><option>Business Loan</option><option>Home Loan</option><option>LAP</option><option>Car Loan</option><option>Education</option><option>Insurance</option></select></div>
         <div class="fg"><div class="fl">Priority</div><select id="fu-priority"><option value="PENDING">Normal</option><option value="HIGH">🔴 High Priority</option></select></div>
         <div class="fg"><div class="fl">Type</div><select id="fu-type"><option value="CALLS">📞 Call</option><option value="WHATSAPP">💬 WhatsApp</option><option value="VISITS">🚗 Visit</option></select></div>
-        <div class="fg" style="grid-column:span 2"><div class="fl">Purpose</div><select id="fu-purpose"><option>Initial Call</option><option>Document Collection</option><option>Verification Follow-up</option><option>Bank Query Response</option><option>Disbursement Confirmation</option><option>Re-verification</option><option>Others</option></select></div>
+        <div class="fg"><div class="fl">Purpose</div><select id="fu-purpose">
+          <option>Initial Call</option>
+          <option>Document Collection</option>
+          <option>Verification Follow-up</option>
+          <option>Bank Query Response</option>
+          <option>Disbursement Confirmation</option>
+          <option>Re-verification</option>
+          <option>Others</option>
+        </select></div>
+        <div class="fg"><div class="fl">Call Outcome / Status</div><select id="fu-outcome">
+          <option value="">— Select Outcome —</option>
+          <option value="NOT INTERESTED">❌ Not Interested</option>
+          <option value="BUSY">📵 Busy</option>
+          <option value="WILL UPDATE">🕐 Will Update</option>
+          <option value="SWITCHED OFF">📴 Switched Off</option>
+          <option value="REFERENCE">👥 Reference</option>
+          <option value="CALL U LATER">📞 Call U Later</option>
+          <option value="SEND DOCUMENTS">📂 Send the Documents</option>
+          <option value="NEED">✅ Need (Interested)</option>
+        </select></div>
       </div>
       <div class="fg"><div class="fl">Notes</div><textarea rows="2" placeholder="Follow-up notes…" id="fu-notes"></textarea></div>
     </div>
@@ -680,22 +723,32 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     <span class="ftab" onclick="filterRows('fu-tbody','WHATSAPP',this)">💬 WhatsApp</span>
     <span class="ftab" onclick="filterRows('fu-tbody','VISITS',this)">🚗 Visits</span>
   </div>
-  <div class="card"><table><thead><tr><th>Time</th><th>Borrower</th><th>Phone</th><th>Loan</th><th>Type</th><th>Status</th><th>Note</th><th>Action</th></tr></thead>
+  <div class="card"><table><thead><tr><th>Date/Time</th><th>Borrower</th><th>Phone</th><th>Loan</th><th>Type</th><th>Outcome</th><th>Priority</th><th>Note</th><th>Actions</th></tr></thead>
   <tbody id="fu-tbody"><tr><td colspan="8"><div class="empty-state"><div class="ei">☑️</div><p>No follow-ups scheduled yet.</p></div></td></tr></tbody></table></div>
 </div>
 
 <!-- ALL BORROWERS -->
 <div class="sec" id="sec-borrowers">
   <div class="sec-hdr"><div class="card-title">All Borrowers</div><div style="display:flex;gap:8px"><button class="btn" onclick="triggerImport('borrowers')">📥 Import Excel</button><input type="file" id="imp-borrowers" accept=".xlsx,.xls,.csv,.xlsm,.xlsb,.ods" style="display:none" onchange="importExcel(this,'borrowers')"><input class="search" placeholder="Search…" style="width:130px"><button class="btn btn-p" onclick="openModal('modal-add-borrower')">+ Add Borrower</button></div></div>
-  <div class="ftabs">
+  <div class="ftabs" style="flex-wrap:wrap">
     <span class="ftab active" onclick="filterRows('bor-tbody','ALL',this)">All</span>
-    <span class="ftab" onclick="filterRows('bor-tbody','ACTIVE',this)">🟢 Active</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','LEAD',this)">💡 Lead</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','ACTIVE',this)">🟢 Applied</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','FOLLOW UP',this)">🔄 Follow-up</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','NOT INTERESTED',this)">❌ Not Interested</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','BUSY',this)">📵 Busy</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','WILL UPDATE',this)">🕐 Will Update</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','SWITCHED OFF',this)">📴 Switched Off</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','REFERENCE',this)">👥 Reference</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','CALL U LATER',this)">📞 Call Later</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','SEND DOCUMENTS',this)">📂 Send Docs</span>
+    <span class="ftab" onclick="filterRows('bor-tbody','NEED',this)">✅ Need</span>
     <span class="ftab" onclick="filterRows('bor-tbody','SANCTIONED',this)">🔵 Sanctioned</span>
     <span class="ftab done-tab" onclick="filterRows('bor-tbody','DISBURSED',this)">💰 Disbursed</span>
     <span class="ftab rejected-tab" onclick="filterRows('bor-tbody','REJECTED',this)">❌ Rejected</span>
     <span class="ftab" onclick="filterRows('bor-tbody','CLOSED',this)">🔒 Closed</span>
   </div>
-  <div class="card"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Loan Type</th><th>Amount</th><th>Bank</th><th>CIBIL</th><th>Status</th></tr></thead>
+  <div class="card"><table><thead><tr><th>ID</th><th>Name</th><th>Phone</th><th>Loan Type</th><th>Amount</th><th>Bank</th><th>CIBIL</th><th>Status</th><th>Edit</th></tr></thead>
   <tbody id="bor-tbody"><tr><td colspan="8"><div class="empty-state"><div class="ei">⌂</div><p>No borrowers added yet.</p></div></td></tr></tbody></table></div>
 </div>
 
@@ -709,7 +762,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     <span class="ftab" onclick="filterRows('af-tbody','SANCTIONED',this)">✅ Sanctioned</span>
     <span class="ftab done-tab" onclick="filterRows('af-tbody','DISBURSED',this)">💰 Disbursed</span>
   </div>
-  <div class="card"><table><thead><tr><th>File No.</th><th>Borrower</th><th>Loan Type</th><th>Amount</th><th>Bank</th><th>Stage</th><th>Age</th><th>RM</th></tr></thead>
+  <div class="card"><table><thead><tr><th>File No.</th><th>Borrower</th><th>Loan Type</th><th>Amount</th><th>Bank</th><th>Stage</th><th>Age</th><th>Follow-up Status</th><th>Edit</th></tr></thead>
   <tbody id="af-tbody"><tr><td colspan="8"><div class="empty-state"><div class="ei">≡</div><p>No active files yet.</p></div></td></tr></tbody></table></div>
 </div>
 
@@ -1661,16 +1714,125 @@ function selectIns(card,type){
 }
 
 // ══ CALENDAR ══
-let calY=2026,calM=3;
+let calY=new Date().getFullYear(), calM=new Date().getMonth();
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 function changeMonth(d){calM+=d;if(calM>11){calM=0;calY++;}if(calM<0){calM=11;calY--;}buildCal();}
+
 function buildCal(){
   document.getElementById('cal-month-title').textContent=MONTHS[calM]+' '+calY;
-  const fd=new Date(calY,calM,1).getDay(),days=new Date(calY,calM+1,0).getDate(),today=calM===3&&calY===2026?29:0;
+  const fd=new Date(calY,calM,1).getDay();
+  const days=new Date(calY,calM+1,0).getDate();
+  const todayD=new Date();
+  const isThisMonth=(todayD.getFullYear()===calY && todayD.getMonth()===calM);
+  const todayDate=isThisMonth ? todayD.getDate() : -1;
+
+  // Build map: date → array of follow-ups
+  const fus = getFollowUps ? getFollowUps() : [];
+  const fuMap = {};
+  fus.forEach(f=>{
+    if(!f.dt) return;
+    const fd2=new Date(f.dt);
+    if(fd2.getFullYear()===calY && fd2.getMonth()===calM){
+      const dd=fd2.getDate();
+      if(!fuMap[dd]) fuMap[dd]=[];
+      fuMap[dd].push(f);
+    }
+  });
+
+  // Borrowers with follow-up type status
+  const bors = getBorrowers ? getBorrowers() : [];
+  const OUTCOME_COLORS = {
+    'NOT INTERESTED':'#ef4444','BUSY':'#f59e0b','WILL UPDATE':'#3b82f6',
+    'SWITCHED OFF':'#6b7280','REFERENCE':'#8b5cf6','CALL U LATER':'#06b6d4',
+    'SEND DOCUMENTS':'#10b981','NEED':'#22c55e','FOLLOW UP':'#1a5fb4'
+  };
+  const OUTCOME_ICONS = {
+    'NOT INTERESTED':'❌','BUSY':'📵','WILL UPDATE':'🕐','SWITCHED OFF':'📴',
+    'REFERENCE':'👥','CALL U LATER':'📞','SEND DOCUMENTS':'📂','NEED':'✅','FOLLOW UP':'🔄'
+  };
+
   let html='';
-  for(let i=0;i<fd;i++)html+='<div class="cal-cell" style="opacity:.3"></div>';
-  for(let d=1;d<=days;d++){html+=`<div class="cal-cell${d===today?' today':''}" onclick="openModal('modal-schedule')"><div class="cal-num">${d}</div></div>`;}
+  for(let i=0;i<fd;i++) html+='<div class="cal-cell" style="opacity:.15;pointer-events:none"></div>';
+  for(let d=1;d<=days;d++){
+    const isToday=d===todayDate;
+    const dayFUs=fuMap[d]||[];
+    const dotLimit=4;
+    const dots=dayFUs.slice(0,dotLimit).map(f=>{
+      const outcome=f.outcome||f.status||'FOLLOW UP';
+      const color=OUTCOME_COLORS[outcome]||'#1a5fb4';
+      const icon=OUTCOME_ICONS[outcome]||'📋';
+      const time=f.dt?new Date(f.dt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'';
+      return `<div class="cal-dot" style="background:${color}" title="${f.name} — ${outcome} ${time ? '@ '+time : ''}" onclick="event.stopPropagation();showCalPopup(${JSON.stringify(d)},${JSON.stringify(calM)},${JSON.stringify(calY)})">${icon}</div>`;
+    }).join('');
+    const extra=dayFUs.length>dotLimit?`<div style="font-size:8px;color:#7a8aaa;text-align:right">+${dayFUs.length-dotLimit} more</div>`:'';
+    html+=`<div class="cal-cell${isToday?' today':''}" onclick="openScheduleForDate(${d},${calM},${calY})">
+      <div class="cal-num">${d}${dayFUs.length?`<span style="margin-left:4px;background:#ef4444;color:#fff;border-radius:10px;padding:0 4px;font-size:9px;font-weight:700">${dayFUs.length}</span>`:''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px">${dots}</div>${extra}
+    </div>`;
+  }
   document.getElementById('cal-body').innerHTML=html;
+}
+
+function openScheduleForDate(d, m, y){
+  const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}T09:00`;
+  openModal('modal-schedule');
+  const fuDt=document.getElementById('fu-datetime');
+  if(fuDt) fuDt.value=dateStr;
+}
+
+function showCalPopup(d, m, y){
+  const fus=(getFollowUps?getFollowUps():[]).filter(f=>{
+    if(!f.dt) return false;
+    const fd=new Date(f.dt);
+    return fd.getDate()===d && fd.getMonth()===m && fd.getFullYear()===y;
+  });
+  if(!fus.length) return;
+  const OUTCOME_COLORS={'NOT INTERESTED':'#ef4444','BUSY':'#f59e0b','WILL UPDATE':'#3b82f6','SWITCHED OFF':'#6b7280','REFERENCE':'#8b5cf6','CALL U LATER':'#06b6d4','SEND DOCUMENTS':'#10b981','NEED':'#22c55e','FOLLOW UP':'#1a5fb4','HIGH':'#ef4444','DONE':'#22c55e','PENDING':'#1a5fb4'};
+  const modal=document.getElementById('cal-popup-modal');
+  if(!modal){
+    const div=document.createElement('div');
+    div.id='cal-popup-modal';
+    div.className='modal-overlay';
+    div.style.zIndex='8888';
+    div.innerHTML=`<div class="modal-box" style="max-width:420px"><div class="modal-head"><h3 id="cal-popup-title"></h3><button class="modal-close" onclick="document.getElementById('cal-popup-modal').classList.remove('open')">✕</button></div><div class="modal-body" id="cal-popup-body"></div></div>`;
+    div.addEventListener('click',e=>{if(e.target===div)div.classList.remove('open');});
+    document.body.appendChild(div);
+  }
+  document.getElementById('cal-popup-title').textContent=`📅 ${MONTHS[m]} ${d}, ${y} — ${fus.length} Follow-up${fus.length>1?'s':''}`;
+  document.getElementById('cal-popup-body').innerHTML=fus.map(f=>{
+    const outcome=f.outcome||f.status||'FOLLOW UP';
+    const color=OUTCOME_COLORS[outcome]||'#1a5fb4';
+    const time=f.dt?new Date(f.dt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'—';
+    return `<div style="border-left:3px solid ${color};padding:8px 10px;margin-bottom:8px;background:#f9fbff;border-radius:0 6px 6px 0">
+      <div style="font-weight:700;font-size:12px;color:#0d1b36">${f.name}</div>
+      <div style="font-size:10px;color:#7a8aaa;margin:2px 0">${f.loan||''} · ${time} · ${f.purpose||''}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+        <span class="pill" style="background:${color}20;color:${color};border:1px solid ${color}40;font-size:9px">${outcome}</span>
+        <a href="tel:${f.phone}" style="font-size:10px;color:#1a5fb4">📞 ${f.phone||'—'}</a>
+        <button onclick="markFUDone('${f.id}');showCalPopup(${d},${m},${y})" style="margin-left:auto;font-size:9px;padding:2px 7px;border:1px solid #22c55e;background:#e8f5e9;border-radius:4px;cursor:pointer;color:#2e7d32">✅ Done</button>
+        <select onchange="changeFUOutcome('${f.id}',this.value)" style="font-size:9px;border:1px solid #cdd5e8;border-radius:4px;padding:1px 4px">
+          <option value="">Change Status…</option>
+          <option value="NOT INTERESTED">❌ Not Interested</option>
+          <option value="BUSY">📵 Busy</option>
+          <option value="WILL UPDATE">🕐 Will Update</option>
+          <option value="SWITCHED OFF">📴 Switched Off</option>
+          <option value="REFERENCE">👥 Reference</option>
+          <option value="CALL U LATER">📞 Call U Later</option>
+          <option value="SEND DOCUMENTS">📂 Send Documents</option>
+          <option value="NEED">✅ Need</option>
+          <option value="DONE">✅ Done</option>
+        </select>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('cal-popup-modal').classList.add('open');
+}
+
+function changeFUOutcome(id, newOutcome){
+  if(!newOutcome) return;
+  const fus=getFollowUps();
+  const i=fus.findIndex(f=>f.id===id);
+  if(i>=0){ fus[i].outcome=newOutcome; fus[i].status=newOutcome; saveFollowUps(fus); renderFollowUps(); buildCal(); updateBadges(); showToast('Status updated: '+newOutcome); }
 }
 
 // ══ EMI CALC ══
@@ -2619,16 +2781,71 @@ function genId(prefix){ return prefix + Date.now().toString(36).toUpperCase() + 
 // ── Pill helper ──
 function statusPill(s){
   const map = {
-    'ACTIVE':'<span class="pill p-g">🟢 Active</span>',
-    'LEAD':'<span class="pill p-b">💡 Lead</span>',
-    'FOLLOW UP':'<span class="pill" style="background:#fff3e0;color:#e65100">🔄 Follow-up</span>',
-    'SANCTIONED':'<span class="pill" style="background:#e3f2fd;color:#1565c0">✅ Sanctioned</span>',
-    'DISBURSED':'<span class="pill p-g" style="background:#e8f5e9;color:#2e7d32">💰 Disbursed</span>',
-    'REJECTED':'<span class="pill p-r">❌ Rejected</span>',
-    'CLOSED':'<span class="pill" style="background:#f5f5f5;color:#666">🔒 Closed</span>',
+    'ACTIVE':'<span class="pill" style="background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7">🟢 Applied</span>',
+    'LEAD':'<span class="pill" style="background:#e3f2fd;color:#1565c0;border:1px solid #90caf9">💡 Lead</span>',
+    'FOLLOW UP':'<span class="pill" style="background:#fff3e0;color:#e65100;border:1px solid #ffcc80">🔄 Follow-up</span>',
+    'NOT INTERESTED':'<span class="pill" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a">❌ Not Interested</span>',
+    'BUSY':'<span class="pill" style="background:#fff8e1;color:#f57f17;border:1px solid #ffe082">📵 Busy</span>',
+    'WILL UPDATE':'<span class="pill" style="background:#e8eaf6;color:#283593;border:1px solid #9fa8da">🕐 Will Update</span>',
+    'SWITCHED OFF':'<span class="pill" style="background:#f5f5f5;color:#424242;border:1px solid #bdbdbd">📴 Switched Off</span>',
+    'REFERENCE':'<span class="pill" style="background:#f3e5f5;color:#6a1b9a;border:1px solid #ce93d8">👥 Reference</span>',
+    'CALL U LATER':'<span class="pill" style="background:#e0f7fa;color:#006064;border:1px solid #80deea">📞 Call U Later</span>',
+    'SEND DOCUMENTS':'<span class="pill" style="background:#e8f5e9;color:#1b5e20;border:1px solid #a5d6a7">📂 Send Docs</span>',
+    'NEED':'<span class="pill" style="background:#e8f5e9;color:#2e7d32;border:1px solid #66bb6a;font-weight:700">✅ Need</span>',
+    'SANCTIONED':'<span class="pill" style="background:#e3f2fd;color:#0d47a1;border:1px solid #90caf9;font-weight:700">🔵 Sanctioned</span>',
+    'DISBURSED':'<span class="pill" style="background:#e8f5e9;color:#1b5e20;border:1px solid #66bb6a;font-weight:700">💰 Disbursed</span>',
+    'REJECTED':'<span class="pill" style="background:#ffebee;color:#b71c1c;border:1px solid #ef9a9a">❌ Rejected</span>',
+    'CLOSED':'<span class="pill" style="background:#f5f5f5;color:#616161;border:1px solid #e0e0e0">🔒 Closed</span>',
+    'DONE':'<span class="pill" style="background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7">✅ Done</span>',
+    'HIGH':'<span class="pill" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a">🔴 High</span>',
+    'PENDING':'<span class="pill" style="background:#e3f2fd;color:#1565c0;border:1px solid #90caf9">📌 Pending</span>',
   };
-  return map[s] || `<span class="pill">${s}</span>`;
+  return map[s] || `<span class="pill" style="background:#f5f5f5;color:#555;border:1px solid #ddd">${s||'—'}</span>`;
 }
+// ══ Status inline edit dropdown ══
+const ALL_STATUSES = [
+  {v:'LEAD',l:'💡 Lead'},{v:'ACTIVE',l:'🟢 Applied'},{v:'FOLLOW UP',l:'🔄 Follow-up'},
+  {v:'NOT INTERESTED',l:'❌ Not Interested'},{v:'BUSY',l:'📵 Busy'},
+  {v:'WILL UPDATE',l:'🕐 Will Update'},{v:'SWITCHED OFF',l:'📴 Switched Off'},
+  {v:'REFERENCE',l:'👥 Reference'},{v:'CALL U LATER',l:'📞 Call U Later'},
+  {v:'SEND DOCUMENTS',l:'📂 Send Documents'},{v:'NEED',l:'✅ Need'},
+  {v:'SANCTIONED',l:'🔵 Sanctioned'},{v:'DISBURSED',l:'💰 Disbursed'},
+  {v:'REJECTED',l:'❌ Rejected'},{v:'CLOSED',l:'🔒 Closed'}
+];
+
+function statusEditSelect(id, current){
+  const opts = ALL_STATUSES.map(s=>`<option value="${s.v}"${s.v===current?' selected':''}>${s.l}</option>`).join('');
+  return `<select class="status-edit-sel" onchange="updateBorrowerStatus('${id}',this.value)" style="font-size:10px;border:1px solid #cdd5e8;border-radius:5px;padding:2px 5px;background:#fff;cursor:pointer;max-width:130px">${opts}</select>`;
+}
+
+function updateBorrowerStatus(id, newStatus){
+  const borrowers = getBorrowers();
+  const i = borrowers.findIndex(b=>b.id===id);
+  if(i>=0){
+    borrowers[i].status = newStatus;
+    saveBorrowers(borrowers);
+    renderAllBorrowers();
+    renderDashboard();
+    updateBadges();
+    buildCal();
+    showToast('✅ Status updated: '+newStatus);
+  }
+}
+
+// ══ Follow-up inline status edit ══
+function fuStatusEditSelect(id, current){
+  const statuses = [
+    {v:'PENDING',l:'📌 Pending'},{v:'HIGH',l:'🔴 High Priority'},
+    {v:'NOT INTERESTED',l:'❌ Not Interested'},{v:'BUSY',l:'📵 Busy'},
+    {v:'WILL UPDATE',l:'🕐 Will Update'},{v:'SWITCHED OFF',l:'📴 Switched Off'},
+    {v:'REFERENCE',l:'👥 Reference'},{v:'CALL U LATER',l:'📞 Call U Later'},
+    {v:'SEND DOCUMENTS',l:'📂 Send Documents'},{v:'NEED',l:'✅ Need'},
+    {v:'DONE',l:'✅ Done'}
+  ];
+  const opts = statuses.map(s=>`<option value="${s.v}"${s.v===current?' selected':''}>${s.l}</option>`).join('');
+  return `<select class="status-edit-sel" onchange="changeFUOutcome('${id}',this.value)" style="font-size:10px;border:1px solid #cdd5e8;border-radius:5px;padding:2px 5px;background:#fff;cursor:pointer;max-width:130px">${opts}</select>`;
+}
+
 
 const PRODUCT_ICON = {'Business Loan':'🏭','Personal Loan':'💳','Home Loan':'🏠','LAP':'🏗️','Insurance':'⛨','Car Loan':'🚗','Education':'🎓'};
 
@@ -2678,41 +2895,43 @@ function renderAllBorrowers(){
   const borTbody = document.getElementById('bor-tbody');
   if(borTbody){
     if(!all.length){
-      borTbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="ei">⌂</div><p>No borrowers added yet.</p></div></td></tr>';
+      borTbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="ei">⌂</div><p>No borrowers added yet.</p></div></td></tr>';
     } else {
-      borTbody.innerHTML = all.map((r,i)=>`<tr data-status="${r.status}">
+      borTbody.innerHTML = all.map(r=>`<tr data-status="${r.status}">
         <td style="color:#7a8aaa;font-size:10px">${r.id}</td>
-        <td><b>${r.name}</b><div style="font-size:10px;color:#7a8aaa">${r.profile}</div></td>
+        <td><b>${r.name}</b><div style="font-size:10px;color:#7a8aaa">${r.profile||''} · ${r.location||''}</div></td>
         <td><a href="tel:${r.phone}" style="color:#1a5fb4">📞 ${r.phone}</a></td>
         <td>${PRODUCT_ICON[r.product]||''} ${r.product}</td>
         <td>${r.amount ? '₹'+r.amount : '—'}</td>
         <td>—</td>
         <td>—</td>
         <td>${statusPill(r.status)}</td>
+        <td>${statusEditSelect(r.id, r.status)}</td>
       </tr>`).join('');
     }
   }
 
-  // ── Active Files table (only non-lead, non-rejected) ──
+  // ── Active Files table ──
   const afTbody = document.getElementById('af-tbody');
   if(afTbody){
     const active = all.filter(r=>!['LEAD','REJECTED','CLOSED'].includes(r.status));
     if(!active.length){
-      afTbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="ei">≡</div><p>No active files yet.</p></div></td></tr>';
+      afTbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="ei">≡</div><p>No active files yet.</p></div></td></tr>';
     } else {
       afTbody.innerHTML = active.map(r=>{
-        const stageMap = {'ACTIVE':'Doc Pending','FOLLOW UP':'Underwriting','SANCTIONED':'Sanctioned','DISBURSED':'Disbursed'};
+        const stageMap = {'ACTIVE':'DOC PENDING','FOLLOW UP':'UNDERWRITING','SANCTIONED':'SANCTIONED','DISBURSED':'DISBURSED','NOT INTERESTED':'FOLLOW UP','BUSY':'FOLLOW UP','WILL UPDATE':'FOLLOW UP','SWITCHED OFF':'FOLLOW UP','REFERENCE':'FOLLOW UP','CALL U LATER':'FOLLOW UP','SEND DOCUMENTS':'FOLLOW UP','NEED':'FOLLOW UP'};
         const stage = stageMap[r.status]||r.status;
         const days = Math.floor((Date.now()-r.addedOn)/(1000*60*60*24));
-        return `<tr data-status="${stage.toUpperCase()}">
+        return `<tr data-status="${stage}">
           <td style="font-size:10px;color:#7a8aaa">${r.id}</td>
-          <td><b>${r.name}</b></td>
+          <td><b>${r.name}</b><div style="font-size:10px;color:#7a8aaa">${r.phone}</div></td>
           <td>${PRODUCT_ICON[r.product]||''} ${r.product}</td>
           <td>${r.amount ? '₹'+r.amount : '—'}</td>
           <td>—</td>
           <td><span class="pill p-b">${stage}</span></td>
           <td style="color:#7a8aaa">${days}d</td>
-          <td>—</td>
+          <td>${statusPill(r.status)}</td>
+          <td>${statusEditSelect(r.id, r.status)}</td>
         </tr>`;
       }).join('');
     }
@@ -2760,11 +2979,11 @@ function renderAllBorrowers(){
 
   // ── Queue-specific tables ──
   const queueMap = {
-    'Business Loan': { tbody: 'bl-tbody', cols: 8 },
-    'Personal Loan': { tbody: 'pl-tbody', cols: 8 },
-    'Home Loan':     { tbody: 'hl-tbody', cols: 8 },
-    'LAP':           { tbody: 'lap-tbody', cols: 8 },
-    'Insurance':     { tbody: 'ins-tbody', cols: 7 },
+    'Business Loan': { tbody: 'bl-tbody', cols: 9 },
+    'Personal Loan': { tbody: 'pl-tbody', cols: 9 },
+    'Home Loan':     { tbody: 'hl-tbody', cols: 9 },
+    'LAP':           { tbody: 'lap-tbody', cols: 9 },
+    'Insurance':     { tbody: 'ins-tbody', cols: 8 },
   };
   Object.entries(queueMap).forEach(([prod, {tbody: tbId, cols}])=>{
     const tb = document.getElementById(tbId);
@@ -2781,7 +3000,8 @@ function renderAllBorrowers(){
         <td>${r.income ? '₹'+r.income+'/mo' : '—'}</td>
         <td>—</td>
         <td>${statusPill(r.status)}</td>
-        ${cols===8?`<td style="font-size:10px;color:#7a8aaa">${new Date(r.addedOn).toLocaleDateString('en-IN')}</td>`:''}
+        <td style="font-size:10px;color:#7a8aaa">${new Date(r.addedOn).toLocaleDateString('en-IN')}</td>
+        <td>${statusEditSelect(r.id, r.status)}</td>
       </tr>`).join('');
     }
   });
@@ -2800,9 +3020,10 @@ function saveFollowUp(){
 
   if(!name){ showToast('⚠️ Please enter customer name'); return; }
 
+  const outcome = document.getElementById('fu-outcome')?.value || '';
   const fus = getFollowUps();
   const id = genId('F');
-  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, status: priority, addedOn: Date.now() });
+  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now() });
   saveFollowUps(fus);
 
   renderFollowUps();
@@ -2810,7 +3031,8 @@ function saveFollowUp(){
   updateBadges();
 
   ['fu-name','fu-phone','fu-notes'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
-  const fuDt=document.getElementById('fu-datetime'); if(fuDt)fuDt.value='';
+  ['fu-datetime'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+  const fuOut=document.getElementById('fu-outcome'); if(fuOut)fuOut.value='';
 
   closeModal('modal-schedule');
   showToast(`📅 Follow-up scheduled for "${name}"!`);
@@ -2822,27 +3044,28 @@ function renderFollowUps(){
   const tbody = document.getElementById('fu-tbody');
   if(!tbody) return;
   if(!fus.length){
-    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="ei">☑️</div><p>No follow-ups scheduled yet.</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="ei">☑️</div><p>No follow-ups scheduled yet.</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = fus.map(f=>{
     const timeStr = f.dt ? new Date(f.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-    const statusTag = f.status==='HIGH'
-      ? '<span class="pill p-r">🔴 High</span>'
-      : f.status==='DONE'
-      ? '<span class="pill p-g">✅ Done</span>'
-      : '<span class="pill p-b">📌 Pending</span>';
-    return `<tr data-status="${f.type} ${f.status}">
-      <td style="font-size:10px">${timeStr}</td>
-      <td><b>${f.name}</b></td>
-      <td><a href="tel:${f.phone}" style="color:#1a5fb4">${f.phone||'—'}</a></td>
-      <td>${PRODUCT_ICON[f.loan]||''} ${f.loan}</td>
-      <td><span class="pill p-b">${f.type==='CALLS'?'📞 Call':f.type==='WHATSAPP'?'💬 WA':'🚗 Visit'}</span></td>
-      <td>${statusTag}</td>
-      <td style="font-size:10px;color:#7a8aaa">${f.purpose}</td>
-      <td>
-        <button class="btn btn-g" style="font-size:9px;padding:2px 7px" onclick="markFUDone('${f.id}')">✅ Done</button>
-        <button class="btn btn-r" style="font-size:9px;padding:2px 7px" onclick="deleteFU('${f.id}')">✕</button>
+    const outcome = f.outcome || f.status || 'PENDING';
+    const typeLabel = f.type==='CALLS'?'📞 Call':f.type==='WHATSAPP'?'💬 WA':f.type==='VISITS'?'🚗 Visit':'📋';
+    const priorityPill = f.priority==='HIGH'
+      ? '<span class="pill" style="background:#ffebee;color:#c62828;font-size:9px">🔴 High</span>'
+      : '<span class="pill" style="background:#e3f2fd;color:#1565c0;font-size:9px">Normal</span>';
+    return `<tr data-status="${f.type||''} ${outcome}">
+      <td style="font-size:10px;white-space:nowrap"><b>${timeStr.split(',')[0]||''}</b><br><span style="color:#7a8aaa">${(timeStr.split(',')[1]||'').trim()}</span></td>
+      <td><b>${f.name}</b><div style="font-size:9px;color:#7a8aaa">${f.purpose||''}</div></td>
+      <td><a href="tel:${f.phone}" style="color:#1a5fb4;font-size:11px">📞 ${f.phone||'—'}</a></td>
+      <td style="font-size:11px">${PRODUCT_ICON[f.loan]||''} ${f.loan||'—'}</td>
+      <td><span class="pill p-b" style="font-size:9px">${typeLabel}</span></td>
+      <td>${statusPill(outcome)}</td>
+      <td>${priorityPill}</td>
+      <td style="font-size:10px;color:#7a8aaa;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.notes||''}">${f.notes||'—'}</td>
+      <td style="white-space:nowrap">
+        ${fuStatusEditSelect(f.id, outcome)}
+        <button class="btn btn-r" style="font-size:9px;padding:2px 6px;margin-top:3px" onclick="deleteFU('${f.id}')">✕</button>
       </td>
     </tr>`;
   }).join('');
@@ -3023,6 +3246,7 @@ function _onNavRender(id){
   if(needsBorrowers.includes(id)) renderAllBorrowers();
   if(id==='followups') renderFollowUps();
   if(id==='dashboard') renderDashboard();
+  if(id==='calendar') buildCal();
   if(id==='bankerdir') renderBankerDirectory(_currentCity||'');
   if(id==='policies') renderSavedPolicies();
 }
@@ -3049,6 +3273,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
   renderDashboard();
   updateBadges();
   renderSavedPolicies();
+  buildCal();
   // Add saved contacts to BANKER_DATA
   const saved = getContacts();
   if(saved.length && typeof BANKER_DATA !== 'undefined') BANKER_DATA.push(...saved);
