@@ -219,7 +219,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 </style>
 <!-- Firebase v10 Compat SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"
+  onerror="document.head.insertAdjacentHTML('beforeend','<script src=&quot;https://cdn.jsdelivr.net/npm/firebase@9.23.0/compat/app/dist/app.js&quot;><\/script>')">
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
@@ -744,45 +746,111 @@ tr:hover td{background:rgba(255,255,255,.02)}
 // ══════════════════════════════════════
 // AUTH — ADMIN GATE
 // ══════════════════════════════════════
-const ADMIN_ALLOWED = ['9398504048','7075772292'];
-let _otp = '', _adminMobile = '', _timerIv = null;
+// ══════════════════════════════════════════════════════
+//  ADMIN AUTH — Real SMS OTP via 2factor.in
+// ══════════════════════════════════════════════════════
+const ADMIN_ALLOWED  = ['9398504048','7075772292'];
+const TWOFACTOR_KEY  = 'a22c0ac1-5a46-11eb-8153-0200cd936042';
+const OTP_TEMPLATE   = 'OTP1'; // Your 2factor.in template name
 
-function sendOTP(){
-  const mobile = document.getElementById('adm-mobile').value.trim();
-  const errEl = document.getElementById('gate-err');
-  errEl.style.display='none';
-  if(!mobile || mobile.length < 10){
-    errEl.textContent='⚠️ Please enter a valid 10-digit mobile number.';
-    errEl.style.display='block'; return;
+let _adminMobile = '';
+let _otpSessionId = '';  // 2factor.in session id for verification
+let _timerIv = null;
+
+// ── Session persistence — survives page refresh ──
+const ADM_SESSION_KEY = 'adm_crm_session';
+
+function _saveAdmSession(mobile){
+  const exp = Date.now() + 8*60*60*1000; // 8 hour session
+  localStorage.setItem(ADM_SESSION_KEY, JSON.stringify({mobile, exp}));
+}
+function _getAdmSession(){
+  try{
+    const s = JSON.parse(localStorage.getItem(ADM_SESSION_KEY)||'null');
+    if(s && s.exp > Date.now()) return s.mobile;
+    localStorage.removeItem(ADM_SESSION_KEY);
+  }catch(e){}
+  return null;
+}
+function _clearAdmSession(){ localStorage.removeItem(ADM_SESSION_KEY); }
+
+// ── Check session on page load — skip login gate if valid session ──
+(function checkSession(){
+  const mobile = _getAdmSession();
+  if(mobile){
+    _adminMobile = mobile;
+    document.getElementById('login-gate').style.display='none';
+    document.getElementById('app').style.display='flex';
+    document.getElementById('adm-num-display').textContent = mobile;
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+    // loadDashboard will be called by Firebase listeners once data arrives
   }
-  if(!ADMIN_ALLOWED.includes(mobile)){
-    errEl.innerHTML='🚫 <b>Access Denied.</b> This number is not authorised for admin access.<br><span style="font-size:10px;color:#ef9a9a">Only pre-approved admin numbers can access this panel.</span>';
-    errEl.style.display='block'; return;
-  }
-  _adminMobile = mobile;
-  _otp = Math.floor(100000 + Math.random()*900000).toString();
-  document.getElementById('mob-display').textContent = mobile;
-  document.getElementById('step-mobile').style.display='none';
-  document.getElementById('step-otp').style.display='block';
-  errEl.style.display='none';
-  // Auto-fill OTP boxes
-  const boxes = document.querySelectorAll('#otp-boxes .otp-inp');
-  _otp.split('').forEach((d,i)=>{ if(boxes[i]){ boxes[i].value=d; boxes[i].classList.add('filled'); }});
-  startOTPTimer();
-  showToast('🛡️ Admin OTP auto-filled — Click Verify to login');
+})();
+
+// ══════════════════════════════════════════════════════
+//  OTP — Local generation + 2factor.in no-cors delivery
+//  Browser CORS blocks reading 2factor.in responses,
+//  so we generate OTP locally and send via fire-and-forget.
+//  SMS still delivers; we verify against our local OTP.
+// ══════════════════════════════════════════════════════
+function _generateOTP(){
+  return String(Math.floor(100000 + Math.random()*900000));
 }
 
-function resendOTP(){
-  _otp = Math.floor(100000 + Math.random()*900000).toString();
-  const boxes = document.querySelectorAll('#otp-boxes .otp-inp');
-  _otp.split('').forEach((d,i)=>{ if(boxes[i]){ boxes[i].value=d; boxes[i].classList.add('filled'); }});
+function _dispatchSMS(mobile, otp){
+  // Send SMS via 2factor.in transactional endpoint.
+  // mode:'no-cors' means we can't read the response, but the SMS still goes through.
+  const url = `https://2factor.in/API/V1/${TWOFACTOR_KEY}/SMS/${mobile}/${otp}/${OTP_TEMPLATE}`;
+  fetch(url, { method:'GET', mode:'no-cors', cache:'no-cache' })
+    .catch(()=>{}); // silence — no-cors fetch always "succeeds" silently
+}
+
+// ── Send OTP ──
+function sendOTP(){
+  const mobile = document.getElementById('adm-mobile').value.trim();
+  const errEl  = document.getElementById('gate-err');
+  const btn    = document.querySelector('#step-mobile .btn-adm');
+  errEl.style.display = 'none';
+
+  if(!mobile || mobile.length < 10){
+    errEl.textContent = '⚠️ Please enter a valid 10-digit mobile number.';
+    errEl.style.display = 'block'; return;
+  }
+  if(!ADMIN_ALLOWED.includes(mobile)){
+    errEl.innerHTML = '🚫 <b>Access Denied.</b> This number is not authorised for admin access.<br><span style="font-size:10px;color:#ef9a9a">Only pre-approved admin numbers can access this panel.</span>';
+    errEl.style.display = 'block'; return;
+  }
+
+  _adminMobile  = mobile;
+  _otpSessionId = _generateOTP(); // local OTP — used for verification
+  _dispatchSMS(mobile, _otpSessionId);  // SMS delivery (fire-and-forget)
+
+  btn.textContent = '📤 Sending OTP…'; btn.disabled = true;
+  setTimeout(()=>{ btn.textContent = 'Send OTP →'; btn.disabled = false; }, 2000);
+
+  document.getElementById('mob-display').textContent = mobile;
+  document.getElementById('step-mobile').style.display = 'none';
+  document.getElementById('step-otp').style.display   = 'block';
+  errEl.style.display = 'none';
+  document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
   startOTPTimer();
-  showToast('🛡️ New OTP auto-filled');
+  showToast('📱 OTP sent to +91 ' + mobile.replace(/\d(?=\d{4})/g,'*'));
+}
+
+// ── Resend OTP ──
+function resendOTP(){
+  _otpSessionId = _generateOTP();
+  _dispatchSMS(_adminMobile, _otpSessionId);
+  document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
+  document.querySelectorAll('#otp-boxes .otp-inp')[0]?.focus();
+  startOTPTimer();
+  showToast('📱 New OTP resent!');
 }
 
 function startOTPTimer(){
   const resend = document.getElementById('resend-btn');
-  const count = document.getElementById('timer-count');
+  const count  = document.getElementById('timer-count');
   resend.classList.remove('on');
   if(_timerIv) clearInterval(_timerIv);
   let s = 30; count.textContent = s;
@@ -795,19 +863,41 @@ function startOTPTimer(){
 function otpInput(el){
   el.classList.toggle('filled', el.value.length > 0);
   if(el.value.length === 1){ const n = el.nextElementSibling; if(n) n.focus(); }
+  // Auto-verify when all 6 digits entered
+  const boxes = document.querySelectorAll('#otp-boxes .otp-inp');
+  const entered = Array.from(boxes).map(b=>b.value).join('');
+  if(entered.length === 6) setTimeout(verifyOTP, 100);
 }
 
 function otpKey(el, e){
   if(e.key==='Backspace' && !el.value){ const p=el.previousElementSibling; if(p){ p.value=''; p.classList.remove('filled'); p.focus(); }}
 }
 
+// ── Verify OTP — compared against locally generated OTP ──
 function verifyOTP(){
-  const boxes = document.querySelectorAll('#otp-boxes .otp-inp');
+  const boxes   = document.querySelectorAll('#otp-boxes .otp-inp');
   const entered = Array.from(boxes).map(b=>b.value).join('');
-  const errEl = document.getElementById('gate-err');
-  if(entered.length < 6){ errEl.textContent='⚠️ Please enter the complete 6-digit OTP.'; errEl.style.display='block'; return; }
-  if(entered !== _otp){ errEl.textContent='❌ Invalid OTP. Please try again.'; errEl.style.display='block'; return; }
-  // Login success
+  const errEl   = document.getElementById('gate-err');
+  errEl.style.display = 'none';
+
+  if(entered.length < 6){
+    errEl.textContent = '⚠️ Please enter the complete 6-digit OTP.';
+    errEl.style.display = 'block'; return;
+  }
+
+  // Verify against our locally generated OTP (no API call needed)
+  if(entered === _otpSessionId){
+    _loginSuccess();
+  } else {
+    errEl.textContent = '❌ Invalid OTP. Please check the SMS and try again.';
+    errEl.style.display = 'block';
+    boxes.forEach(b=>{ b.value=''; b.classList.remove('filled'); });
+    boxes[0]?.focus();
+  }
+}
+
+function _loginSuccess(){
+  _saveAdmSession(_adminMobile);
   document.getElementById('login-gate').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('adm-num-display').textContent = _adminMobile;
@@ -826,15 +916,15 @@ function backToMobile(){
 
 function adminLogout(){
   if(!confirm('Logout from Admin Panel?')) return;
+  _clearAdmSession();
   document.getElementById('app').style.display='none';
   document.getElementById('login-gate').style.display='flex';
   document.getElementById('step-mobile').style.display='block';
   document.getElementById('step-otp').style.display='none';
   document.getElementById('adm-mobile').value='';
   document.getElementById('gate-err').style.display='none';
-  _otp=''; _adminMobile='';
-  const boxes = document.querySelectorAll('#otp-boxes .otp-inp');
-  boxes.forEach(b=>{ b.value=''; b.classList.remove('filled'); });
+  _adminMobile=''; _otpSessionId='';
+  document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
   showToast('Logged out from Admin Panel');
 }
 
@@ -855,24 +945,62 @@ function navTo(el, id){
   const sec = document.getElementById('sec-'+id);
   if(sec) sec.classList.add('active');
   document.getElementById('page-title').textContent = PAGE_TITLES[id]||id;
-  if(id==='users') renderUsers();
-  if(id==='dashboard') loadDashboard();
-  if(id==='policies') renderPolicies();
-  if(id==='filesdump') renderFiles();
-  if(id==='bankerdir') renderBankers();
+  if(id==='users')      renderUsers();
+  if(id==='dashboard')  loadDashboard();
+  if(id==='borrowers')  renderBorrowers();
+  if(id==='policies')   renderPolicies();
+  if(id==='filesdump')  renderFiles();
+  if(id==='bankerdir')  renderBankers();
 }
 
 // ══════════════════════════════════════
-// DATA LAYER — reads from localStorage (shared with CRM)
-// ══════════════════════════════════════
-function getUsers(){ try{ return JSON.parse(localStorage.getItem('dsacrm_users')||'[]'); }catch(e){ return []; }}
-function saveUsers(u){ localStorage.setItem('dsacrm_users', JSON.stringify(u)); }
-function getPolicies(){ try{ return JSON.parse(localStorage.getItem('dsacrm_policies')||'[]'); }catch(e){ return []; }}
-function savePolicies(p){ localStorage.setItem('dsacrm_policies', JSON.stringify(p)); }
-function getFiles(){ try{ return JSON.parse(localStorage.getItem('dsacrm_files')||'[]'); }catch(e){ return []; }}
-function saveFiles(f){ localStorage.setItem('dsacrm_files', JSON.stringify(f)); }
-function getBankers(){ try{ return JSON.parse(localStorage.getItem('dsacrm_bankers')||'[]'); }catch(e){ return []; }}
-function saveBankers(b){ localStorage.setItem('dsacrm_bankers', JSON.stringify(b)); }
+// ══ DATA LAYER — in-memory cache (populated by Firebase listeners) ══
+var _admCache = {
+  dsacrm_users:  JSON.parse(localStorage.getItem('dsacrm_users') ||'[]'),
+  crm_borrowers: JSON.parse(localStorage.getItem('crm_borrowers')||'[]'),
+  crm_followups: JSON.parse(localStorage.getItem('crm_followups')||'[]'),
+  crm_contacts:  JSON.parse(localStorage.getItem('crm_contacts') ||'[]'),
+  crm_policies:  JSON.parse(localStorage.getItem('crm_policies') ||'[]'),
+};
+var _admDb = null;
+
+function _admRead(key){ return _admCache[key]||[]; }
+function _admWrite(key, val){
+  _admCache[key]=val;
+  try{ localStorage.setItem(key,JSON.stringify(val)); }catch(e){}
+  if(_admDb) _admDb.ref('dsa_crm/'+key).set(val).catch(e=>console.warn('FB write:',e));
+}
+
+function getUsers()    { return _admRead('dsacrm_users');  }
+function saveUsers(u)  { _admWrite('dsacrm_users', u);     }
+function getBorrowers(){ return _admRead('crm_borrowers'); }
+function saveBorr(b)   { _admWrite('crm_borrowers', b);   }
+function getFollowUps(){ return _admRead('crm_followups'); }
+function getContacts() { return _admRead('crm_contacts');  }
+function getPolicies() { return _admRead('crm_policies');  }
+function savePolicies(p){ _admWrite('crm_policies',p);    }
+function getFiles()    { try{return JSON.parse(localStorage.getItem('dsacrm_files')||'[]');}catch(e){return[];}}
+function saveFiles(f)  { localStorage.setItem('dsacrm_files',JSON.stringify(f)); }
+function getBankers()  { try{return JSON.parse(localStorage.getItem('dsacrm_bankers')||'[]');}catch(e){return[];}}
+function saveBankers(b){ localStorage.setItem('dsacrm_bankers',JSON.stringify(b)); }
+
+function _startAdmListeners(){
+  const MAP = {
+    'dsacrm_users':  ()=>{ renderUsers(); loadDashboard(); },
+    'crm_borrowers': ()=>{ renderBorrowers(); loadDashboard(); },
+    'crm_followups': ()=>{ loadDashboard(); },
+    'crm_contacts':  ()=>{ renderBankers(); },
+    'crm_policies':  ()=>{ renderPolicies(); }
+  };
+  Object.entries(MAP).forEach(([key,fn])=>{
+    _admDb.ref('dsa_crm/'+key).on('value', snap=>{
+      const v=snap.val();
+      _admCache[key] = Array.isArray(v)?v:(v?Object.values(v):[]);
+      try{ localStorage.setItem(key,JSON.stringify(_admCache[key])); }catch(e){}
+      fn();
+    }, e=>console.warn('FB listen:',key,e));
+  });
+}
 
 // ══════════════════════════════════════
 // DASHBOARD LOAD
@@ -1549,66 +1677,55 @@ function updateDateTime(){
 }
 </script>
 
+
 <!-- ═══════════════════════════════════════════════════
-     FIREBASE — Admin Dashboard Connection
-     Same project as main CRM — reads all shared data
+     FIREBASE — Admin Dashboard (same DB as main CRM)
 ════════════════════════════════════════════════════ -->
 <script>
 (function(){
   'use strict';
-  var FIREBASE_CONFIG = {
+  var CFG = {
     apiKey:            "AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
     authDomain:        "credit-engine-2ffba.firebaseapp.com",
     databaseURL:       "https://credit-engine-2ffba-default-rtdb.firebaseio.com",
     projectId:         "credit-engine-2ffba",
     storageBucket:     "credit-engine-2ffba.firebasestorage.app",
     messagingSenderId: "432392785380",
-    appId:             "1:432392785380:web:c1919a7affce5a5b954bf1",
-    measurementId:     "G-RR6H44CKDM"
+    appId:             "1:432392785380:web:c1919a7affce5a5b954bf1"
   };
 
-  function setBadge(text, color){
-    var b = document.getElementById('adm-fb-badge');
-    if(b){ b.textContent=text; b.style.color=color; }
+  function badge(txt,col){
+    var el=document.getElementById('adm-fb-badge');
+    if(el){el.textContent=txt;el.style.color=col;}
   }
 
-  function connectFirebase(){
-    if(typeof firebase === 'undefined'){
-      console.warn('Firebase SDK not loaded');
-      setBadge('💾 Offline', '#f59e0b');
-      // Still seed from localStorage
-      ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
-        try{ var v=localStorage.getItem(k); if(v) _admCache[k]=JSON.parse(v); }catch(e){}
-      });
+  function init(){
+    if(typeof firebase==='undefined'){
+      badge('💾 Offline','#f59e0b');
+      console.warn('Firebase SDK not loaded — using localStorage cache');
+      // _admCache is already seeded from localStorage in data layer
       if(typeof loadDashboard==='function') loadDashboard();
-      if(typeof renderBorrowers==='function') renderBorrowers();
       if(typeof renderUsers==='function') renderUsers();
+      if(typeof renderBorrowers==='function') renderBorrowers();
       return;
     }
-    try {
-      var app = firebase.apps && firebase.apps.length
-        ? firebase.apps[0]
-        : firebase.initializeApp(FIREBASE_CONFIG);
+    try{
+      var app = (firebase.apps&&firebase.apps.length) ? firebase.apps[0] : firebase.initializeApp(CFG);
       _admDb = firebase.database();
-      setBadge('🔥 Firebase Live', '#22c55e');
-      console.log('✅ Admin Firebase connected — credit-engine-2ffba');
-      _startAdmListeners(); // starts real-time listeners
-    } catch(err){
-      console.warn('Admin Firebase init failed:', err.message);
-      setBadge('💾 Offline', '#f59e0b');
-      ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
-        try{ var v=localStorage.getItem(k); if(v) _admCache[k]=JSON.parse(v); }catch(e){}
-      });
+      badge('🔥 Firebase Live','#22c55e');
+      console.log('✅ Admin Firebase connected');
+      _startAdmListeners();
+    }catch(e){
+      badge('💾 Offline','#f59e0b');
+      console.warn('Firebase init failed:',e.message);
       if(typeof loadDashboard==='function') loadDashboard();
+      if(typeof renderUsers==='function') renderUsers();
       if(typeof renderBorrowers==='function') renderBorrowers();
     }
   }
 
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded', connectFirebase);
-  } else {
-    connectFirebase();
-  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',init); }
+  else{ init(); }
 })();
 </script>
 
