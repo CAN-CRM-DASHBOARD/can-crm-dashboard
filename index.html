@@ -259,17 +259,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     <div class="modal-body">
       <div class="form-grid">
         <div class="fg"><div class="fl">Customer Name *</div><input placeholder="Full name" id="ab-name"></div>
-        <div class="fg"><div class="fl">Mobile Number *</div><input placeholder="10-digit mobile"></div>
-        <div class="fg"><div class="fl">Email ID</div><input type="email" placeholder="email@example.com"></div>
-        <div class="fg"><div class="fl">Profile Type</div><select><option>Salaried</option><option>Self Employed</option><option>Professional</option><option>Business</option></select></div>
-        <div class="fg"><div class="fl">Select Product</div><select><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option><option>Car Loan</option><option>Insurance</option><option>Education</option></select></div>
-        <div class="fg"><div class="fl">Loan Amount</div><input placeholder="₹ Amount"></div>
-        <div class="fg"><div class="fl">Monthly Income</div><input placeholder="₹ Monthly income"></div>
-        <div class="fg"><div class="fl">Location</div><input placeholder="City / District"></div>
-        <div class="fg"><div class="fl">Status</div><select><option>Applied</option><option>Lead</option><option>Follow up</option><option>Approved</option><option>Disbursed</option></select></div>
-        <div class="fg"><div class="fl">Date & Time</div><input type="datetime-local"></div>
+        <div class="fg"><div class="fl">Mobile Number *</div><input placeholder="10-digit mobile" id="ab-phone" type="tel" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+        <div class="fg"><div class="fl">Email ID</div><input type="email" placeholder="email@example.com" id="ab-email"></div>
+        <div class="fg"><div class="fl">Profile Type</div><select id="ab-profile"><option>Salaried</option><option>Self Employed</option><option>Professional</option><option>Business</option></select></div>
+        <div class="fg"><div class="fl">Select Product</div><select id="ab-product"><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option><option>Car Loan</option><option>Insurance</option><option>Education</option></select></div>
+        <div class="fg"><div class="fl">Loan Amount</div><input placeholder="₹ Amount" id="ab-amount"></div>
+        <div class="fg"><div class="fl">Monthly Income</div><input placeholder="₹ Monthly income" id="ab-income"></div>
+        <div class="fg"><div class="fl">Location</div><input placeholder="City / District" id="ab-location"></div>
+        <div class="fg"><div class="fl">Status</div><select id="ab-status"><option value="ACTIVE">Applied</option><option value="LEAD">Lead</option><option value="FOLLOW UP">Follow up</option><option value="SANCTIONED">Approved / Sanctioned</option><option value="DISBURSED">Disbursed</option><option value="REJECTED">Rejected</option></select></div>
+        <div class="fg"><div class="fl">Date & Time</div><input type="datetime-local" id="ab-date"></div>
       </div>
-      <div class="fg"><div class="fl">Notes / Remarks</div><textarea rows="3" placeholder="Enter remarks…"></textarea></div>
+      <div class="fg"><div class="fl">Notes / Remarks</div><textarea rows="3" placeholder="Enter remarks…" id="ab-notes"></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-add-borrower')">CANCEL</button>
@@ -283,18 +283,20 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   <div class="modal-box" style="max-width:520px">
     <div class="modal-head"><h3>+ Schedule Follow-Up</h3><button class="modal-close" onclick="closeModal('modal-schedule')">✕</button></div>
     <div class="modal-body">
-      <div class="fg"><div class="fl">Customer Name</div><input placeholder="Customer name"></div>
-      <div class="fg"><div class="fl">Mobile Number</div><input placeholder="10-digit mobile"></div>
+      <div class="fg"><div class="fl">Customer Name</div><input placeholder="Customer name" id="fu-name"></div>
+      <div class="fg"><div class="fl">Mobile Number</div><input placeholder="10-digit mobile" id="fu-phone" type="tel"></div>
       <div class="form-grid">
-        <div class="fg"><div class="fl">Follow-up Date & Time</div><input type="datetime-local"></div>
-        <div class="fg"><div class="fl">Loan Type</div><select><option>Personal Loan</option><option>Business Loan</option><option>Home Loan</option><option>LAP</option><option>Car Loan</option><option>Education</option><option>Insurance</option></select></div>
-        <div class="fg" style="grid-column:span 2"><div class="fl">Purpose</div><select><option>Initial Call</option><option>Document Collection</option><option>Verification Follow-up</option><option>Bank Query Response</option><option>Disbursement Confirmation</option><option>Re-verification</option><option>Others</option></select></div>
+        <div class="fg"><div class="fl">Follow-up Date & Time</div><input type="datetime-local" id="fu-datetime"></div>
+        <div class="fg"><div class="fl">Loan Type</div><select id="fu-loan"><option>Personal Loan</option><option>Business Loan</option><option>Home Loan</option><option>LAP</option><option>Car Loan</option><option>Education</option><option>Insurance</option></select></div>
+        <div class="fg"><div class="fl">Priority</div><select id="fu-priority"><option value="PENDING">Normal</option><option value="HIGH">🔴 High Priority</option></select></div>
+        <div class="fg"><div class="fl">Type</div><select id="fu-type"><option value="CALLS">📞 Call</option><option value="WHATSAPP">💬 WhatsApp</option><option value="VISITS">🚗 Visit</option></select></div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Purpose</div><select id="fu-purpose"><option>Initial Call</option><option>Document Collection</option><option>Verification Follow-up</option><option>Bank Query Response</option><option>Disbursement Confirmation</option><option>Re-verification</option><option>Others</option></select></div>
       </div>
-      <div class="fg"><div class="fl">Notes</div><textarea rows="2" placeholder="Follow-up notes…"></textarea></div>
+      <div class="fg"><div class="fl">Notes</div><textarea rows="2" placeholder="Follow-up notes…" id="fu-notes"></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-schedule')">Cancel</button>
-      <button class="btn btn-g" onclick="closeModal('modal-schedule');showToast('Follow-up scheduled!')">Schedule</button>
+      <button class="btn btn-g" onclick="saveFollowUp()">Schedule</button>
     </div>
   </div>
 </div>
@@ -305,19 +307,19 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     <div class="modal-head"><h3>+ Add Banker Contact</h3><button class="modal-close" onclick="closeModal('modal-add-contact')">✕</button></div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="fg"><div class="fl">Banker Name</div><input placeholder="Full name"></div>
-        <div class="fg"><div class="fl">Designation / Role</div><select><option>RM</option><option>SM</option><option>ASM</option><option>RSM</option><option>BM</option><option>AVP</option></select></div>
-        <div class="fg"><div class="fl">Bank / NBFC</div><input placeholder="Bank name"></div>
-        <div class="fg"><div class="fl">Mobile</div><input placeholder="10-digit mobile"></div>
-        <div class="fg"><div class="fl">Email</div><input type="email" placeholder="banker@bank.com"></div>
-        <div class="fg"><div class="fl">Branch / Area</div><input placeholder="Branch location"></div>
-        <div class="fg"><div class="fl">Product</div><select><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option><option>All</option></select></div>
-        <div class="fg"><div class="fl">Location</div><input placeholder="City"></div>
+        <div class="fg"><div class="fl">Banker Name</div><input placeholder="Full name" id="bc-name"></div>
+        <div class="fg"><div class="fl">Designation / Role</div><select id="bc-role"><option>RM</option><option>SM</option><option>ASM</option><option>RSM</option><option>BM</option><option>AVP</option></select></div>
+        <div class="fg"><div class="fl">Bank / NBFC</div><input placeholder="Bank name" id="bc-bank"></div>
+        <div class="fg"><div class="fl">Mobile</div><input placeholder="10-digit mobile" id="bc-mobile" type="tel"></div>
+        <div class="fg"><div class="fl">Email</div><input type="email" placeholder="banker@bank.com" id="bc-email"></div>
+        <div class="fg"><div class="fl">Branch / Area</div><input placeholder="Branch location" id="bc-branch"></div>
+        <div class="fg"><div class="fl">Product</div><select id="bc-product"><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option><option>All</option></select></div>
+        <div class="fg"><div class="fl">Location</div><input placeholder="City" id="bc-location"></div>
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-add-contact')">Cancel</button>
-      <button class="btn btn-p" onclick="closeModal('modal-add-contact');showToast('Contact added!')">Save Contact</button>
+      <button class="btn btn-p" onclick="saveContact()">Save Contact</button>
     </div>
   </div>
 </div>
@@ -328,16 +330,16 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     <div class="modal-head"><h3>+ Add / Paste Bank Policy</h3><button class="modal-close" onclick="closeModal('modal-add-policy')">✕</button></div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="fg"><div class="fl">Bank / NBFC Name</div><input placeholder="e.g. HDFC Bank"></div>
-        <div class="fg"><div class="fl">Product</div><select><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option></select></div>
-        <div class="fg"><div class="fl">Min Loan Amount</div><input placeholder="₹1,00,000"></div>
-        <div class="fg"><div class="fl">Max Loan Amount</div><input placeholder="₹40,00,000"></div>
-        <div class="fg"><div class="fl">Interest Rate From</div><input placeholder="10.75%"></div>
-        <div class="fg"><div class="fl">Interest Rate To</div><input placeholder="14.5%"></div>
-        <div class="fg"><div class="fl">Min CIBIL</div><input placeholder="700"></div>
-        <div class="fg"><div class="fl">Max FOIR %</div><input placeholder="55%"></div>
-        <div class="fg"><div class="fl">Min ABB Required</div><input placeholder="₹15,000"></div>
-        <div class="fg"><div class="fl">Effective Date</div><input type="date"></div>
+        <div class="fg"><div class="fl">Bank / NBFC Name</div><input placeholder="e.g. HDFC Bank" id="pol-bank"></div>
+        <div class="fg"><div class="fl">Product</div><select id="pol-product"><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option></select></div>
+        <div class="fg"><div class="fl">Min Loan Amount</div><input placeholder="₹1,00,000" id="pol-minl"></div>
+        <div class="fg"><div class="fl">Max Loan Amount</div><input placeholder="₹40,00,000" id="pol-maxl"></div>
+        <div class="fg"><div class="fl">Interest Rate From</div><input placeholder="10.75%" id="pol-roi1"></div>
+        <div class="fg"><div class="fl">Interest Rate To</div><input placeholder="14.5%" id="pol-roi2"></div>
+        <div class="fg"><div class="fl">Min CIBIL</div><input placeholder="700" id="pol-cibil"></div>
+        <div class="fg"><div class="fl">Max FOIR %</div><input placeholder="55%" id="pol-foir"></div>
+        <div class="fg"><div class="fl">Min ABB Required</div><input placeholder="₹15,000" id="pol-abb"></div>
+        <div class="fg"><div class="fl">Effective Date</div><input type="date" id="pol-date"></div>
       </div>
       <div class="fg"><div class="fl">Paste Full Policy (Auto-splits by Bank)</div><textarea rows="5" placeholder="Paste policy text here — system will auto-split and categorise by Bank/NBFC…"></textarea></div>
       <div style="background:#edf4ff;border:1px solid #c2d4f5;border-radius:8px;padding:10px;font-size:11px;color:#1565c0;margin-top:8px">💡 <b>Auto-Split:</b> Paste a full multi-bank policy document — system will automatically split and categorise by Bank/NBFC in proper order.</div>
@@ -393,7 +395,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-bl-profile')">Cancel</button>
-      <button class="btn btn-p" onclick="closeModal('modal-bl-profile');showToast('Profile saved!')">Save Profile</button>
+      <button class="btn btn-p" onclick="saveBLProfile()">Save Profile</button>
     </div>
   </div>
 </div>
@@ -589,7 +591,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   <div class="sb-header"><h2>DSA CRM</h2><p>Cat-Eye Consultancy Services Pvt Ltd</p></div>
   <div class="sb-section">
     <div class="sb-label">Overview</div>
-    <div class="ni" id="ni-admin" onclick="openAdminLogin()" style="display:none"><div class="ni-l"><span class="nico" style="color:#a78bfa">🛡️</span><span style="color:#a78bfa;font-weight:700">Admin Dashboard</span></div></div>
     <div class="ni active" onclick="nav(this,'dashboard')"><div class="ni-l"><span class="nico">◇</span>Dashboard</div></div>
     <div class="ni" onclick="nav(this,'followups')"><div class="ni-l"><span class="nico">☑</span>Today's Follow-ups</div><span class="nbadge">0</span></div>
     <div class="ni" onclick="nav(this,'borrowers')"><div class="ni-l"><span class="nico">⌂</span>All Borrowers</div><span class="nbadge">0</span></div>
@@ -647,7 +648,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     </div>
     <input class="search" placeholder="🔍 Search…">
     <button class="btn btn-p" onclick="openModal('modal-add-borrower')">+ New Lead</button>
-    <button class="btn" onclick="openAdminLogin()" style="font-size:10px;padding:5px 10px;background:#7c3aed;color:#fff;border-color:#7c3aed" title="Admin Access">🛡️ Admin</button>
     <button class="btn btn-r" onclick="gateLogout()" style="font-size:10px;padding:5px 10px" title="Logout">🔓 Logout</button>
   </div>
 </div>
@@ -656,13 +656,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 <!-- DASHBOARD -->
 <div class="sec active" id="sec-dashboard">
   <div class="kpi-grid">
-    <div class="kpi"><div class="kpi-lbl">Total Borrowers</div><div class="kpi-val">0</div><div class="kpi-sub" style="color:#7a8aaa">No data yet</div></div>
-    <div class="kpi"><div class="kpi-lbl">Active Files</div><div class="kpi-val">0</div><div class="kpi-sub" style="color:#7a8aaa">No data yet</div></div>
-    <div class="kpi"><div class="kpi-lbl">Disbursed (Apr)</div><div class="kpi-val">₹0</div><div class="kpi-sub" style="color:#7a8aaa">No data yet</div></div>
-    <div class="kpi"><div class="kpi-lbl">Commission (Apr)</div><div class="kpi-val">₹0</div><div class="kpi-sub" style="color:#7a8aaa">No data yet</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total Borrowers</div><div class="kpi-val" id="kpi-total">0</div><div class="kpi-sub" id="kpi-total-sub" style="color:#7a8aaa">No data yet</div></div>
+    <div class="kpi"><div class="kpi-lbl">Active Files</div><div class="kpi-val" id="kpi-active">0</div><div class="kpi-sub" id="kpi-active-sub" style="color:#7a8aaa">No data yet</div></div>
+    <div class="kpi"><div class="kpi-lbl">Disbursed This Month</div><div class="kpi-val" id="kpi-disb">₹0</div><div class="kpi-sub" id="kpi-disb-sub" style="color:#7a8aaa">No data yet</div></div>
+    <div class="kpi"><div class="kpi-lbl">Follow-ups Today</div><div class="kpi-val" id="kpi-fu">0</div><div class="kpi-sub" id="kpi-fu-sub" style="color:#7a8aaa">No data yet</div></div>
   </div>
   <div class="card"><div class="card-head"><span class="card-title">Recent Applications</span><button class="btn btn-p" style="font-size:10px;padding:3px 8px" onclick="openModal('modal-add-borrower')">+ Add</button></div>
-  <div class="empty-state"><div class="ei">📋</div><p>No applications yet.<br>Click <b>+ New Lead</b> to add your first borrower.</p></div></div>
+  <div id="dash-recent"><div class="empty-state"><div class="ei">📋</div><p>No applications yet.<br>Click <b>+ New Lead</b> to add your first borrower.</p></div></div></div>
 </div>
 
 <!-- TODAY'S FOLLOW-UPS -->
@@ -1076,14 +1076,119 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 <!-- INSTANT LOAN -->
 <div class="sec" id="sec-instantloan">
-  <div class="ftabs">
-    <span class="ftab active" onclick="filterRows('il-tbody','ALL',this)">All</span>
-    <span class="ftab" onclick="filterRows('il-tbody','PERSONAL',this)">💳 Personal Loan</span>
-    <span class="ftab" onclick="filterRows('il-tbody','BUSINESS',this)">🏭 Business Loan</span>
-    <span class="ftab" onclick="filterRows('il-tbody','BOTH',this)">🔄 Both</span>
+  <div class="sec-hdr">
+    <div class="card-title">⚡ Instant Loan Partners</div>
+    <button class="btn btn-p" onclick="openAddFacility()" style="display:flex;align-items:center;gap:5px">+ Add New Facility</button>
   </div>
-  <div class="card"><table><thead><tr><th>Bank</th><th>Product</th><th>Max Amount</th><th>Rate</th><th>Tenure</th><th>Min CIBIL</th><th>Action</th></tr></thead>
-  <tbody id="il-tbody"><tr><td colspan="7"><div class="empty-state"><div class="ei">⚡</div><p>No instant loan offers configured yet.</p></div></td></tr></tbody></table></div>
+
+  <!-- Partner Cards Grid -->
+  <div id="il-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-bottom:16px">
+
+    <!-- Unity Bank Card -->
+    <div class="card" style="border-left:3px solid #1a5fb4">
+      <div class="card-head" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#1a5fb4,#0d47a1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;flex-shrink:0">UB</div>
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#0d1b36">Unity Bank</div>
+            <div style="font-size:10px;color:#7a8aaa">Instant Personal Loan</div>
+          </div>
+        </div>
+        <span class="pill p-g" style="font-size:10px">● Live</span>
+      </div>
+      <div class="card-body" style="padding:10px 14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:#f5f8ff;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-size:9px;color:#7a8aaa;text-transform:uppercase;letter-spacing:.04em">Loan Amount</div>
+            <div style="font-size:13px;font-weight:700;color:#0d1b36">Up to ₹15L</div>
+          </div>
+          <div style="background:#f5f8ff;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-size:9px;color:#7a8aaa;text-transform:uppercase;letter-spacing:.04em">Processing</div>
+            <div style="font-size:13px;font-weight:700;color:#0d1b36">Instant</div>
+          </div>
+        </div>
+        <div style="background:#eef4ff;border:1px solid #c2d4f5;border-radius:6px;padding:8px;margin-bottom:10px">
+          <div style="font-size:9px;color:#7a8aaa;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em">UTM Tracking Link</div>
+          <div style="font-size:10px;color:#1a5fb4;word-break:break-all;font-family:monospace">utm_source=partnership&amp;utm_medium=CatEye&amp;utm_campaign=Delhi</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-p" style="flex:1;font-size:11px" onclick="window.open('https://www.unitybank.co.in/personal-loan?utm_source=partnership&utm_medium=CatEye&utm_campaign=Delhi','_blank')">🔗 Open Partner Link</button>
+          <button class="btn" style="font-size:11px" onclick="copyLink('unity')" id="unity-copy-btn">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Poonawala Fincorp Card -->
+    <div class="card" style="border-left:3px solid #e65100">
+      <div class="card-head" style="justify-content:space-between">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#e65100,#bf360c);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:11px;flex-shrink:0">PF</div>
+          <div>
+            <div style="font-weight:700;font-size:13px;color:#0d1b36">Poonawala Fincorp</div>
+            <div style="font-size:10px;color:#7a8aaa">Prime Personal Loan</div>
+          </div>
+        </div>
+        <span class="pill p-g" style="font-size:10px">● Live</span>
+      </div>
+      <div class="card-body" style="padding:10px 14px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">
+          <div style="background:#fff8f5;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-size:9px;color:#7a8aaa;text-transform:uppercase;letter-spacing:.04em">Loan Amount</div>
+            <div style="font-size:12px;font-weight:700;color:#0d1b36">Up to ₹30L</div>
+          </div>
+          <div style="background:#fff8f5;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-size:9px;color:#7a8aaa;text-transform:uppercase;letter-spacing:.04em">DSA Code</div>
+            <div style="font-size:12px;font-weight:700;color:#e65100">FDL01545</div>
+          </div>
+          <div style="background:#fff8f5;border-radius:6px;padding:8px;text-align:center">
+            <div style="font-size:9px;color:#7a8aaa;text-transform:uppercase;letter-spacing:.04em">Processing</div>
+            <div style="font-size:12px;font-weight:700;color:#0d1b36">Instant</div>
+          </div>
+        </div>
+        <div style="background:#fff3e0;border:1px solid #ffcc80;border-radius:6px;padding:8px;margin-bottom:10px">
+          <div style="font-size:9px;color:#e65100;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;font-weight:600">Partner Tracking URL</div>
+          <div style="font-size:10px;color:#555;word-break:break-all;font-family:monospace;line-height:1.5">https://instant-pocket-loan.poonawallafincorp.com/?redirectto=primepl&amp;utm_DSA_Code=FDL01545&amp;UTM_Partner_AgentCode=surendra.pandey@convenoz.com&amp;UTM_Partner_Name=DSA_CATEYE_CONSULTANCY_SERVICES_PRIVATE_LIMITED&amp;UTM_SM_Name=amit.kumar35@poonawallafincorp.com</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-p" style="flex:1;font-size:11px;background:#e65100;border-color:#e65100" onclick="window.open('https://instant-pocket-loan.poonawallafincorp.com/?redirectto=primepl&utm_DSA_Code=FDL01545&UTM_Partner_AgentCode=surendra.pandey@convenoz.com&UTM_Partner_Name=DSA_CATEYE_CONSULTANCY_SERVICES_PRIVATE_LIMITED&UTM_SM_Name=amit.kumar35@poonawallafincorp.com','_blank')">🔗 Open Partner Link</button>
+          <button class="btn" style="font-size:11px" onclick="copyLink('poonawala')" id="poonawala-copy-btn">📋 Copy</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Add New Facility Modal trigger inline info -->
+  <div style="background:#f0f4ff;border:1px dashed #c2d4f5;border-radius:8px;padding:12px;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openAddFacility()">
+    <div style="font-size:1.4rem">➕</div>
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#1a5fb4">Add New Instant Loan Facility</div>
+      <div style="font-size:11px;color:#7a8aaa">Add any bank or NBFC partner with their tracking link</div>
+    </div>
+    <div style="margin-left:auto"><button class="btn btn-p" style="font-size:11px">+ Add Facility</button></div>
+  </div>
+</div>
+
+<!-- ADD FACILITY MODAL -->
+<div class="modal-overlay" id="modal-add-facility">
+  <div class="modal-box" style="max-width:500px">
+    <div class="modal-head"><h3>+ Add New Instant Loan Facility</h3><button class="modal-close" onclick="closeModal('modal-add-facility')">✕</button></div>
+    <div class="modal-body">
+      <div class="auth-err" id="fac-err" style="display:none;background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:8px 10px;font-size:11px;color:#c62828;margin-bottom:10px"></div>
+      <div class="form-grid">
+        <div class="fg" style="grid-column:span 2"><div class="fl">Bank / NBFC Name *</div><input id="fac-name" placeholder="e.g. HDFC Bank / Tata Capital" class="form-input"></div>
+        <div class="fg"><div class="fl">Product Type</div><select id="fac-product" class="form-input"><option>Personal Loan</option><option>Business Loan</option><option>Home Loan</option><option>LAP</option><option>Two Wheeler Loan</option><option>Gold Loan</option><option>Education Loan</option></select></div>
+        <div class="fg"><div class="fl">Max Loan Amount</div><input id="fac-maxamt" placeholder="e.g. ₹30 Lakhs" class="form-input"></div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Partner Tracking URL / UTM Link *</div><input id="fac-link" placeholder="https://… or utm_source=…" class="form-input"></div>
+        <div class="fg"><div class="fl">Status</div><select id="fac-status" class="form-input"><option value="Live">● Live</option><option value="Paused">⏸ Paused</option><option value="Coming Soon">🔜 Coming Soon</option></select></div>
+        <div class="fg"><div class="fl">Notes</div><input id="fac-notes" placeholder="Any notes (optional)" class="form-input"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-add-facility')">Cancel</button>
+      <button class="btn btn-p" onclick="saveFacility()">✅ Add Facility</button>
+    </div>
+  </div>
 </div>
 
 <!-- INSURANCE QUEUE -->
@@ -1340,6 +1445,7 @@ function nav(el,id){
   const sec=document.getElementById('sec-'+id);if(sec)sec.classList.add('active');
   document.getElementById('page-title').textContent=TITLES[id]||id;
   if(id==='emi')calcEMI();if(id==='payout')calcPayout();if(id==='calendar')buildCal();
+  if(typeof _onNavRender==='function') _onNavRender(id);
 }
 
 function filterRows(tbodyId,status,tabEl){
@@ -1355,7 +1461,7 @@ function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.addEventListener('click',e=>{if(e.target.classList.contains('modal-overlay'))e.target.classList.remove('open');});
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent='✅ '+msg;t.style.display='block';setTimeout(()=>{t.style.display='none';},3000);}
-function saveLead(){const n=document.getElementById('ab-name').value||'New Lead';closeModal('modal-add-borrower');showToast('"'+n+'" saved!');}
+function saveLead(){_saveLead();}
 function toggleField(rowId,sel){document.getElementById(rowId).style.display=sel.value==='Yes'?'block':'none';}
 
 // ══ AUTH GATE ══
@@ -2071,27 +2177,54 @@ let _currentCity = '';
 function initCitySelector() {
   const sel = document.getElementById('city-selector');
   if (!sel) return;
-  sel.innerHTML = '<option value="">Detecting city…</option>' +
+  sel.innerHTML = '<option value="">📍 Detecting…</option>' +
     INDIA_CITIES.map(c => `<option value="${c}">${c}</option>`).join('');
 
-  // Try geolocation
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(pos => {
-      const {latitude: lat, longitude: lng} = pos.coords;
-      // Reverse geocode via nominatim (free, no key needed)
-      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-        .then(r => r.json())
-        .then(d => {
-          const city = d.address?.city || d.address?.town || d.address?.district || d.address?.state_district || '';
-          // Match to our city list
-          const matched = INDIA_CITIES.find(c => city.toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes(city.toLowerCase().split(' ')[0]));
-          const finalCity = matched || city.split(' ')[0] || 'Vijayawada';
-          setCity(finalCity);
-        }).catch(() => setCity('Vijayawada'));
-    }, () => setCity('Vijayawada'));
-  } else {
-    setCity('Vijayawada');
-  }
+  // Step 1: Fast IP-based detection (no permission needed)
+  fetch('https://ipapi.co/json/')
+    .then(r => r.json())
+    .then(d => {
+      const city = d.city || '';
+      const matched = INDIA_CITIES.find(c =>
+        c.toLowerCase() === city.toLowerCase() ||
+        city.toLowerCase().includes(c.toLowerCase()) ||
+        c.toLowerCase().includes(city.toLowerCase())
+      );
+      const finalCity = matched || city || 'Vijayawada';
+      setCity(finalCity);
+
+      // Step 2: Refine with GPS if available (more accurate)
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=en`)
+            .then(r => r.json())
+            .then(d2 => {
+              const gpsCity = d2.address?.city || d2.address?.town || d2.address?.county || d2.address?.state_district || '';
+              const gpsMatch = INDIA_CITIES.find(c =>
+                c.toLowerCase() === gpsCity.toLowerCase() ||
+                gpsCity.toLowerCase().includes(c.toLowerCase())
+              );
+              if (gpsMatch && gpsMatch !== finalCity) setCity(gpsMatch);
+            }).catch(()=>{});
+        }, ()=>{}, { timeout: 8000 });
+      }
+    })
+    .catch(() => {
+      // Fallback: GPS only
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json&accept-language=en`)
+            .then(r => r.json())
+            .then(d => {
+              const city = d.address?.city || d.address?.town || d.address?.county || '';
+              const matched = INDIA_CITIES.find(c => c.toLowerCase() === city.toLowerCase() || city.toLowerCase().includes(c.toLowerCase()));
+              setCity(matched || city || 'Vijayawada');
+            }).catch(() => setCity('Vijayawada'));
+        }, () => setCity('Vijayawada'), { timeout: 8000 });
+      } else {
+        setCity('Vijayawada');
+      }
+    });
 }
 
 function setCity(city) {
@@ -2461,6 +2594,572 @@ window.addEventListener('load', () => {
   const sub = document.getElementById('tb-sub-date');
   if (sub) sub.innerHTML = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) + ' &nbsp;|&nbsp; FDL01545';
 });
+
+
+// ══════════════════════════════════════════════════════
+//  COMPLETE DATA ENGINE — Borrowers, Follow-ups, Contacts, Policies
+// ══════════════════════════════════════════════════════
+
+// ── Data layer ──
+function _getData(key){ try{ return JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ return []; } }
+function _setData(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+
+function getBorrowers(){ return _getData('crm_borrowers'); }
+function saveBorrowers(d){ _setData('crm_borrowers', d); }
+function getFollowUps(){ return _getData('crm_followups'); }
+function saveFollowUps(d){ _setData('crm_followups', d); }
+function getContacts(){ return _getData('crm_contacts'); }
+function saveContacts(d){ _setData('crm_contacts', d); }
+function getPolicies2(){ return _getData('crm_policies'); }
+function savePolicies2(d){ _setData('crm_policies', d); }
+
+// ── ID generator ──
+function genId(prefix){ return prefix + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase(); }
+
+// ── Pill helper ──
+function statusPill(s){
+  const map = {
+    'ACTIVE':'<span class="pill p-g">🟢 Active</span>',
+    'LEAD':'<span class="pill p-b">💡 Lead</span>',
+    'FOLLOW UP':'<span class="pill" style="background:#fff3e0;color:#e65100">🔄 Follow-up</span>',
+    'SANCTIONED':'<span class="pill" style="background:#e3f2fd;color:#1565c0">✅ Sanctioned</span>',
+    'DISBURSED':'<span class="pill p-g" style="background:#e8f5e9;color:#2e7d32">💰 Disbursed</span>',
+    'REJECTED':'<span class="pill p-r">❌ Rejected</span>',
+    'CLOSED':'<span class="pill" style="background:#f5f5f5;color:#666">🔒 Closed</span>',
+  };
+  return map[s] || `<span class="pill">${s}</span>`;
+}
+
+const PRODUCT_ICON = {'Business Loan':'🏭','Personal Loan':'💳','Home Loan':'🏠','LAP':'🏗️','Insurance':'⛨','Car Loan':'🚗','Education':'🎓'};
+
+// ══ SAVE LEAD / BORROWER ══
+function _saveLead(){
+  const name = (document.getElementById('ab-name')?.value||'').trim();
+  const phone = (document.getElementById('ab-phone')?.value||'').trim();
+  if(!name){ showToast('⚠️ Please enter customer name'); return; }
+  if(!phone || phone.length < 10){ showToast('⚠️ Please enter valid 10-digit mobile'); return; }
+
+  const product = document.getElementById('ab-product')?.value || 'Business Loan';
+  const amount  = (document.getElementById('ab-amount')?.value||'').trim();
+  const income  = (document.getElementById('ab-income')?.value||'').trim();
+  const profile = document.getElementById('ab-profile')?.value || 'Business';
+  const location= document.getElementById('ab-location')?.value || '';
+  const status  = document.getElementById('ab-status')?.value || 'ACTIVE';
+  const email   = document.getElementById('ab-email')?.value || '';
+  const notes   = document.getElementById('ab-notes')?.value || '';
+  const dt      = document.getElementById('ab-date')?.value || new Date().toISOString();
+
+  const borrowers = getBorrowers();
+  const id = genId('B');
+  const dateStr = new Date(dt||Date.now()).toLocaleDateString('en-IN');
+
+  const record = { id, name, phone, email, product, amount, income, profile, location, status, notes, dt: dt||new Date().toISOString(), addedOn: Date.now() };
+  borrowers.push(record);
+  saveBorrowers(borrowers);
+
+  // Render everywhere
+  renderAllBorrowers();
+  renderDashboard();
+  updateBadges();
+
+  // Clear form
+  ['ab-name','ab-phone','ab-email','ab-amount','ab-income','ab-location','ab-notes'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+  const abDate = document.getElementById('ab-date'); if(abDate) abDate.value='';
+
+  closeModal('modal-add-borrower');
+  showToast(`✅ "${name}" saved to All Borrowers, Active Files & Queue!`);
+}
+
+// ══ RENDER ALL BORROWERS (all tables) ══
+function renderAllBorrowers(){
+  const all = getBorrowers();
+
+  // ── All Borrowers table ──
+  const borTbody = document.getElementById('bor-tbody');
+  if(borTbody){
+    if(!all.length){
+      borTbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="ei">⌂</div><p>No borrowers added yet.</p></div></td></tr>';
+    } else {
+      borTbody.innerHTML = all.map((r,i)=>`<tr data-status="${r.status}">
+        <td style="color:#7a8aaa;font-size:10px">${r.id}</td>
+        <td><b>${r.name}</b><div style="font-size:10px;color:#7a8aaa">${r.profile}</div></td>
+        <td><a href="tel:${r.phone}" style="color:#1a5fb4">📞 ${r.phone}</a></td>
+        <td>${PRODUCT_ICON[r.product]||''} ${r.product}</td>
+        <td>${r.amount ? '₹'+r.amount : '—'}</td>
+        <td>—</td>
+        <td>—</td>
+        <td>${statusPill(r.status)}</td>
+      </tr>`).join('');
+    }
+  }
+
+  // ── Active Files table (only non-lead, non-rejected) ──
+  const afTbody = document.getElementById('af-tbody');
+  if(afTbody){
+    const active = all.filter(r=>!['LEAD','REJECTED','CLOSED'].includes(r.status));
+    if(!active.length){
+      afTbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="ei">≡</div><p>No active files yet.</p></div></td></tr>';
+    } else {
+      afTbody.innerHTML = active.map(r=>{
+        const stageMap = {'ACTIVE':'Doc Pending','FOLLOW UP':'Underwriting','SANCTIONED':'Sanctioned','DISBURSED':'Disbursed'};
+        const stage = stageMap[r.status]||r.status;
+        const days = Math.floor((Date.now()-r.addedOn)/(1000*60*60*24));
+        return `<tr data-status="${stage.toUpperCase()}">
+          <td style="font-size:10px;color:#7a8aaa">${r.id}</td>
+          <td><b>${r.name}</b></td>
+          <td>${PRODUCT_ICON[r.product]||''} ${r.product}</td>
+          <td>${r.amount ? '₹'+r.amount : '—'}</td>
+          <td>—</td>
+          <td><span class="pill p-b">${stage}</span></td>
+          <td style="color:#7a8aaa">${days}d</td>
+          <td>—</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // ── Applications table ──
+  const appTbody = document.getElementById('app-tbody');
+  if(appTbody){
+    if(!all.length){
+      appTbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="ei">§</div><p>No applications registered yet.</p></div></td></tr>';
+    } else {
+      appTbody.innerHTML = all.map(r=>`<tr data-status="${r.status}">
+        <td style="font-size:10px;color:#7a8aaa">${r.id}</td>
+        <td><b>${r.name}</b></td>
+        <td>${PRODUCT_ICON[r.product]||''} ${r.product}</td>
+        <td>${r.amount ? '₹'+r.amount : '—'}</td>
+        <td>—</td>
+        <td style="font-size:10px;color:#7a8aaa">${new Date(r.addedOn).toLocaleDateString('en-IN')}</td>
+        <td>${statusPill(r.status)}</td>
+      </tr>`).join('');
+    }
+  }
+
+  // ── Pipeline table ──
+  const pipeTbody = document.getElementById('pipe-tbody');
+  if(pipeTbody){
+    const pipeline = all.filter(r=>!['DISBURSED','REJECTED','CLOSED'].includes(r.status));
+    if(!pipeline.length){
+      pipeTbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="ei">⋮</div><p>No pipeline cases yet.</p></div></td></tr>';
+    } else {
+      pipeTbody.innerHTML = pipeline.map(r=>{
+        const pType = r.product.toUpperCase().split(' ')[0];
+        return `<tr data-status="${pType}">
+          <td style="font-size:10px;color:#7a8aaa">${r.id}</td>
+          <td><b>${r.name}</b><div style="font-size:10px;color:#7a8aaa">${r.phone}</div></td>
+          <td><span class="pill p-b">${r.product}</span></td>
+          <td>${r.amount ? '₹'+r.amount : '—'}</td>
+          <td>${statusPill(r.status)}</td>
+          <td>—</td>
+          <td style="color:#7a8aaa">${Math.floor((Date.now()-r.addedOn)/(1000*60*60*24))}d</td>
+        </tr>`;
+      }).join('');
+    }
+  }
+
+  // ── Queue-specific tables ──
+  const queueMap = {
+    'Business Loan': { tbody: 'bl-tbody', cols: 8 },
+    'Personal Loan': { tbody: 'pl-tbody', cols: 8 },
+    'Home Loan':     { tbody: 'hl-tbody', cols: 8 },
+    'LAP':           { tbody: 'lap-tbody', cols: 8 },
+    'Insurance':     { tbody: 'ins-tbody', cols: 7 },
+  };
+  Object.entries(queueMap).forEach(([prod, {tbody: tbId, cols}])=>{
+    const tb = document.getElementById(tbId);
+    if(!tb) return;
+    const rows = all.filter(r=>r.product===prod);
+    if(!rows.length){
+      tb.innerHTML = `<tr><td colspan="${cols}"><div class="empty-state"><div class="ei">${PRODUCT_ICON[prod]||'📋'}</div><p>No ${prod} entries yet.</p></div></td></tr>`;
+    } else {
+      tb.innerHTML = rows.map(r=>`<tr>
+        <td style="font-size:10px;color:#7a8aaa">${r.id}</td>
+        <td><b>${r.name}</b></td>
+        <td>${r.phone}</td>
+        <td>${r.amount ? '₹'+r.amount : '—'}</td>
+        <td>${r.income ? '₹'+r.income+'/mo' : '—'}</td>
+        <td>—</td>
+        <td>${statusPill(r.status)}</td>
+        ${cols===8?`<td style="font-size:10px;color:#7a8aaa">${new Date(r.addedOn).toLocaleDateString('en-IN')}</td>`:''}
+      </tr>`).join('');
+    }
+  });
+}
+
+// ══ SAVE FOLLOW-UP ══
+function saveFollowUp(){
+  const name    = (document.getElementById('fu-name')?.value||'').trim();
+  const phone   = (document.getElementById('fu-phone')?.value||'').trim();
+  const dt      = document.getElementById('fu-datetime')?.value||'';
+  const loan    = document.getElementById('fu-loan')?.value||'Personal Loan';
+  const priority= document.getElementById('fu-priority')?.value||'PENDING';
+  const type    = document.getElementById('fu-type')?.value||'CALLS';
+  const purpose = document.getElementById('fu-purpose')?.value||'Initial Call';
+  const notes   = document.getElementById('fu-notes')?.value||'';
+
+  if(!name){ showToast('⚠️ Please enter customer name'); return; }
+
+  const fus = getFollowUps();
+  const id = genId('F');
+  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, status: priority, addedOn: Date.now() });
+  saveFollowUps(fus);
+
+  renderFollowUps();
+  renderDashboard();
+  updateBadges();
+
+  ['fu-name','fu-phone','fu-notes'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+  const fuDt=document.getElementById('fu-datetime'); if(fuDt)fuDt.value='';
+
+  closeModal('modal-schedule');
+  showToast(`📅 Follow-up scheduled for "${name}"!`);
+}
+
+// ══ RENDER FOLLOW-UPS ══
+function renderFollowUps(){
+  const fus = getFollowUps();
+  const tbody = document.getElementById('fu-tbody');
+  if(!tbody) return;
+  if(!fus.length){
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="ei">☑️</div><p>No follow-ups scheduled yet.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = fus.map(f=>{
+    const timeStr = f.dt ? new Date(f.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const statusTag = f.status==='HIGH'
+      ? '<span class="pill p-r">🔴 High</span>'
+      : f.status==='DONE'
+      ? '<span class="pill p-g">✅ Done</span>'
+      : '<span class="pill p-b">📌 Pending</span>';
+    return `<tr data-status="${f.type} ${f.status}">
+      <td style="font-size:10px">${timeStr}</td>
+      <td><b>${f.name}</b></td>
+      <td><a href="tel:${f.phone}" style="color:#1a5fb4">${f.phone||'—'}</a></td>
+      <td>${PRODUCT_ICON[f.loan]||''} ${f.loan}</td>
+      <td><span class="pill p-b">${f.type==='CALLS'?'📞 Call':f.type==='WHATSAPP'?'💬 WA':'🚗 Visit'}</span></td>
+      <td>${statusTag}</td>
+      <td style="font-size:10px;color:#7a8aaa">${f.purpose}</td>
+      <td>
+        <button class="btn btn-g" style="font-size:9px;padding:2px 7px" onclick="markFUDone('${f.id}')">✅ Done</button>
+        <button class="btn btn-r" style="font-size:9px;padding:2px 7px" onclick="deleteFU('${f.id}')">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function markFUDone(id){
+  const fus = getFollowUps();
+  const i = fus.findIndex(f=>f.id===id);
+  if(i>=0){ fus[i].status='DONE'; saveFollowUps(fus); renderFollowUps(); updateBadges(); renderDashboard(); showToast('✅ Follow-up marked done!'); }
+}
+function deleteFU(id){
+  const fus = getFollowUps().filter(f=>f.id!==id);
+  saveFollowUps(fus); renderFollowUps(); updateBadges(); renderDashboard();
+  showToast('Follow-up removed');
+}
+
+// ══ SAVE CONTACT (Banker Directory) ══
+function saveContact(){
+  const name   = (document.getElementById('bc-name')?.value||'').trim();
+  const bank   = (document.getElementById('bc-bank')?.value||'').trim();
+  const mobile = (document.getElementById('bc-mobile')?.value||'').trim();
+  if(!name){ showToast('⚠️ Enter banker name'); return; }
+  const role    = document.getElementById('bc-role')?.value||'RM';
+  const product = document.getElementById('bc-product')?.value||'Business Loan';
+  const location= document.getElementById('bc-location')?.value||_currentCity||'';
+  const branch  = document.getElementById('bc-branch')?.value||'';
+
+  // Add to BANKER_DATA in-memory
+  const entry = { bank, name, role, product, mobile, location, branch };
+  if(typeof BANKER_DATA !== 'undefined') BANKER_DATA.push(entry);
+
+  const contacts = getContacts();
+  contacts.push({ ...entry, addedOn: Date.now() });
+  saveContacts(contacts);
+
+  renderBankerDirectory(_currentCity);
+  updateBadges();
+
+  ['bc-name','bc-bank','bc-mobile','bc-email','bc-branch','bc-location'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+  closeModal('modal-add-contact');
+  showToast(`✅ "${name}" added to Banker Directory!`);
+}
+
+// ══ SAVE POLICY ══
+function savePolicy(){
+  const bank = (document.getElementById('pol-bank')?.value||'').trim();
+  if(!bank){ showToast('⚠️ Enter bank name'); return; }
+  const product = document.getElementById('pol-product')?.value||'Business Loan';
+  const minL   = document.getElementById('pol-minl')?.value||'—';
+  const maxL   = document.getElementById('pol-maxl')?.value||'—';
+  const roi1   = document.getElementById('pol-roi1')?.value||'';
+  const roi2   = document.getElementById('pol-roi2')?.value||'';
+  const roi    = roi1 && roi2 ? `${roi1}–${roi2}` : roi1||roi2||'—';
+  const cibil  = document.getElementById('pol-cibil')?.value||'—';
+  const foir   = document.getElementById('pol-foir')?.value||'—';
+  const abb    = document.getElementById('pol-abb')?.value||'—';
+  const date   = document.getElementById('pol-date')?.value||new Date().toLocaleDateString('en-IN');
+
+  const policies = getPolicies2();
+  const idx = policies.length + 1;
+  policies.push({ bank, product, minL, maxL, roi, cibil, foir, abb, date, addedOn: Date.now() });
+  savePolicies2(policies);
+
+  const tbody = document.getElementById('pol-tbody');
+  if(tbody){
+    const emptyRow = tbody.querySelector('.empty-state');
+    if(emptyRow) tbody.innerHTML='';
+    const row = document.createElement('tr');
+    row.innerHTML = `<td>${policies.length}</td><td><b>${bank}</b></td>
+      <td><span class="pill p-b">${product}</span></td>
+      <td>${minL}</td><td>${maxL}</td><td style="color:#f59e0b">${roi}</td>
+      <td>${cibil}</td><td>${foir}</td><td>${abb}</td>
+      <td style="font-size:10px;color:#7a8aaa">${date}</td>`;
+    tbody.appendChild(row);
+  }
+  updateBadges();
+
+  ['pol-bank','pol-minl','pol-maxl','pol-roi1','pol-roi2','pol-cibil','pol-foir','pol-abb','pol-date'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+  closeModal('modal-add-policy');
+  showToast(`✅ Policy for "${bank}" saved to Bank Policies!`);
+}
+
+// ══ SAVE BL PROFILE ══
+function saveBLProfile(){
+  // Collect BL modal fields
+  const nameFld = document.querySelector('#modal-bl-profile input');
+  const name = nameFld ? nameFld.value.trim() : 'New Customer';
+  if(!name){ showToast('⚠️ Enter customer name'); return; }
+  // Save as borrower with BL product
+  const borrowers = getBorrowers();
+  const id = genId('B');
+  borrowers.push({ id, name, phone:'', email:'', product:'Business Loan', amount:'', income:'', profile:'Business', location:'', status:'ACTIVE', notes:'BL Profile', dt:new Date().toISOString(), addedOn: Date.now() });
+  saveBorrowers(borrowers);
+  renderAllBorrowers();
+  renderDashboard();
+  updateBadges();
+  closeModal('modal-bl-profile');
+  showToast(`✅ BL Profile "${name}" added!`);
+}
+
+// ══ DASHBOARD UPDATE ══
+function renderDashboard(){
+  const all = getBorrowers();
+  const fus = getFollowUps();
+  const today = new Date().toDateString();
+  const todayFUs = fus.filter(f=>f.status!=='DONE' && f.dt && new Date(f.dt).toDateString()===today);
+  const active   = all.filter(r=>!['REJECTED','CLOSED'].includes(r.status));
+  const disbursed = all.filter(r=>r.status==='DISBURSED');
+
+  const totalEl = document.getElementById('kpi-total'); if(totalEl) totalEl.textContent = all.length;
+  const subT = document.getElementById('kpi-total-sub'); if(subT) subT.textContent = all.length ? `${active.length} active` : 'No data yet';
+  const actEl = document.getElementById('kpi-active'); if(actEl) actEl.textContent = active.length;
+  const subA = document.getElementById('kpi-active-sub'); if(subA) subA.textContent = active.length ? 'In pipeline' : 'No data yet';
+  const disbEl = document.getElementById('kpi-disb'); if(disbEl) disbEl.textContent = disbursed.length ? '₹'+disbursed.reduce((s,r)=>s+(parseFloat((r.amount||'0').replace(/[^0-9.]/g,''))||0),0).toLocaleString('en-IN') : '₹0';
+  const subD = document.getElementById('kpi-disb-sub'); if(subD) subD.textContent = disbursed.length ? disbursed.length+' disbursed' : 'No data yet';
+  const fuEl = document.getElementById('kpi-fu'); if(fuEl) fuEl.textContent = todayFUs.length;
+  const subF = document.getElementById('kpi-fu-sub'); if(subF) subF.textContent = todayFUs.length ? 'Due today' : 'No data yet';
+
+  // Recent Applications (last 5)
+  const recentEl = document.getElementById('dash-recent');
+  if(recentEl){
+    if(!all.length){
+      recentEl.innerHTML = '<div class="empty-state"><div class="ei">📋</div><p>No applications yet.<br>Click <b>+ New Lead</b> to add your first borrower.</p></div>';
+    } else {
+      const last5 = [...all].reverse().slice(0,5);
+      recentEl.innerHTML = '<table><thead><tr><th>ID</th><th>Name</th><th>Product</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead><tbody>'
+        + last5.map(r=>`<tr>
+            <td style="font-size:10px;color:#7a8aaa">${r.id}</td>
+            <td><b>${r.name}</b><div style="font-size:10px;color:#7a8aaa">${r.phone}</div></td>
+            <td>${PRODUCT_ICON[r.product]||''} ${r.product}</td>
+            <td>${r.amount ? '₹'+r.amount : '—'}</td>
+            <td>${statusPill(r.status)}</td>
+            <td style="font-size:10px;color:#7a8aaa">${new Date(r.addedOn).toLocaleDateString('en-IN')}</td>
+          </tr>`).join('')
+        + '</tbody></table>';
+    }
+  }
+}
+
+// ══ SIDEBAR BADGES ══
+function updateBadges(){
+  const all = getBorrowers();
+  const fus = getFollowUps().filter(f=>f.status!=='DONE');
+  const today = new Date().toDateString();
+  const todayFUs = fus.filter(f=>!f.dt||new Date(f.dt).toDateString()===today);
+
+  const setSB = (sec, val)=>{
+    const ni = document.querySelector(`.ni[onclick*="${sec}"] .nbadge`);
+    if(ni && !ni.classList.contains('new') && !ni.classList.contains('live')){
+      ni.textContent = val || '0';
+      if(val > 0) ni.style.background='#1b5e20', ni.style.color='#a5d6a7';
+      else ni.style.background='', ni.style.color='';
+    }
+  };
+
+  setSB('borrowers', all.length);
+  setSB('followups', todayFUs.length);
+  setSB('activefiles', all.filter(r=>!['REJECTED','CLOSED','DISBURSED'].includes(r.status)).length);
+  setSB('applications', all.length);
+  setSB('pipeline', all.filter(r=>!['DISBURSED','REJECTED','CLOSED'].includes(r.status)).length);
+
+  const QUEUE_PRODUCTS = {
+    bizloan:'Business Loan', perloan:'Personal Loan',
+    homeloan:'Home Loan', lap:'LAP', insurance:'Insurance'
+  };
+  Object.entries(QUEUE_PRODUCTS).forEach(([sec,prod])=>{
+    setSB(sec, all.filter(r=>r.product===prod).length);
+  });
+
+  setSB('policies', getPolicies2().length);
+  setSB('bankerdir', (typeof BANKER_DATA!=='undefined' ? BANKER_DATA.length : 0) + getContacts().length);
+}
+
+// ══ NAV HOOK — extend original nav without re-declaring it ──
+// Patch nav after definition by wrapping at call time via data-render on .ni elements
+function _onNavRender(id){
+  const needsBorrowers = ['borrowers','activefiles','applications','pipeline','bizloan','perloan','homeloan','lap','insurance'];
+  if(needsBorrowers.includes(id)) renderAllBorrowers();
+  if(id==='followups') renderFollowUps();
+  if(id==='dashboard') renderDashboard();
+  if(id==='bankerdir') renderBankerDirectory(_currentCity||'');
+  if(id==='policies') renderSavedPolicies();
+}
+
+function renderSavedPolicies(){
+  const policies = getPolicies2();
+  if(!policies.length) return;
+  const tbody = document.getElementById('pol-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = policies.map((p,i)=>`<tr>
+    <td>${i+1}</td><td><b>${p.bank}</b></td>
+    <td><span class="pill p-b">${p.product}</span></td>
+    <td>${p.minL}</td><td>${p.maxL}</td>
+    <td style="color:#f59e0b">${p.roi}</td>
+    <td>${p.cibil}</td><td>${p.foir||'—'}</td><td>${p.abb}</td>
+    <td style="font-size:10px;color:#7a8aaa">${p.date}</td>
+  </tr>`).join('');
+}
+
+// ══ Bootstrap on load ══
+document.addEventListener('DOMContentLoaded', ()=>{
+  renderAllBorrowers();
+  renderFollowUps();
+  renderDashboard();
+  updateBadges();
+  renderSavedPolicies();
+  // Add saved contacts to BANKER_DATA
+  const saved = getContacts();
+  if(saved.length && typeof BANKER_DATA !== 'undefined') BANKER_DATA.push(...saved);
+});
+
+
+// ══════════════════════════════════════════════
+// INSTANT LOAN — Partner Links & Add Facility
+// ══════════════════════════════════════════════
+const PARTNER_LINKS = {
+  unity: 'https://www.unitybank.co.in/personal-loan?utm_source=partnership&utm_medium=CatEye&utm_campaign=Delhi',
+  poonawala: 'https://instant-pocket-loan.poonawallafincorp.com/?redirectto=primepl&utm_DSA_Code=FDL01545&UTM_Partner_AgentCode=surendra.pandey@convenoz.com&UTM_Partner_Name=DSA_CATEYE_CONSULTANCY_SERVICES_PRIVATE_LIMITED&UTM_SM_Name=amit.kumar35@poonawallafincorp.com'
+};
+
+function copyLink(key) {
+  const link = PARTNER_LINKS[key] || key;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(link).then(() => {
+      const btn = document.getElementById((key||'') + '-copy-btn');
+      if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000); }
+      showToast('🔗 Link copied to clipboard!');
+    }).catch(() => fallbackCopy(link));
+  } else {
+    fallbackCopy(link);
+  }
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta);
+  showToast('🔗 Link copied!');
+}
+
+function openAddFacility() { openModal('modal-add-facility'); }
+
+function saveFacility() {
+  const name    = (document.getElementById('fac-name')?.value || '').trim();
+  const link    = (document.getElementById('fac-link')?.value || '').trim();
+  const product = document.getElementById('fac-product')?.value || 'Personal Loan';
+  const maxAmt  = document.getElementById('fac-maxamt')?.value || '—';
+  const status  = document.getElementById('fac-status')?.value || 'Live';
+  const notes   = document.getElementById('fac-notes')?.value || '';
+  const errEl   = document.getElementById('fac-err');
+  errEl.style.display = 'none';
+
+  if (!name) { errEl.textContent = '⚠️ Bank/NBFC name is required.'; errEl.style.display = 'block'; return; }
+  if (!link) { errEl.textContent = '⚠️ Partner link/UTM is required.'; errEl.style.display = 'block'; return; }
+
+  // Create a unique key for this partner
+  const key = name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+  PARTNER_LINKS[key] = link.startsWith('http') ? link : 'https://' + link;
+
+  // Build initials for card logo
+  const initials = name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+  const colors = ['#1a5fb4','#2e7d32','#7c3aed','#c62828','#e65100','#006064'];
+  const color = colors[Math.floor(Math.random()*colors.length)];
+  const statusBadge = status === 'Live' ? '<span class="pill p-g" style="font-size:10px">● Live</span>' :
+                      status === 'Paused' ? '<span class="pill" style="background:#fff8e1;color:#e65100;font-size:10px">⏸ Paused</span>' :
+                      '<span class="pill p-b" style="font-size:10px">🔜 Soon</span>';
+
+  const fullLink = PARTNER_LINKS[key];
+  const displayLink = link.length > 80 ? link.slice(0, 80) + '…' : link;
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.borderLeft = `3px solid ${color}`;
+  card.innerHTML = `
+    <div class="card-head" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:9px">
+        <div style="width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,${color},${color}cc);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;flex-shrink:0">${initials}</div>
+        <div>
+          <div style="font-weight:700;font-size:13px;color:#0d1b36">${name}</div>
+          <div style="font-size:10px;color:#7a8aaa">${product}</div>
+        </div>
+      </div>
+      ${statusBadge}
+    </div>
+    <div class="card-body" style="padding:10px 14px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div style="background:#f5f8ff;border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:#7a8aaa;text-transform:uppercase;letter-spacing:.04em">Max Amount</div>
+          <div style="font-size:13px;font-weight:700;color:#0d1b36">${maxAmt||'—'}</div>
+        </div>
+        <div style="background:#f5f8ff;border-radius:6px;padding:8px;text-align:center">
+          <div style="font-size:9px;color:#7a8aaa;text-transform:uppercase;letter-spacing:.04em">Processing</div>
+          <div style="font-size:13px;font-weight:700;color:#0d1b36">Instant</div>
+        </div>
+      </div>
+      ${notes ? `<div style="font-size:10px;color:#555;margin-bottom:10px;padding:6px 8px;background:#f9f9f9;border-radius:5px">${notes}</div>` : ''}
+      <div style="background:#eef4ff;border:1px solid #c2d4f5;border-radius:6px;padding:7px;margin-bottom:10px">
+        <div style="font-size:9px;color:#7a8aaa;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em">Partner Link</div>
+        <div style="font-size:10px;color:#1a5fb4;word-break:break-all;font-family:monospace">${displayLink}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-p" style="flex:1;font-size:11px" onclick="window.open('${fullLink}','_blank')">🔗 Open Partner Link</button>
+        <button class="btn" style="font-size:11px" id="${key}-copy-btn" onclick="copyLink('${key}')">📋 Copy</button>
+        <button class="btn btn-r" style="font-size:10px;padding:4px 8px" onclick="this.closest('.card').remove();showToast('Facility removed')">✕</button>
+      </div>
+    </div>`;
+
+  // Insert before the "add" footer strip (last child of grid)
+  const grid = document.getElementById('il-cards-grid');
+  if (grid) grid.appendChild(card);
+
+  // Clear form
+  ['fac-name','fac-link','fac-maxamt','fac-notes'].forEach(id => { const el=document.getElementById(id); if(el)el.value=''; });
+  closeModal('modal-add-facility');
+  showToast(`✅ "${name}" added as Instant Loan partner!`);
+}
 
 </script>
 
