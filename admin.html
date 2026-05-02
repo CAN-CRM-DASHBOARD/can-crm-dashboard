@@ -218,6 +218,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 </style>
+<!-- Firebase v10 Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -321,6 +324,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       </div>
       <div class="tb-right">
         <div style="font-size:10px;color:var(--text3)" id="adm-datetime"></div>
+        <span id="adm-fb-badge" style="font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.07);font-weight:600">⏳ Connecting…</span>
         <div class="tb-badge"><div class="live-dot"></div>ADMIN ACTIVE</div>
       </div>
     </div>
@@ -874,11 +878,18 @@ function saveBankers(b){ localStorage.setItem('dsacrm_bankers', JSON.stringify(b
 // DASHBOARD LOAD
 // ══════════════════════════════════════
 function loadDashboard(){
-  const users = getUsers();
+  const users     = getUsers();
+  const borrowers = getBorrowers();
+  const fus       = getFollowUps();
+  const active    = borrowers.filter(b=>!['REJECTED','CLOSED'].includes(b.status));
+  const disbursed = borrowers.filter(b=>b.status==='DISBURSED');
+  const disburseAmt = disbursed.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
+
   document.getElementById('kpi-users').textContent = users.length;
-  document.getElementById('kpi-borr').textContent = 0;
-  document.getElementById('kpi-disb').textContent = '₹0';
-  document.getElementById('kpi-held').textContent = users.filter(u=>u.held).length;
+  document.getElementById('kpi-borr').textContent  = borrowers.length;
+  document.getElementById('kpi-disb').textContent  = borrowers.length ? '₹'+Math.round(disburseAmt).toLocaleString('en-IN') : '₹0';
+  document.getElementById('kpi-held').textContent  = users.filter(u=>u.held).length;
+
   // User type breakdown
   const types = {};
   users.forEach(u=>{ types[u.type] = (types[u.type]||0)+1; });
@@ -987,6 +998,170 @@ function deleteUser(idx){
   renderUsers();
   loadDashboard();
   showToast('🗑 User deleted: '+name);
+}
+
+// ══ RENDER BORROWERS (admin view of all CRM borrowers) ══
+function renderBorrowers(){
+  const all = getBorrowers();
+  const fus = getFollowUps();
+  const active    = all.filter(b=>!['REJECTED','CLOSED'].includes(b.status));
+  const disbursed = all.filter(b=>b.status==='DISBURSED');
+  const sanctioned= all.filter(b=>b.status==='SANCTIONED');
+  const rejected  = all.filter(b=>b.status==='REJECTED');
+
+  // ── Update KPI cards in Borrowers Overview ──
+  const disburseAmt = disbursed.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
+  const fmt = v => '₹'+Math.round(v).toLocaleString('en-IN');
+
+  // Update stat cards dynamically
+  const kpiCards = document.querySelectorAll('#sec-borrowers .kpi .kpi-val');
+  if(kpiCards[0]) kpiCards[0].textContent = fmt(disburseAmt);
+  if(kpiCards[1]) kpiCards[1].textContent = fmt(active.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0));
+  if(kpiCards[2]) kpiCards[2].textContent = fmt(sanctioned.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0));
+  if(kpiCards[3]) kpiCards[3].textContent = rejected.length;
+  const kpiSubs = document.querySelectorAll('#sec-borrowers .kpi .kpi-sub');
+  if(kpiSubs[0]) kpiSubs[0].textContent = disbursed.length+' Files disbursed';
+  if(kpiSubs[1]) kpiSubs[1].textContent = active.length+' Active files';
+  if(kpiSubs[2]) kpiSubs[2].textContent = sanctioned.length+' Files';
+
+  // ── Queue-wise stats table ──
+  const QUEUES = [
+    {name:'🏭 Business Loan', key:'Business Loan'},
+    {name:'💳 Personal Loan', key:'Personal Loan'},
+    {name:'🏠 Home Loan',     key:'Home Loan'},
+    {name:'🏗️ LAP',          key:'LAP'},
+    {name:'⛨ Insurance',      key:'Insurance'},
+  ];
+  const qTbody = document.querySelector('#sec-borrowers table tbody');
+  if(qTbody){
+    let totalT=0,totalA=0,totalD=0,totalR=0;
+    qTbody.innerHTML = QUEUES.map(q=>{
+      const rows = all.filter(b=>b.product===q.key);
+      const t=rows.length, a=rows.filter(b=>!['REJECTED','CLOSED','DISBURSED'].includes(b.status)).length;
+      const d=rows.filter(b=>b.status==='DISBURSED').length, r=rows.filter(b=>b.status==='REJECTED').length;
+      const vol=rows.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
+      totalT+=t;totalA+=a;totalD+=d;totalR+=r;
+      return `<tr><td>${q.name}</td><td>${t}</td><td>${a}</td><td>${d}</td><td>${r}</td><td>${vol?fmt(vol):'₹0'}</td></tr>`;
+    }).join('')+
+    `<tr style="font-weight:700"><td style="color:#fff">TOTAL</td>
+     <td style="color:#fff">${totalT}</td><td style="color:#fff">${totalA}</td>
+     <td style="color:var(--green)">${totalD}</td><td style="color:var(--red)">${totalR}</td>
+     <td style="color:var(--green)">${fmt(disburseAmt)}</td></tr>`;
+  }
+
+  // ── Disbursement Summary boxes ──
+  const statVals = document.querySelectorAll('#sec-borrowers .stat-val');
+  if(statVals[0]) statVals[0].textContent = fmt(disburseAmt);
+  if(statVals[1]) statVals[1].textContent = disbursed.length;
+  const avgLoan = disbursed.length ? Math.round(disburseAmt/disbursed.length) : 0;
+  if(statVals[2]) statVals[2].textContent = avgLoan ? fmt(avgLoan) : '₹0';
+  const commission = disburseAmt * 0.01;
+  if(statVals[3]) statVals[3].textContent = commission ? fmt(commission) : '₹0';
+
+  // ── All Borrowers table ──
+  const admBorrTbody = document.getElementById('adm-borr-tbody');
+  if(!admBorrTbody){ buildAdmBorrTable(all); return; }
+  renderAdmBorrRows(all);
+}
+
+function buildAdmBorrTable(all){
+  const card = document.querySelector('#sec-borrowers .card:last-child');
+  if(!card) return;
+  const head = card.querySelector('.card-head');
+  if(head){
+    head.innerHTML = `
+      <span class="card-title">📋 All Borrowers (Admin View)</span>
+      <div style="display:flex;gap:6px">
+        <select class="fsel" id="borr-queue" onchange="renderAdmBorrRows()">
+          <option value="ALL">All Queues</option>
+          <option value="Business Loan">Business Loan</option>
+          <option value="Personal Loan">Personal Loan</option>
+          <option value="Home Loan">Home Loan</option>
+          <option value="LAP">LAP</option>
+          <option value="Insurance">Insurance</option>
+        </select>
+        <select class="fsel" id="borr-status" onchange="renderAdmBorrRows()">
+          <option value="ALL">All Status</option>
+          <option value="ACTIVE">Applied</option>
+          <option value="LEAD">Lead</option>
+          <option value="FOLLOW UP">Follow-up</option>
+          <option value="SANCTIONED">Sanctioned</option>
+          <option value="DISBURSED">Disbursed</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+        <button class="btn btn-gold" onclick="exportBorrowers()">📥 Export</button>
+      </div>`;
+  }
+  const body = card.querySelector('.card-body') || card;
+  const existingEmpty = body.querySelector('.empty');
+  if(existingEmpty) existingEmpty.remove();
+  const tbl = document.createElement('table');
+  tbl.innerHTML = `<thead><tr>
+    <th>#</th><th>ID</th><th>Name</th><th>Phone</th><th>Product</th>
+    <th>Amount</th><th>Profile</th><th>Location</th><th>Status</th><th>Added On</th>
+  </tr></thead><tbody id="adm-borr-tbody"></tbody>`;
+  body.appendChild(tbl);
+  renderAdmBorrRows(all);
+}
+
+function renderAdmBorrRows(data){
+  const all = data || getBorrowers();
+  const queueF  = document.getElementById('borr-queue')?.value  || 'ALL';
+  const statusF = document.getElementById('borr-status')?.value || 'ALL';
+  const filtered = all.filter(b=>
+    (queueF==='ALL'  || b.product===queueF) &&
+    (statusF==='ALL' || b.status===statusF)
+  );
+  const tbody = document.getElementById('adm-borr-tbody');
+  if(!tbody){ buildAdmBorrTable(all); return; }
+  if(!filtered.length){
+    tbody.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="empty-ico">📋</div><p>No borrowers found for selected filter.</p></div></td></tr>';
+    return;
+  }
+  const PILL = {
+    ACTIVE:'<span class="pill p-green">🟢 Applied</span>',
+    LEAD:'<span class="pill p-blue">💡 Lead</span>',
+    'FOLLOW UP':'<span class="pill p-gold">🔄 Follow-up</span>',
+    SANCTIONED:'<span class="pill p-blue">🔵 Sanctioned</span>',
+    DISBURSED:'<span class="pill p-green" style="font-weight:700">💰 Disbursed</span>',
+    REJECTED:'<span class="pill p-red">❌ Rejected</span>',
+    'NOT INTERESTED':'<span class="pill p-red">❌ Not Interested</span>',
+    BUSY:'<span class="pill p-gold">📵 Busy</span>',
+    'WILL UPDATE':'<span class="pill" style="background:rgba(99,102,241,.12);color:#818cf8">🕐 Will Update</span>',
+    'SWITCHED OFF':'<span class="pill p-gray">📴 Switched Off</span>',
+    REFERENCE:'<span class="pill" style="background:rgba(139,92,246,.12);color:#a78bfa">👥 Reference</span>',
+    'CALL U LATER':'<span class="pill" style="background:rgba(6,182,212,.12);color:#67e8f9">📞 Call Later</span>',
+    'SEND DOCUMENTS':'<span class="pill p-green">📂 Send Docs</span>',
+    NEED:'<span class="pill p-green" style="font-weight:700">✅ Need</span>',
+    CLOSED:'<span class="pill p-gray">🔒 Closed</span>',
+  };
+  tbody.innerHTML = filtered.map((b,i)=>`<tr>
+    <td style="color:var(--text3)">${i+1}</td>
+    <td style="font-size:10px;color:var(--text3)">${b.id||'—'}</td>
+    <td><b style="color:#fff">${b.name}</b><div style="font-size:10px;color:var(--text3)">${b.email||''}</div></td>
+    <td><a href="tel:${b.phone}" style="color:var(--cyan)">${b.phone||'—'}</a></td>
+    <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
+    <td style="color:var(--gold)">${b.amount?'₹'+b.amount:'—'}</td>
+    <td style="color:var(--text3);font-size:10px">${b.profile||'—'}</td>
+    <td style="color:var(--text3);font-size:10px">${b.location||'—'}</td>
+    <td>${PILL[b.status]||`<span class="pill p-gray">${b.status||'—'}</span>`}</td>
+    <td style="font-size:10px;color:var(--text3)">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
+  </tr>`).join('');
+}
+
+function exportBorrowers(){
+  const all = getBorrowers();
+  const header = 'No,ID,Name,Phone,Product,Amount,Profile,Location,Status,Added On\n';
+  const rows = all.map((b,i)=>`${i+1},${b.id||''},${b.name||''},${b.phone||''},${b.product||''},${b.amount||''},${b.profile||''},${b.location||''},${b.status||''},${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):''}`).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([header+rows],{type:'text/csv'}));
+  a.download='DSA_CRM_Borrowers_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); showToast('📥 Borrowers exported!');
+}
+
+function renderSavedPolicies(){
+  const policies = getPolicies();
+  if(!policies.length) return;
 }
 
 function downloadUsers(){
@@ -1373,5 +1548,69 @@ function updateDateTime(){
     ' | '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
 }
 </script>
+
+<!-- ═══════════════════════════════════════════════════
+     FIREBASE — Admin Dashboard Connection
+     Same project as main CRM — reads all shared data
+════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+  var FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
+    authDomain:        "credit-engine-2ffba.firebaseapp.com",
+    databaseURL:       "https://credit-engine-2ffba-default-rtdb.firebaseio.com",
+    projectId:         "credit-engine-2ffba",
+    storageBucket:     "credit-engine-2ffba.firebasestorage.app",
+    messagingSenderId: "432392785380",
+    appId:             "1:432392785380:web:c1919a7affce5a5b954bf1",
+    measurementId:     "G-RR6H44CKDM"
+  };
+
+  function setBadge(text, color){
+    var b = document.getElementById('adm-fb-badge');
+    if(b){ b.textContent=text; b.style.color=color; }
+  }
+
+  function connectFirebase(){
+    if(typeof firebase === 'undefined'){
+      console.warn('Firebase SDK not loaded');
+      setBadge('💾 Offline', '#f59e0b');
+      // Still seed from localStorage
+      ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
+        try{ var v=localStorage.getItem(k); if(v) _admCache[k]=JSON.parse(v); }catch(e){}
+      });
+      if(typeof loadDashboard==='function') loadDashboard();
+      if(typeof renderBorrowers==='function') renderBorrowers();
+      if(typeof renderUsers==='function') renderUsers();
+      return;
+    }
+    try {
+      var app = firebase.apps && firebase.apps.length
+        ? firebase.apps[0]
+        : firebase.initializeApp(FIREBASE_CONFIG);
+      _admDb = firebase.database();
+      setBadge('🔥 Firebase Live', '#22c55e');
+      console.log('✅ Admin Firebase connected — credit-engine-2ffba');
+      _startAdmListeners(); // starts real-time listeners
+    } catch(err){
+      console.warn('Admin Firebase init failed:', err.message);
+      setBadge('💾 Offline', '#f59e0b');
+      ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
+        try{ var v=localStorage.getItem(k); if(v) _admCache[k]=JSON.parse(v); }catch(e){}
+      });
+      if(typeof loadDashboard==='function') loadDashboard();
+      if(typeof renderBorrowers==='function') renderBorrowers();
+    }
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', connectFirebase);
+  } else {
+    connectFirebase();
+  }
+})();
+</script>
+
 </body>
 </html>
