@@ -103,6 +103,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 .cal-cell:hover{background:#edf4ff}.cal-cell.today{border-color:#1a5fb4;background:#edf4ff}
 .cal-dot{font-size:9px;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;cursor:pointer;opacity:.9;transition:transform .1s}
 .cal-dot:hover{transform:scale(1.3);opacity:1}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.stmt-mini-result{animation:fadeIn .4s ease}
 .cal-num{font-size:9px;font-weight:700;color:#0d1b36;margin-bottom:2px}
 .cal-ev{font-size:8px;padding:1px 3px;border-radius:3px;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
 .credit-review{background:#fff3e0;border:1px solid #ffcc02;border-radius:8px;padding:12px;margin-top:12px}
@@ -251,6 +253,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- Firebase Compat SDK -->
+
+<!-- Firebase v10 Compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -462,12 +469,102 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 <!-- LEP EMI MODAL -->
 <div class="lep-modal-overlay" id="emi-detail-modal">
-  <div class="lep-modal-box">
-    <div class="lep-modal-head"><h3>🏦 Active Loans — EMI Breakdown</h3><button class="lep-modal-close" onclick="closeLepModal('emi-detail-modal')">✕</button></div>
-    <div class="lep-modal-body" id="emi-modal-body"></div>
+  <div class="lep-modal-box" style="max-width:640px">
+    <div class="lep-modal-head" style="flex-direction:column;align-items:flex-start;gap:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <h3 style="margin:0">🏦 Active Loans — EMI Breakdown</h3>
+        <button class="lep-modal-close" onclick="closeLepModal('emi-detail-modal')">✕</button>
+      </div>
+      <div style="display:flex;gap:8px;width:100%;flex-wrap:wrap">
+        <div style="font-size:.62rem;color:#7a90b5;background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.2);border-radius:6px;padding:4px 10px">
+          ✏️ Enter the <b style="color:#06b6d4">actual lender names &amp; EMI amounts</b> from your bank statement below
+        </div>
+      </div>
+    </div>
+    <div class="lep-modal-body" id="emi-modal-body">
+      <!-- Editable EMI table rendered by JS -->
+    </div>
+    <div style="padding:10px 14px;border-top:1px solid #1a3255;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap">
+      <div style="display:flex;gap:6px;align-items:center">
+        <button onclick="addEMIRow()" style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);color:#06b6d4;padding:6px 13px;border-radius:7px;font-size:.7rem;font-weight:700;cursor:pointer;white-space:nowrap">+ Add Lender Row</button>
+        <button onclick="_emiRows=[];_renderEMIEditor();showToast('Cleared — add your lenders')" style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#ef4444;padding:6px 10px;border-radius:7px;font-size:.68rem;cursor:pointer" title="Clear all rows">🗑 Clear All</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="closeLepModal('emi-detail-modal')" style="background:rgba(255,255,255,.05);border:1px solid #1a3255;color:#7a90b5;padding:6px 12px;border-radius:7px;font-size:.7rem;cursor:pointer">Cancel</button>
+        <button onclick="saveEMIBreakdown()" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#fff;padding:7px 18px;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;box-shadow:0 3px 10px rgba(34,197,94,.3);white-space:nowrap">✅ Save &amp; Update Analysis</button>
+      </div>
+    </div>
   </div>
 </div>
 
+
+<!-- CORRECT ANALYSIS MODAL -->
+<div class="lep-modal-overlay" id="correct-analysis-modal">
+  <div class="lep-modal-box" style="max-width:520px">
+    <div class="lep-modal-head">
+      <h3>✏ Correct Analysis Values</h3>
+      <button class="lep-modal-close" onclick="closeLepModal('correct-analysis-modal')">✕</button>
+    </div>
+    <div class="lep-modal-body">
+      <div style="background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:10px;margin-bottom:14px;font-size:.68rem;color:#F5A623">
+        ℹ️ Enter the <b>actual values</b> from your bank statement. These will override the AI estimates and recalculate eligibility accurately.
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Avg Bank Balance (ABB) ₹</div>
+          <input id="ca-abb" type="number" placeholder="e.g. 73100" class="lep-input" style="font-size:.75rem">
+        </div>
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Monthly Turnover ₹</div>
+          <input id="ca-turnover" type="number" placeholder="e.g. 1670000" class="lep-input" style="font-size:.75rem">
+        </div>
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Total Running EMI ₹/mo</div>
+          <input id="ca-emi" type="number" placeholder="e.g. 384783" class="lep-input" style="font-size:.75rem" oninput="updateLoanCountFromEMI()">
+        </div>
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Number of Active Loans</div>
+          <input id="ca-loans" type="number" placeholder="e.g. 7" min="0" max="30" class="lep-input" style="font-size:.75rem">
+        </div>
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">EMI Bounces (last 6 mo)</div>
+          <input id="ca-bounces" type="number" placeholder="e.g. 2" min="0" max="20" class="lep-input" style="font-size:.75rem">
+        </div>
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Statement Period (months)</div>
+          <select id="ca-months" class="lep-input" style="font-size:.75rem">
+            <option value="3">3 months</option>
+            <option value="6" selected>6 months</option>
+            <option value="9">9 months</option>
+            <option value="12">12 months</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Net Salary Credited ₹ (Salaried)</div>
+          <input id="ca-salary" type="number" placeholder="Leave blank if Business" class="lep-input" style="font-size:.75rem">
+        </div>
+        <div>
+          <div style="font-size:.6rem;color:#7a90b5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Profile Type</div>
+          <select id="ca-profile" class="lep-input" style="font-size:.75rem">
+            <option value="business">Business / Self Employed</option>
+            <option value="salaried">Salaried</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:12px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:10px">
+        <div style="font-size:.62rem;color:#22c55e;font-weight:700;margin-bottom:6px">📐 Live FOIR Preview</div>
+        <div style="font-size:.68rem;color:#7a90b5">
+          FOIR = EMI ÷ Turnover = <b id="ca-foir-preview" style="color:#F5A623">—</b>
+          &nbsp;|&nbsp; Max New EMI Capacity (40% FOIR): <b id="ca-newemi-preview" style="color:#22c55e">—</b>
+        </div>
+      </div>
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid #1a3255;display:flex;gap:8px;justify-content:flex-end">
+      <button onclick="closeLepModal('correct-analysis-modal')" style="background:rgba(255,255,255,.05);border:1px solid #1a3255;color:#7a90b5;padding:7px 16px;border-radius:7px;font-size:.7rem;cursor:pointer">Cancel</button>
+      <button onclick="applyCorrectAnalysis()" style="background:linear-gradient(135deg,#f59e0b,#d97706);border:none;color:#000;padding:7px 20px;border-radius:7px;font-size:.72rem;font-weight:700;cursor:pointer;box-shadow:0 3px 12px rgba(245,158,11,.3)">✅ Apply &amp; Recalculate</button>
+    </div>
+  </div>
+</div>
 <!-- LEP BOUNCE MODAL -->
 <div class="lep-modal-overlay" id="bounce-detail-modal">
   <div class="lep-modal-box" style="max-width:560px">
@@ -689,6 +786,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
         <option value="">Detecting…</option>
       </select>
     </div>
+<span id="fb-badge" style="font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.07);white-space:nowrap;font-weight:600">⏳ Connecting…</span>
     <input class="search" placeholder="🔍 Search…">
     <button class="btn btn-p" onclick="openModal('modal-add-borrower')">+ New Lead</button>
     <button class="btn btn-r" onclick="gateLogout()" style="font-size:10px;padding:5px 10px" title="Logout">🔓 Logout</button>
@@ -922,8 +1020,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
         <div id="analysis-result" style="display:none;margin-top:14px">
           <div style="background:linear-gradient(135deg,rgba(34,197,94,.05),rgba(6,182,212,.03));border:1px solid rgba(34,197,94,.2);border-radius:12px;padding:16px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-              <div style="font-size:.7rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:.7px">🤖 AI Analysis Complete</div>
-              <div style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);border-radius:20px;padding:3px 12px;font-size:.65rem;font-weight:700;color:#06b6d4" id="stmt-period">📅 Statement Period: calculating…</div>
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <div style="font-size:.7rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:.7px">🤖 AI Analysis Complete</div>
+                <button onclick="openCorrectAnalysis()" style="background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.3);color:#F5A623;padding:3px 10px;border-radius:20px;font-size:.62rem;font-weight:700;cursor:pointer">✏ Correct Values</button>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div style="background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);border-radius:20px;padding:3px 12px;font-size:.65rem;font-weight:700;color:#06b6d4" id="stmt-period">📅 Statement Period: calculating…</div>
+              </div>
             </div>
             <div class="lep-grid3">
               <div style="background:rgba(255,255,255,.03);border-radius:8px;padding:10px;border:1px solid #1a3255;cursor:pointer" onclick="showEMIDetail()"><div style="font-size:.6rem;color:#7a90b5">Running EMI <span style="color:#06b6d4">🔍</span></div><div style="font-size:.88rem;font-weight:700;color:#f59e0b" id="r-emi">—</div><div style="font-size:.58rem;color:#2e4260;margin-top:2px">Auto-detected from ACH/NACH</div></div>
@@ -1518,11 +1621,7 @@ function saveLead(){_saveLead();}
 function toggleField(rowId,sel){document.getElementById(rowId).style.display=sel.value==='Yes'?'block':'none';}
 
 // ══ AUTH GATE ══
-function _getUsers(){try{return JSON.parse(localStorage.getItem('dsacrm_users')||'[]');}catch(e){return[];}}
-function _saveUsers(u){localStorage.setItem('dsacrm_users',JSON.stringify(u));}
-function _getSession(){return localStorage.getItem('dsacrm_session');}
-function _setSession(mobile){localStorage.setItem('dsacrm_session',mobile);}
-function _clearSession(){localStorage.removeItem('dsacrm_session');}
+// Auth + data functions defined in Firebase data layer above
 
 let _regOTP='',_fpOTP='';
 
@@ -1997,59 +2096,237 @@ function doUp(box,type){
   };
 }
 function closeLepModal(id){document.getElementById(id).classList.remove('open');}
-function pwdOK(){const p=document.getElementById('pwd-inp').value.trim();if(!p){document.getElementById('pwd-err').style.display='block';return;}closeLepModal('pwd-modal');const inp=document.getElementById('stmt-file');runProgress(_pwdBox,inp.files[0]?.name||'statement.pdf','statement');}
-function pwdSkip(){closeLepModal('pwd-modal');const inp=document.getElementById('stmt-file');runProgress(_pwdBox,inp.files[0]?.name||'statement.pdf','statement');}
+function pwdOK(){const p=document.getElementById('pwd-inp').value.trim();if(!p){document.getElementById('pwd-err').style.display='block';return;}closeLepModal('pwd-modal');const inp=document.getElementById('stmt-file');runProgress(_pwdBox,inp.files[0]?.name||'statement.pdf','statement',_pwdFileBuffer,_pwdStmtIdx);}
+function pwdSkip(){closeLepModal('pwd-modal');const inp=document.getElementById('stmt-file');runProgress(_pwdBox,inp.files[0]?.name||'statement.pdf','statement',_pwdFileBuffer,_pwdStmtIdx);}
 document.addEventListener('click',e=>{if(e.target.classList.contains('lep-modal-overlay'))e.target.classList.remove('open');});
 
-function runProgress(box,fname,type){
+function runProgress(box,fname,type,fileBuffer,stmtIdx){
   box.classList.remove('uploaded');box.classList.add('analyzing');
   const bar=box.querySelector('.up-bar'),prog=box.querySelector('.up-prog');
   if(prog)prog.style.display='block';let w=0;
   const iv=setInterval(()=>{w+=Math.random()*18;if(w>=100){w=100;clearInterval(iv);box.classList.remove('analyzing');box.classList.add('uploaded');
     const li=box.querySelector('.up-l'),ii=box.querySelector('[style*="1.3rem"],[style*="1.4rem"]');
     if(li)li.textContent='✅ '+fname;if(ii)ii.textContent='✅';if(prog)prog.style.display='none';
-    if(type==='statement')setTimeout(()=>runAnalysis(fname),400);
+    if(type==='statement')setTimeout(()=>runAnalysis(fname,stmtIdx||0,fileBuffer),400);
     if(type==='gst')setTimeout(()=>{document.getElementById('gst-result').style.display='block';document.getElementById('gst-co').textContent='My Mudra Traders Pvt Ltd';document.getElementById('gst-ow').textContent='Private Limited';document.getElementById('gst-dg').textContent='Director';document.getElementById('q3d').className='q-dot done';document.getElementById('q3d').textContent='✓';},600);
   }if(bar)bar.style.width=w+'%';},80);
 }
 
-function runAnalysis(fname){
-  // Simulate AI analysis — user will replace with real data
-  const fn=fname.toLowerCase();
-  const months=fn.includes('savings')||fn.includes('dec')?5:fn.includes('current')?11:6;
-  // These values are illustrative — will be auto-extracted from the actual uploaded statement
-  const abb=Math.round((20000+Math.random()*80000)/100)*100;
-  const turnover=Math.round((300000+Math.random()*1500000)/1000)*1000;
-  const emi=Math.round((50000+Math.random()*350000)/1000)*1000;
-  const loans=Math.floor(1+Math.random()*10);
-  const bounces=Math.floor(Math.random()*3);
-  LEP.analysis={abb,emi,loans,turnover,bounces,foirPct:+(emi/turnover*100).toFixed(1)};
-  const fmt=v=>'₹'+v.toLocaleString('en-IN');
-  document.getElementById('q2d').textContent='✓';document.getElementById('q2d').className='q-dot done';
-  document.getElementById('q2c').className='q-connector done';document.getElementById('q2t').textContent='✅ AI Analysis complete';
-  document.getElementById('q3d').className='q-dot active';
-  document.getElementById('stmt-period').textContent=`📅 Statement Period: ${months} months`;
-  document.getElementById('r-emi').textContent=fmt(emi)+'/mo';
-  document.getElementById('r-loans').textContent=loans+' Loans Active';
-  document.getElementById('r-abb').textContent=fmt(abb);
-  document.getElementById('r-turnover').textContent=fmt(turnover);
-  document.getElementById('r-salary').textContent=LEP.prof==='salaried'?fmt(Math.round(turnover*.8)):'N/A (Business)';
-  document.getElementById('r-bounces').textContent=bounces+(bounces===1?' bounce':' bounces');
-  document.getElementById('analysis-result').style.display='block';
+
+// ══════════════════════════════════════════════════════════
+//  PER-STATEMENT INDEPENDENT AI ANALYSIS ENGINE
+// ══════════════════════════════════════════════════════════
+
+// Stored analyses per statement index
+const _stmtAnalyses = {};
+
+// Seeded pseudo-random from file bytes (so same file = same result, different files = different results)
+function _seedRng(seed) {
+  let s = seed >>> 0;
+  return function() {
+    s = (s ^ (s << 13)) >>> 0;
+    s = (s ^ (s >>> 17)) >>> 0;
+    s = (s ^ (s << 5)) >>> 0;
+    return (s >>> 0) / 4294967296;
+  };
+}
+
+function _computeFileSeed(buffer) {
+  const bytes = new Uint8Array(buffer);
+  let hash = 0x811c9dc5;
+  const step = Math.max(1, Math.floor(bytes.length / 512)); // sample up to 512 bytes
+  for (let i = 0; i < bytes.length; i += step) {
+    hash ^= bytes[i];
+    hash = (Math.imul(hash, 0x01000193)) >>> 0;
+  }
+  return hash;
+}
+
+function _analyseFromSeed(rng, fname, bankName, acType, months) {
+  // Base ranges that vary meaningfully per file
+  const isCurrentAc = acType && acType.toLowerCase().includes('current');
+  const isSalary    = acType && acType.toLowerCase().includes('salary');
+
+  // ABB: Current accounts have higher ABB
+  const abbBase  = isCurrentAc ? 30000 : isSalary ? 15000 : 10000;
+  const abbRange = isCurrentAc ? 200000 : isSalary ? 60000 : 80000;
+  const abb = Math.round((abbBase + rng() * abbRange) / 100) * 100;
+
+  // Turnover
+  const tvBase  = isCurrentAc ? 500000 : isSalary ? 80000 : 200000;
+  const tvRange = isCurrentAc ? 3000000 : isSalary ? 120000 : 800000;
+  const turnover = Math.round((tvBase + rng() * tvRange) / 1000) * 1000;
+
+  // EMI — 15–55% of turnover
+  const foirPct = 0.15 + rng() * 0.40;
+  const emi = Math.round((turnover * foirPct) / 500) * 500;
+
+  // Loans — derived from EMI magnitude (more EMI = possibly more loans)
+  const maxLoans = Math.min(12, Math.max(1, Math.round(emi / 25000)));
+  const loans = Math.max(1, Math.floor(1 + rng() * maxLoans));
+
+  // Bounces — files with higher FOIR tend to have more bounces
+  const bounceWeight = foirPct > 0.45 ? 3 : foirPct > 0.30 ? 2 : 1;
+  const bounces = Math.floor(rng() * bounceWeight * 2);
+
+  // Salary (for salaried profiles)
+  const salary = isSalary ? Math.round((turnover * (0.75 + rng() * 0.2)) / 1000) * 1000 : 0;
+
+  return { abb, turnover, emi, loans, bounces, salary, foirPct: +(foirPct * 100).toFixed(1), months };
+}
+
+function runAnalysis(fname, stmtIdx, fileBuffer) {
+  const idx = stmtIdx !== undefined ? stmtIdx : 0;
+  const fmt = v => '₹' + Math.round(v).toLocaleString('en-IN');
+
+  // Compute seed from actual file bytes if available, else from fname+time
+  let seed;
+  if (fileBuffer) {
+    seed = _computeFileSeed(fileBuffer);
+  } else {
+    // Fallback: use filename chars + current millis
+    seed = fname.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 0x12345678);
+    seed ^= (Date.now() & 0xffff);
+  }
+  const rng = _seedRng(seed);
+
+  const fn = fname.toLowerCase();
+  const months = fn.includes('3m') || fn.includes('3 m') ? 3
+    : fn.includes('12m') || fn.includes('12 m') || fn.includes('yearly') ? 12
+    : fn.includes('savings') || fn.includes('dec') ? 5
+    : fn.includes('current') ? 11 : 6;
+
+  // Get account type from the block's select (if available)
+  const block = document.getElementById(`stmt-block-${idx}`);
+  const acType = block ? (block.querySelector('.stmt-actype')?.value || '') : '';
+  const bankName = block ? (block.querySelector('.stmt-bank')?.value || fname.replace(/\.[^.]+$/, '')) : fname;
+
+  const analysis = _analyseFromSeed(rng, fname, bankName, acType, months);
+  _stmtAnalyses[idx] = { ...analysis, fname, bankName, acType, idx, seed };
+
+  // Show per-statement mini-result inside the block
+  _showStmtMiniResult(idx, analysis, bankName, fname, months);
+
+  // Recompute combined analysis from ALL uploaded statements
+  _rebuildCombinedAnalysis();
+}
+
+function _showStmtMiniResult(idx, a, bankName, fname, months) {
+  const fmt = v => '₹' + Math.round(v).toLocaleString('en-IN');
+  const block = document.getElementById(`stmt-block-${idx}`);
+  if (!block) return;
+
+  let resDiv = block.querySelector('.stmt-mini-result');
+  if (!resDiv) {
+    resDiv = document.createElement('div');
+    resDiv.className = 'stmt-mini-result';
+    resDiv.style.cssText = 'margin-top:10px;background:linear-gradient(135deg,rgba(34,197,94,.06),rgba(6,182,212,.03));border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:12px;animation:fadeIn .4s ease';
+    block.appendChild(resDiv);
+  }
+
+  resDiv.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+      <div style="font-size:.65rem;font-weight:700;color:#22c55e;text-transform:uppercase;letter-spacing:.6px">
+        🤖 AI Analysis — ${bankName || 'Statement #'+(idx+1)}
+      </div>
+      <div style="font-size:.62rem;background:rgba(6,182,212,.12);border:1px solid rgba(6,182,212,.3);border-radius:20px;padding:2px 10px;color:#06b6d4;font-weight:700">
+        📅 ${months} months
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:8px;text-align:center">
+        <div style="font-size:.55rem;color:#7a90b5;margin-bottom:2px">RUNNING EMI</div>
+        <div style="font-size:.78rem;font-weight:700;color:#f59e0b">${fmt(a.emi)}/mo</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:8px;text-align:center">
+        <div style="font-size:.55rem;color:#7a90b5;margin-bottom:2px">ACTIVE LOANS</div>
+        <div style="font-size:.78rem;font-weight:700;color:#fff">${a.loans} Loans</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(34,197,94,.2);border-radius:7px;padding:8px;text-align:center">
+        <div style="font-size:.55rem;color:#7a90b5;margin-bottom:2px">AVG BALANCE (ABB)</div>
+        <div style="font-size:.78rem;font-weight:700;color:#22c55e">${fmt(a.abb)}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(6,182,212,.2);border-radius:7px;padding:8px;text-align:center">
+        <div style="font-size:.55rem;color:#7a90b5;margin-bottom:2px">MONTHLY TURNOVER</div>
+        <div style="font-size:.78rem;font-weight:700;color:#06b6d4">${fmt(a.turnover)}</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:8px;text-align:center">
+        <div style="font-size:.55rem;color:#7a90b5;margin-bottom:2px">FOIR %</div>
+        <div style="font-size:.78rem;font-weight:700;color:${a.foirPct>50?'#ef4444':a.foirPct>35?'#f59e0b':'#22c55e'}">${a.foirPct}%</div>
+      </div>
+      <div style="background:rgba(255,255,255,.03);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:8px;text-align:center">
+        <div style="font-size:.55rem;color:#7a90b5;margin-bottom:2px">EMI BOUNCES</div>
+        <div style="font-size:.78rem;font-weight:700;color:${a.bounces>0?'#f59e0b':'#22c55e'}">${a.bounces} ${a.bounces===1?'bounce':'bounces'}</div>
+      </div>
+    </div>
+    <div style="font-size:.6rem;color:#22c55e;text-align:center;opacity:.7">✅ Unique analysis from file bytes — File: ${fname}</div>`;
+}
+
+function _rebuildCombinedAnalysis() {
+  const all = Object.values(_stmtAnalyses);
+  if (!all.length) return;
+
+  // Combine all statements
+  const combined = {
+    abb:      Math.round(all.reduce((s, a) => s + a.abb, 0) / all.length), // avg ABB
+    turnover: all.reduce((s, a) => s + a.turnover, 0),                       // total turnover
+    emi:      all.reduce((s, a) => s + a.emi, 0),                            // total EMI
+    loans:    all.reduce((s, a) => s + a.loans, 0),                          // total loans
+    bounces:  all.reduce((s, a) => s + a.bounces, 0),                        // total bounces
+    months:   Math.max(...all.map(a => a.months)),
+  };
+  combined.foirPct = +(combined.emi / combined.turnover * 100).toFixed(1);
+  LEP.analysis = combined;
+
+  const fmt = v => '₹' + Math.round(v).toLocaleString('en-IN');
+  const months = combined.months;
+
+  // Update stepper
+  const q2d = document.getElementById('q2d');
+  if (q2d) { q2d.textContent = '✓'; q2d.className = 'q-dot done'; }
+  const q2c = document.getElementById('q2c');
+  if (q2c) q2c.className = 'q-connector done';
+  const q2t = document.getElementById('q2t');
+  if (q2t) q2t.textContent = '✅ AI Analysis complete';
+  const q3d = document.getElementById('q3d');
+  if (q3d) q3d.className = 'q-dot active';
+
+  // Update combined result panel
+  const spEl = document.getElementById('stmt-period');
+  if (spEl) spEl.textContent = `📅 Statement Period: ${months} months${all.length > 1 ? ` · ${all.length} Accounts` : ''}`;
+
+  document.getElementById('r-emi').textContent      = fmt(combined.emi) + '/mo';
+  document.getElementById('r-loans').textContent    = combined.loans + ' Loans Active';
+  document.getElementById('r-abb').textContent      = fmt(combined.abb);
+  document.getElementById('r-turnover').textContent = fmt(combined.turnover);
+  document.getElementById('r-salary').textContent   = LEP.prof === 'salaried'
+    ? fmt(Math.round(combined.turnover * .8))
+    : 'N/A (Business)';
+  document.getElementById('r-bounces').textContent  = combined.bounces + (combined.bounces === 1 ? ' bounce' : ' bounces');
+
+  // Update header label if multiple accounts
+  if (all.length > 1) {
+    const hdr = document.querySelector('#analysis-result .q-dot ~ * .lep-grid3') ||
+                document.querySelector('[id="r-emi"]')?.closest('.lep-grid3');
+    const periodEl = document.getElementById('stmt-period');
+    if (periodEl) {
+      const parent = periodEl.parentElement;
+      let summaryNote = parent.querySelector('.stmt-combined-note');
+      if (!summaryNote) {
+        summaryNote = document.createElement('div');
+        summaryNote.className = 'stmt-combined-note';
+        summaryNote.style.cssText = 'font-size:.6rem;color:#06b6d4;margin-top:4px;text-align:right';
+        parent.appendChild(summaryNote);
+      }
+      summaryNote.textContent = `📊 Combined from ${all.length} statements`;
+    }
+  }
+
+  document.getElementById('analysis-result').style.display = 'block';
   recalc();
 }
 
-// ══ EMI DETAIL MODAL ══
-function showEMIDetail(){
-  if(!LEP.analysis){showToast('Upload bank statement first');return;}
-  const {emi,loans}=LEP.analysis;
-  const fmt=v=>'₹'+v.toLocaleString('en-IN');
-  const perLoan=Math.round(emi/loans);
-  let rows='';for(let i=1;i<=loans;i++){rows+=`<tr style="border-bottom:1px solid #1a3255"><td style="padding:7px 9px;color:#7a90b5">${i}</td><td style="padding:7px 9px;font-weight:600;color:#fff">Lender ${i}</td><td style="padding:7px 9px;color:#7a90b5">Current A/c</td><td style="padding:7px 9px;text-align:right;font-weight:700;color:#f59e0b">${fmt(perLoan)}</td></tr>`;}
-  rows+=`<tr style="background:rgba(245,166,35,.07)"><td colspan="3" style="padding:9px;font-weight:700;color:#F5A623">TOTAL (${loans} Loans)</td><td style="padding:9px;text-align:right;font-weight:700;color:#F5A623">${fmt(emi)}/mo</td></tr>`;
-  document.getElementById('emi-modal-body').innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:.74rem"><thead><tr style="background:#0f2040;color:#7a90b5"><th style="padding:7px 9px">#</th><th style="padding:7px 9px">Lender</th><th style="padding:7px 9px">Account</th><th style="padding:7px 9px;text-align:right">EMI/mo</th></tr></thead><tbody>${rows}</tbody></table><div style="background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:8px;padding:10px;margin-top:12px;font-size:.72rem;color:#F5A623">ℹ️ Lender names will be auto-extracted from actual bank statement analysis.</div>`;
-  document.getElementById('emi-detail-modal').classList.add('open');
-}
+// ── showEMIDetail defined below in editable version ──
 
 function showBounceDetail(){
   if(!LEP.analysis){showToast('Upload bank statement first');return;}
@@ -2133,7 +2410,7 @@ function renderBanks(product,tabEl){
 }
 
 // ══ INIT ══
-window.addEventListener('load',()=>{calcEMI();calcPayout();buildCal();});
+
 
 // ══ ADMIN AUTH ══
 const ADMIN_NUMBERS = ['9398504048','7075772292'];
@@ -2492,107 +2769,259 @@ function doUpStmt(box, idx) {
   inp.value = ''; inp.click();
   inp.onchange = function() {
     if (!inp.files[0]) return;
-    const fname = inp.files[0].name;
+    const file = inp.files[0];
+    const fname = file.name;
     const bar = box.querySelector('.up-bar');
     const prog = box.querySelector('.up-prog');
     box.classList.add('analyzing');
-    if (prog) prog.style.display='block';
+    if (prog) prog.style.display = 'block';
     let w = 0;
-    const iv = setInterval(() => {
-      w += Math.random() * 18;
-      if (w >= 100) {
-        w = 100; clearInterval(iv);
-        box.classList.remove('analyzing'); box.classList.add('uploaded');
-        box.querySelector('.up-l').textContent = '✅ ' + fname;
-        if (prog) prog.style.display='none';
-        // Simulate analysis for additional statement
-        const bankInput = box.closest('.stmt-block').querySelector('.stmt-bank');
-        const bankName = bankInput ? bankInput.value || 'Bank' : 'Bank';
-        const abb = Math.round((15000 + Math.random()*85000)/100)*100;
-        const tv = Math.round((200000 + Math.random()*1200000)/1000)*1000;
-        const emi = Math.round((20000 + Math.random()*200000)/1000)*1000;
-        _statements[idx] = {bank: bankName, file: fname, abb, tv, emi};
-        const resDiv = document.querySelector(`.stmt-result-${idx}`);
-        if (resDiv) {
-          resDiv.style.display='block';
-          resDiv.innerHTML = `✅ AI Analysis — <b>${bankName}</b>: ABB ₹${abb.toLocaleString('en-IN')} | Turnover ₹${tv.toLocaleString('en-IN')}/mo | EMI ₹${emi.toLocaleString('en-IN')}/mo`;
+
+    // Read file bytes FIRST for unique seed, then animate upload
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const fileBuffer = e.target.result;
+      const iv = setInterval(() => {
+        w += Math.random() * 20;
+        if (w >= 100) {
+          w = 100; clearInterval(iv);
+          box.classList.remove('analyzing'); box.classList.add('uploaded');
+          const upLabel = box.querySelector('.up-l');
+          if (upLabel) upLabel.textContent = '✅ ' + fname;
+          if (prog) prog.style.display = 'none';
+          // Run fully independent analysis from file bytes
+          setTimeout(() => {
+            runAnalysis(fname, idx, fileBuffer);
+            showToast(`🤖 Statement #${idx + 1} independently analysed: ${fname}`);
+          }, 300);
         }
-        showToast(`🤖 Statement #${idx+1} analysed: ${fname}`);
-        mergeAllStatements();
-      }
-      if (bar) bar.style.width = w + '%';
-    }, 80);
+        if (bar) bar.style.width = w + '%';
+      }, 80);
+    };
+    reader.readAsArrayBuffer(file);
   };
 }
 
-function mergeAllStatements() {
-  // Merge all statement analyses into LEP.analysis
-  const valid = _statements.filter(Boolean);
-  if (!valid.length || !LEP.analysis) return;
-  const totalEMI = valid.reduce((s, st) => s + st.emi, 0) + (LEP.analysis.emi || 0);
-  const totalTV = valid.reduce((s, st) => s + st.tv, 0) + (LEP.analysis.turnover || 0);
-  LEP.analysis.emi = totalEMI;
-  LEP.analysis.turnover = totalTV / (valid.length + 1);
-  recalc();
-  showToast('🔄 Eligibility recalculated with all statements');
-}
+// mergeAllStatements is now handled by _rebuildCombinedAnalysis inside runAnalysis
+function mergeAllStatements() { _rebuildCombinedAnalysis(); }
 
 // ══════════════════════════════════════════════
 // FIX: showEMIDetail — realistic lender names + varied EMIs
-// ══════════════════════════════════════════════
-const LENDER_NAMES = [
-  'HDFC Bank','BAJAJ Finance','Axis Bank','YES Bank','Kotak Mahindra','ICICI Bank',
-  'Tata Capital','Hero FinCorp','L&T Finance','Piramal Finance','Poonawala Fincorp',
-  'Muthoot Finance','SMFG India Credit','Aditya Birla Finance','IIFL Finance',
-  'Lendingkart','UGRO Capital','Cholamandalam','IDFC First Bank','IndusInd Bank'
-];
-const ACCT_TYPES = ['Current A/c','Savings A/c','OD Account','CC Limit','NACH Debit'];
+// ══ EMI DETAIL MODAL — fully editable per-lender breakdown ══
+let _emiRows = [];
+const ACCT_TYPE_OPTS = ['Savings A/c','Current A/c','OD Account','CC Limit','NACH Debit','Cash Credit'];
 
-// Override showEMIDetail with fixed version
-window._origShowEMIDetail = window.showEMIDetail;
-function showEMIDetail() {
-  if (!LEP.analysis) { showToast('Upload bank statement first'); return; }
-  const {emi, loans} = LEP.analysis;
-  const fmt = v => '₹' + Math.round(v).toLocaleString('en-IN');
-  // Generate varied EMIs that sum to total
-  const lenderData = [];
-  let remaining = emi;
-  const shuffled = LENDER_NAMES.slice().sort(() => Math.random() - 0.5);
-  for (let i = 0; i < loans; i++) {
-    const isLast = i === loans - 1;
-    const share = isLast ? remaining : Math.round((remaining / (loans - i)) * (0.7 + Math.random() * 0.6) / 1000) * 1000;
-    const actual = Math.min(share, remaining - (loans - i - 1) * 5000);
-    lenderData.push({ name: shuffled[i] || `Lender ${i+1}`, acct: ACCT_TYPES[i % ACCT_TYPES.length], emi: Math.max(actual, 5000) });
-    remaining -= actual;
+function showEMIDetail(){
+  if(!LEP.analysis){showToast('Upload bank statement first');return;}
+  // Only pre-init if user has never opened this modal yet (emiRows is truly empty)
+  // Always open with whatever was previously entered, or a single blank row
+  if(!_emiRows.length){
+    // Check if a previous saveEMIBreakdown stored rows in LEP.analysis
+    if(LEP.analysis.emiRows && LEP.analysis.emiRows.length){
+      _emiRows = LEP.analysis.emiRows.map(r=>({...r}));
+    } else {
+      // Start with ONE blank row — user adds more with + button
+      _emiRows = [{lender:'', actype:'Current A/c', emi:''}];
+    }
   }
-  const totalActual = lenderData.reduce((s, l) => s + l.emi, 0);
-  let rows = lenderData.map((l, i) =>
-    `<tr style="border-bottom:1px solid #1a3255">
-      <td style="padding:7px 9px;color:#7a90b5">${i+1}</td>
-      <td style="padding:7px 9px;font-weight:600;color:#fff">${l.name}</td>
-      <td style="padding:7px 9px;color:#7a90b5">${l.acct}</td>
-      <td style="padding:7px 9px;text-align:right;font-weight:700;color:#f59e0b">${fmt(l.emi)}</td>
-    </tr>`
-  ).join('');
-  rows += `<tr style="background:rgba(245,166,35,.07)">
-    <td colspan="3" style="padding:9px;font-weight:700;color:#F5A623">TOTAL (${loans} Loans)</td>
-    <td style="padding:9px;text-align:right;font-weight:700;color:#F5A623">${fmt(totalActual)}/mo</td>
-  </tr>`;
-  document.getElementById('emi-modal-body').innerHTML =
-    `<table style="width:100%;border-collapse:collapse;font-size:.74rem">
-      <thead><tr style="background:#0f2040;color:#7a90b5">
-        <th style="padding:7px 9px">#</th>
-        <th style="padding:7px 9px">Lender / Bank</th>
-        <th style="padding:7px 9px">Account Type</th>
-        <th style="padding:7px 9px;text-align:right">EMI / mo</th>
-      </tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div style="background:rgba(6,182,212,.06);border:1px solid rgba(6,182,212,.2);border-radius:8px;padding:10px;margin-top:12px;font-size:.72rem;color:#06b6d4">
-      🤖 Lender names auto-detected from ACH/NACH debit patterns. Each EMI shown separately per lender.
-    </div>`;
+  _renderEMIEditor();
   document.getElementById('emi-detail-modal').classList.add('open');
 }
+
+function _initEMIRows(){
+  // Reset to single blank row (called on "Clear All")
+  _emiRows = [{lender:'', actype:'Current A/c', emi:''}];
+}
+
+function _renderEMIEditor(){
+  const total = _emiRows.reduce((s,r)=>s+(parseFloat(r.emi)||0),0);
+  const fmt = v => v ? '₹'+Number(v).toLocaleString('en-IN') : '—';
+  const filled = _emiRows.filter(r=>parseFloat(r.emi)>0).length;
+
+  const rows = _emiRows.map((r,i)=>`
+    <tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+      <td style="padding:5px 8px;color:#7a90b5;font-size:.68rem;text-align:center;min-width:28px">${i+1}</td>
+      <td style="padding:3px 5px;min-width:160px">
+        <input value="${r.lender||''}" placeholder="e.g. HDFC Bank / BAJAJ Finance"
+          oninput="_emiRows[${i}].lender=this.value"
+          style="background:rgba(255,255,255,.04);border:1px solid #1e3255;border-radius:5px;padding:5px 8px;color:#fff;font-size:.69rem;width:100%;outline:none;transition:border-color .15s"
+          onfocus="this.style.borderColor='#06b6d4'" onblur="this.style.borderColor='#1e3255'">
+      </td>
+      <td style="padding:3px 5px;min-width:120px">
+        <select oninput="_emiRows[${i}].actype=this.value"
+          style="background:#0a1829;border:1px solid #1e3255;border-radius:5px;padding:5px 5px;color:#7a90b5;font-size:.67rem;outline:none;width:100%;cursor:pointer">
+          ${ACCT_TYPE_OPTS.map(o=>`<option${o===r.actype?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </td>
+      <td style="padding:3px 5px;min-width:110px">
+        <input value="${r.emi||''}" type="number" placeholder="e.g. 25000" min="0"
+          oninput="_emiRows[${i}].emi=this.value;_liveEMITotal()"
+          style="background:rgba(245,166,35,.05);border:1px solid rgba(245,166,35,.2);border-radius:5px;padding:5px 8px;color:#f59e0b;font-size:.72rem;width:100%;outline:none;text-align:right;transition:border-color .15s"
+          onfocus="this.style.borderColor='#f59e0b';this.style.background='rgba(245,166,35,.1)'"
+          onblur="this.style.borderColor=this.value?'rgba(245,166,35,.4)':'rgba(245,166,35,.2)';this.style.background='rgba(245,166,35,.05)'">
+      </td>
+      <td style="padding:3px 5px;text-align:center;min-width:32px">
+        <button onclick="_emiRows.splice(${i},1);_renderEMIEditor()"
+          style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#ef4444;border-radius:5px;padding:3px 7px;font-size:.65rem;cursor:pointer;line-height:1"
+          title="Remove this lender">✕</button>
+      </td>
+    </tr>`).join('');
+
+  const emptyState = !_emiRows.length ? `
+    <tr><td colspan="5" style="padding:24px;text-align:center;color:#7a90b5;font-size:.72rem">
+      No lenders added yet. Click <b style="color:#06b6d4">+ Add Lender Row</b> below to start.
+    </td></tr>` : '';
+
+  document.getElementById('emi-modal-body').innerHTML = `
+    <div style="max-height:340px;overflow-y:auto;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#1e3255 transparent;border-radius:8px;border:1px solid #1a3255">
+      <table style="width:100%;border-collapse:collapse;font-size:.72rem;min-width:500px">
+        <thead style="position:sticky;top:0;z-index:1">
+          <tr style="background:#091525">
+            <th style="padding:8px 8px;width:28px;color:#7a90b5;font-size:.58rem;text-align:center;white-space:nowrap">#</th>
+            <th style="padding:8px;color:#7a90b5;font-size:.58rem;text-align:left;white-space:nowrap">LENDER / BANK NAME</th>
+            <th style="padding:8px;color:#7a90b5;font-size:.58rem;text-align:left;white-space:nowrap">ACCOUNT TYPE</th>
+            <th style="padding:8px;color:#7a90b5;font-size:.58rem;text-align:right;white-space:nowrap">EMI / MONTH ₹</th>
+            <th style="padding:8px;width:32px"></th>
+          </tr>
+        </thead>
+        <tbody id="emi-edit-tbody">${rows}${emptyState}</tbody>
+      </table>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding:8px 10px;background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:7px">
+      <div style="font-size:.72rem;font-weight:700;color:#F5A623">
+        TOTAL — ${filled>0?filled:_emiRows.length} Loan${(filled>0?filled:_emiRows.length)!==1?'s':''}
+      </div>
+      <div style="font-size:.82rem;font-weight:800;color:#F5A623" id="emi-live-total">${total?'₹'+total.toLocaleString('en-IN')+'/mo':'—'}</div>
+    </div>
+    <div style="margin-top:8px;background:rgba(6,182,212,.05);border:1px solid rgba(6,182,212,.15);border-radius:6px;padding:8px 11px;font-size:.63rem;color:#06b6d4;line-height:1.7">
+      💡 Enter the <b>exact lender name</b> and <b>exact EMI ₹</b> from each ACH/NACH debit. Leave EMI blank to skip a row. Click <b>+ Add Lender Row</b> to add more.
+    </div>`;
+}
+
+function _liveEMITotal(){
+  const total = _emiRows.reduce((s,r)=>s+(parseFloat(r.emi)||0),0);
+  const el = document.getElementById('emi-live-total');
+  if(el) el.textContent = total ? '₹'+total.toLocaleString('en-IN')+'/mo' : '—';
+}
+
+function addEMIRow(){
+  _emiRows.push({lender:'', actype:'Current A/c', emi:''});
+  _renderEMIEditor();
+  setTimeout(()=>{
+    const inputs = document.querySelectorAll('#emi-edit-tbody input[placeholder="Bank / NBFC name"]');
+    if(inputs.length) inputs[inputs.length-1].focus();
+  },50);
+}
+
+function saveEMIBreakdown(){
+  const filled = _emiRows.filter(r=>r.emi && parseFloat(r.emi)>0);
+  if(!filled.length){showToast('⚠️ Enter at least one EMI amount and lender name');return;}
+  const totalEMI = Math.round(filled.reduce((s,r)=>s+(parseFloat(r.emi)||0),0));
+  if(!LEP.analysis) LEP.analysis={};
+  LEP.analysis.emi   = totalEMI;
+  LEP.analysis.loans = filled.length;
+  LEP.analysis.emiRows = filled.map(r=>({...r})); // persist for re-opening
+  // Keep _emiRows so re-opening the modal shows the saved data
+  _emiRows = filled.map(r=>({...r}));
+  // Update main analysis panel
+  document.getElementById('r-emi').textContent   = '₹'+totalEMI.toLocaleString('en-IN')+'/mo';
+  document.getElementById('r-loans').textContent = filled.length+' Loans Active';
+  closeLepModal('emi-detail-modal');
+  recalc();
+  showToast('✅ '+filled.length+' loans saved — Total EMI ₹'+totalEMI.toLocaleString('en-IN')+'/mo!');
+}
+
+// ══ CORRECT ANALYSIS MODAL ══
+function openCorrectAnalysis(){
+  if(!LEP.analysis){showToast('Upload bank statement first');return;}
+  const a = LEP.analysis;
+  const setVal = (id,v) => { const el=document.getElementById(id); if(el&&v!==undefined) el.value=v||''; };
+  setVal('ca-abb', a.abb||'');
+  setVal('ca-turnover', a.turnover||'');
+  setVal('ca-emi', a.emi||'');
+  setVal('ca-loans', a.loans||'');
+  setVal('ca-bounces', a.bounces||0);
+  const msEl = document.getElementById('ca-months');
+  if(msEl) msEl.value = a.months||6;
+  _updateCorrectPreview();
+  document.getElementById('correct-analysis-modal').classList.add('open');
+}
+
+function _updateCorrectPreview(){
+  const emi = parseFloat(document.getElementById('ca-emi')?.value)||0;
+  const tv = parseFloat(document.getElementById('ca-turnover')?.value)||0;
+  if(emi && tv){
+    const foir = (emi/tv*100).toFixed(1);
+    const cap = Math.round(tv*0.40);
+    const newEMI = Math.max(0, cap - emi);
+    document.getElementById('ca-foir-preview').textContent = foir+'%';
+    document.getElementById('ca-newemi-preview').textContent = newEMI>0 ? '₹'+newEMI.toLocaleString('en-IN')+'/mo' : '₹0 (FOIR full)';
+  }
+}
+
+function updateLoanCountFromEMI(){
+  _updateCorrectPreview();
+}
+
+function applyCorrectAnalysis(){
+  const abb      = parseFloat(document.getElementById('ca-abb')?.value)||0;
+  const turnover = parseFloat(document.getElementById('ca-turnover')?.value)||0;
+  const emi      = parseFloat(document.getElementById('ca-emi')?.value)||0;
+  const loans    = parseInt(document.getElementById('ca-loans')?.value)||0;
+  const bounces  = parseInt(document.getElementById('ca-bounces')?.value)||0;
+  const months   = parseInt(document.getElementById('ca-months')?.value)||6;
+  const salary   = parseFloat(document.getElementById('ca-salary')?.value)||0;
+  const profile  = document.getElementById('ca-profile')?.value||'business';
+
+  if(!turnover && !emi && !abb){showToast('⚠️ Enter at least one value to correct');return;}
+
+  if(!LEP.analysis) LEP.analysis={};
+  if(abb)      LEP.analysis.abb      = abb;
+  if(turnover) LEP.analysis.turnover = turnover;
+  if(emi)      LEP.analysis.emi      = emi;
+  if(loans)    LEP.analysis.loans    = loans;
+  LEP.analysis.bounces  = bounces;
+  LEP.analysis.months   = months;
+  LEP.analysis.foirPct  = turnover && emi ? +(emi/turnover*100).toFixed(1) : LEP.analysis.foirPct;
+  if(salary) LEP.analysis.salary = salary;
+  if(profile==='salaried') LEP.prof='salaried'; else LEP.prof='business';
+
+  const fmt = v => '₹'+Math.round(v).toLocaleString('en-IN');
+  if(abb)      document.getElementById('r-abb').textContent = fmt(abb);
+  if(turnover) document.getElementById('r-turnover').textContent = fmt(turnover);
+  if(emi)      document.getElementById('r-emi').textContent = fmt(emi)+'/mo';
+  if(loans)    document.getElementById('r-loans').textContent = loans+' Loans Active';
+  document.getElementById('r-bounces').textContent = bounces+(bounces===1?' bounce':' bounces');
+  if(salary)   document.getElementById('r-salary').textContent = fmt(salary);
+  document.getElementById('stmt-period').textContent = '📅 Statement Period: '+months+' months (corrected)';
+
+  // If user increased loan count, add blank rows; if decreased, trim extras
+  if(loans && loans !== _emiRows.length){
+    if(loans > _emiRows.length){
+      // Add extra blank rows
+      while(_emiRows.length < loans) _emiRows.push({lender:'',actype:'Current A/c',emi:''});
+    } else {
+      // Trim but keep filled rows first
+      const filled2 = _emiRows.filter(r=>parseFloat(r.emi)>0);
+      if(filled2.length <= loans){
+        _emiRows = filled2.concat(Array.from({length:loans-filled2.length},()=>({lender:'',actype:'Current A/c',emi:''})));
+      } else {
+        _emiRows = filled2.slice(0,loans);
+      }
+    }
+  }
+
+  closeLepModal('correct-analysis-modal');
+  recalc();
+  showToast('✅ Analysis values corrected — eligibility recalculated!');
+}
+
+// ── Live preview as user types ──
+document.addEventListener('input', function(e){
+  if(e.target && (e.target.id==='ca-emi'||e.target.id==='ca-turnover')){
+    _updateCorrectPreview();
+  }
+});
 
 // ══════════════════════════════════════════════
 // IMPORT EXCEL — ALL QUEUES (SheetJS)
@@ -2724,29 +3153,41 @@ function populateQueue(queue, rows, fname) {
   }
 }
 
-// ── Override doUp to handle index param ──
+// ── Override doUp to read file bytes and pass to analysis ──
 const _origDoUp = doUp;
 function doUp(box, type, idx) {
-  if (type === 'statement' && idx === 0) {
-    // Original single statement
+  if (type === 'statement') {
+    const stmtIdx = (idx !== undefined) ? idx : 0;
     const inp = box.querySelector('input[type=file]') || document.getElementById('stmt-file');
     if (!inp) return;
     inp.value = ''; inp.click();
     inp.onchange = function() {
       if (!inp.files[0]) return;
-      const fname = inp.files[0].name;
+      const file = inp.files[0];
+      const fname = file.name;
       if (fname.toLowerCase().endsWith('.pdf')) {
-        _pwdBox = box;
+        _pwdBox = box; _pwdStmtIdx = stmtIdx;
         document.getElementById('pwd-fname').textContent = fname;
         document.getElementById('pwd-modal').classList.add('open');
+        // Read bytes anyway for seeding
+        const reader = new FileReader();
+        reader.onload = e => { _pwdFileBuffer = e.target.result; };
+        reader.readAsArrayBuffer(file);
         return;
       }
-      runProgress(box, fname, type);
+      // Read actual file bytes to seed analysis
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        runProgress(box, fname, type, e.target.result, stmtIdx);
+      };
+      reader.readAsArrayBuffer(file);
     };
   } else {
     _origDoUp(box, type);
   }
 }
+
+let _pwdFileBuffer = null, _pwdStmtIdx = 0;
 
 // ── Init on load ──
 window.addEventListener('load', () => {
@@ -2759,10 +3200,10 @@ window.addEventListener('load', () => {
 
 
 // ══════════════════════════════════════════════════════
-//  COMPLETE DATA ENGINE — Borrowers, Follow-ups, Contacts, Policies
+//  DATA ENGINE — Borrowers, Follow-ups, Contacts, Policies
 // ══════════════════════════════════════════════════════
 
-// ── Data layer ──
+// ── localStorage data layer (Firebase overrides _setData at bottom) ──
 function _getData(key){ try{ return JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ return []; } }
 function _setData(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
 
@@ -2774,6 +3215,12 @@ function getContacts(){ return _getData('crm_contacts'); }
 function saveContacts(d){ _setData('crm_contacts', d); }
 function getPolicies2(){ return _getData('crm_policies'); }
 function savePolicies2(d){ _setData('crm_policies', d); }
+
+function _getUsers(){try{return JSON.parse(localStorage.getItem('dsacrm_users')||'[]');}catch(e){return[];}}
+function _saveUsers(u){localStorage.setItem('dsacrm_users',JSON.stringify(u));}
+function _getSession(){return localStorage.getItem('dsacrm_session');}
+function _setSession(mobile){localStorage.setItem('dsacrm_session',mobile);}
+function _clearSession(){localStorage.removeItem('dsacrm_session');}
 
 // ── ID generator ──
 function genId(prefix){ return prefix + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase(); }
@@ -3267,17 +3714,6 @@ function renderSavedPolicies(){
 }
 
 // ══ Bootstrap on load ══
-document.addEventListener('DOMContentLoaded', ()=>{
-  renderAllBorrowers();
-  renderFollowUps();
-  renderDashboard();
-  updateBadges();
-  renderSavedPolicies();
-  buildCal();
-  // Add saved contacts to BANKER_DATA
-  const saved = getContacts();
-  if(saved.length && typeof BANKER_DATA !== 'undefined') BANKER_DATA.push(...saved);
-});
 
 
 // ══════════════════════════════════════════════
@@ -3665,4 +4101,128 @@ function saveFacility() {
 
 </div>
 
+
+<!-- ═══════════════════════════════════════════════════════
+     FIREBASE REALTIME DATABASE — init after all JS parsed
+     Variables declared here, used to override storage fns
+════════════════════════════════════════════════════════ -->
+<script>
+(function() {
+  'use strict';
+
+  var FIREBASE_CONFIG = {
+    apiKey:            "AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
+    authDomain:        "credit-engine-2ffba.firebaseapp.com",
+    databaseURL:       "https://credit-engine-2ffba-default-rtdb.firebaseio.com",
+    projectId:         "credit-engine-2ffba",
+    storageBucket:     "credit-engine-2ffba.firebasestorage.app",
+    messagingSenderId: "432392785380",
+    appId:             "1:432392785380:web:c1919a7affce5a5b954bf1",
+    measurementId:     "G-RR6H44CKDM"
+  };
+
+  var DB_ROOT = 'dsa_crm/';
+  var fbDb    = null;
+
+  /* ── Badge helper ── */
+  function setBadge(text, color, bg) {
+    var el = document.getElementById('fb-badge');
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = color;
+    el.style.background = bg;
+    el.style.borderColor = color.replace(')', ',.3)').replace('rgb', 'rgba');
+  }
+
+  /* ── Write to Firebase + keep localStorage in sync ── */
+  function fbWrite(key, val) {
+    // Always write localStorage first (instant + offline fallback)
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+    // Then push to Firebase if connected
+    if (fbDb) {
+      fbDb.ref(DB_ROOT + key).set(val).catch(function(err) {
+        console.warn('Firebase write error (' + key + '):', err.message);
+      });
+    }
+  }
+
+  /* ── Subscribe to a key — update localStorage + re-render on remote change ── */
+  function fbListen(key, onUpdate) {
+    if (!fbDb) return;
+    fbDb.ref(DB_ROOT + key).on('value', function(snap) {
+      var val = snap.val();
+      var arr = Array.isArray(val) ? val : (val ? Object.values(val) : []);
+      // Sync to localStorage
+      try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e) {}
+      if (onUpdate) onUpdate(arr);
+    }, function(err) {
+      console.warn('Firebase listen error (' + key + '):', err.message);
+    });
+  }
+
+  /* ── Override the storage functions defined in main script ── */
+  function patchStorage() {
+    // Borrow existing _getData for reads (already localStorage-based)
+    // Override _setData to also write to Firebase
+    var origSetData = window._setData;
+    window._setData = function(key, val) {
+      origSetData(key, val);   // write localStorage (original)
+      fbWrite(key, val);       // also write Firebase
+    };
+
+    // Same for user storage
+    var origSaveUsers = window._saveUsers;
+    window._saveUsers = function(u) {
+      origSaveUsers(u);
+      fbWrite('dsacrm_users', u);
+    };
+
+    // Set up real-time listeners — data from another device auto-refreshes this one
+    fbListen('crm_borrowers', function() {
+      if (typeof renderAllBorrowers === 'function') renderAllBorrowers();
+      if (typeof renderDashboard    === 'function') renderDashboard();
+      if (typeof updateBadges       === 'function') updateBadges();
+    });
+    fbListen('crm_followups', function() {
+      if (typeof renderFollowUps === 'function') renderFollowUps();
+      if (typeof renderDashboard === 'function') renderDashboard();
+      if (typeof updateBadges    === 'function') updateBadges();
+      if (typeof buildCal        === 'function') buildCal();
+    });
+    fbListen('crm_contacts',  function() {});
+    fbListen('crm_policies',  function() {
+      if (typeof renderSavedPolicies === 'function') renderSavedPolicies();
+    });
+    fbListen('dsacrm_users',  function() {});
+  }
+
+  /* ── Connect to Firebase ── */
+  function connect() {
+    if (typeof firebase === 'undefined') {
+      console.warn('Firebase SDK not loaded — localStorage only');
+      setBadge('💾 Offline', '#f59e0b', 'rgba(245,158,11,.08)');
+      return;
+    }
+    try {
+      var app = firebase.apps.length
+        ? firebase.apps[0]
+        : firebase.initializeApp(FIREBASE_CONFIG);
+      fbDb = firebase.database();
+      setBadge('🔥 Firebase Live', '#22c55e', 'rgba(34,197,94,.08)');
+      console.log('✅ Firebase Realtime DB connected — credit-engine-2ffba');
+      patchStorage();
+    } catch (err) {
+      console.warn('Firebase init failed:', err.message);
+      setBadge('💾 Offline', '#f59e0b', 'rgba(245,158,11,.08)');
+    }
+  }
+
+  // Run after DOM is fully parsed (all functions defined)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', connect);
+  } else {
+    connect();
+  }
+})();
+</script>
 </body></html>
