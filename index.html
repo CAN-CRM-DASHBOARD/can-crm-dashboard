@@ -254,10 +254,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- Firebase Compat SDK -->
-
-<!-- Firebase v10 Compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
 </head>
 <body>
 
@@ -786,7 +786,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
         <option value="">Detecting…</option>
       </select>
     </div>
-<span id="fb-badge" style="font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.07);white-space:nowrap;font-weight:600">⏳ Connecting…</span>
+    <span id="fb-status-badge" style="font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid rgba(245,166,35,.3);color:#f59e0b;background:rgba(245,166,35,.08);white-space:nowrap;transition:all .4s">🔄 Connecting…</span>
     <input class="search" placeholder="🔍 Search…">
     <button class="btn btn-p" onclick="openModal('modal-add-borrower')">+ New Lead</button>
     <button class="btn btn-r" onclick="gateLogout()" style="font-size:10px;padding:5px 10px" title="Logout">🔓 Logout</button>
@@ -1566,27 +1566,224 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 <!-- WHATSAPP CRM -->
 <div class="sec" id="sec-whatsapp">
-  <div class="wa-bar"><div class="wa-dot"></div><div style="font-size:12px;font-weight:600;color:#1b5e20">WhatsApp Business · +91 98765 43210</div><span class="pill p-g" style="margin-left:auto">LIVE</span></div>
-  <div class="ftabs">
-    <span class="ftab active" onclick="filterRows('wa-tbody','ALL',this)">All</span>
-    <span class="ftab" onclick="filterRows('wa-tbody','ACTIVE LOANS',this)">💰 Active Loans</span>
-    <span class="ftab" onclick="filterRows('wa-tbody','PROMOTIONS',this)">📢 Promotions</span>
-    <span class="ftab" onclick="filterRows('wa-tbody','DRIP FLOWS',this)">🔄 Drip Flows</span>
-    <span class="ftab" onclick="filterRows('wa-tbody','CLOSED',this)">🔒 Closed</span>
+
+  <!-- Top bar -->
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:36px;height:36px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">💬</div>
+      <div>
+        <div style="font-weight:700;font-size:13px;color:#0d1b36">WhatsApp CRM</div>
+        <div style="font-size:10px;color:#7a8aaa">Loan Leads + Orders · Automation</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <div id="wa-connect-status" style="display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;background:#e8f5e9;border:1px solid #a5d6a7;font-size:10px;font-weight:700;color:#2e7d32">
+        <div style="width:6px;height:6px;border-radius:50%;background:#25d366;animation:blink 1.4s infinite"></div>Connected
+      </div>
+      <button class="btn btn-p" style="font-size:11px" onclick="openWASettings()">⚙ Settings</button>
+      <button class="btn btn-g" style="font-size:11px" onclick="openNewBroadcast()">📢 Broadcast</button>
+    </div>
   </div>
-  <div class="g2">
-    <div class="card"><div class="card-head"><span class="card-title">Conversations</span></div>
-    <table><thead><tr><th>Contact</th><th>Last Message</th><th>Type</th><th>Time</th></tr></thead>
-    <tbody id="wa-tbody"><tr><td colspan="4"><div class="empty-state"><div class="ei">▷</div><p>No WhatsApp conversations yet.</p></div></td></tr></tbody></table></div>
-    <div class="card"><div class="card-head"><span class="card-title">Broadcast Templates</span></div>
-    <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
-      <div style="border:1px solid #dde2ee;border-radius:8px;padding:10px"><div style="font-size:11px;font-weight:700;color:#1a5fb4;margin-bottom:3px">🏠 Home Loan Offer</div><div style="font-size:11px;color:#555">Home loans from ₹10L at 8.5% p.a. Apply today!</div><button class="btn btn-p" style="font-size:9px;padding:2px 8px;margin-top:6px" onclick="showToast('Broadcast sent!')">Send</button></div>
-      <div style="border:1px solid #dde2ee;border-radius:8px;padding:10px"><div style="font-size:11px;font-weight:700;color:#2e7d32;margin-bottom:3px">📋 Doc Reminder</div><div style="font-size:11px;color:#555">Dear [Name], please submit pending documents to proceed.</div><button class="btn btn-g" style="font-size:9px;padding:2px 8px;margin-top:6px" onclick="showToast('Reminder sent!')">Send</button></div>
-      <div style="border:1px solid #dde2ee;border-radius:8px;padding:10px"><div style="font-size:11px;font-weight:700;color:#e65100;margin-bottom:3px">⚡ Instant Loan Alert</div><div style="font-size:11px;color:#555">Pre-approved! Personal loan up to ₹10L awaits you.</div><button class="btn btn-p" style="font-size:9px;padding:2px 8px;margin-top:6px" onclick="showToast('Alert sent!')">Send</button></div>
+
+  <!-- Tabs -->
+  <div class="ftabs" style="margin-bottom:12px">
+    <span class="ftab active" onclick="waTab(this,'inbox')">📥 Inbox <span id="wa-unread-badge" style="background:#ef4444;color:#fff;border-radius:10px;padding:0 5px;font-size:9px;margin-left:3px">3</span></span>
+    <span class="ftab" onclick="waTab(this,'leads')">💼 DSA Leads Pipeline</span>
+    <span class="ftab" onclick="waTab(this,'orders')">☕ Order Pipeline</span>
+    <span class="ftab" onclick="waTab(this,'automation')">🤖 Automation Flows</span>
+    <span class="ftab" onclick="waTab(this,'broadcast')">📢 Broadcasts</span>
+    <span class="ftab" onclick="waTab(this,'templates')">📋 Templates</span>
+    <span class="ftab" onclick="waTab(this,'analytics')">📊 Analytics</span>
+  </div>
+
+  <!-- ── INBOX ── -->
+  <div id="wa-tab-inbox" class="wa-tab-content">
+    <div style="display:grid;grid-template-columns:300px 1fr;gap:12px;height:520px">
+      <!-- Contact list -->
+      <div class="card" style="overflow:hidden;display:flex;flex-direction:column">
+        <div style="padding:8px 10px;border-bottom:1px solid #eef0f5">
+          <input style="width:100%;padding:6px 10px;border:1px solid #dde2ee;border-radius:6px;font-size:11px" placeholder="🔍 Search conversations…" id="wa-search-inp" oninput="filterWAConversations()">
+        </div>
+        <div style="overflow-y:auto;flex:1" id="wa-contact-list"></div>
+      </div>
+      <!-- Chat window -->
+      <div class="card" style="overflow:hidden;display:flex;flex-direction:column">
+        <div id="wa-chat-header" style="padding:10px 14px;border-bottom:1px solid #eef0f5;display:flex;align-items:center;gap:10px">
+          <div style="font-size:12px;font-weight:600;color:#0d1b36">Select a conversation</div>
+        </div>
+        <div id="wa-chat-body" style="flex:1;overflow-y:auto;padding:12px;background:#f0f2f5;display:flex;flex-direction:column;gap:8px">
+          <div style="text-align:center;color:#7a8aaa;font-size:11px;margin-top:80px">Select a conversation to start</div>
+        </div>
+        <div id="wa-chat-input-bar" style="padding:8px 12px;border-top:1px solid #eef0f5;display:flex;gap:8px;align-items:center">
+          <select id="wa-template-quick" style="padding:5px 8px;border:1px solid #dde2ee;border-radius:6px;font-size:10px;flex-shrink:0" onchange="insertTemplate(this)">
+            <option value="">📋 Templates…</option>
+            <option value="doc_request">Request Documents</option>
+            <option value="follow_up">Follow-up Reminder</option>
+            <option value="approved">Loan Approved 🎉</option>
+            <option value="order_ready">Order Ready ☕</option>
+          </select>
+          <input id="wa-msg-input" style="flex:1;padding:7px 10px;border:1px solid #dde2ee;border-radius:20px;font-size:12px" placeholder="Type a message…" onkeydown="if(event.key==='Enter')sendWAMessage()">
+          <button onclick="sendWAMessage()" style="background:#25d366;color:#fff;border:none;border-radius:50%;width:34px;height:34px;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">➤</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DSA LEADS PIPELINE ── -->
+  <div id="wa-tab-leads" class="wa-tab-content" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#0d1b36">💼 DSA Loan Leads — WhatsApp Pipeline</div>
+      <button class="btn btn-p" style="font-size:11px" onclick="addWALead()">+ Add Lead</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;overflow-x:auto">
+      <div id="wap-new"         style="background:#f7f9fc;border-radius:8px;padding:10px;min-height:400px"><div style="font-weight:700;font-size:11px;color:#1a5fb4;margin-bottom:8px;padding:4px 8px;background:#e3f2fd;border-radius:4px">🔵 New Lead</div><div id="wap-new-list"></div></div>
+      <div id="wap-contacted"   style="background:#f7f9fc;border-radius:8px;padding:10px;min-height:400px"><div style="font-weight:700;font-size:11px;color:#e65100;margin-bottom:8px;padding:4px 8px;background:#fff3e0;border-radius:4px">📞 Contacted</div><div id="wap-contacted-list"></div></div>
+      <div id="wap-docs"        style="background:#f7f9fc;border-radius:8px;padding:10px;min-height:400px"><div style="font-weight:700;font-size:11px;color:#6a1b9a;margin-bottom:8px;padding:4px 8px;background:#f3e5f5;border-radius:4px">📂 Docs Collected</div><div id="wap-docs-list"></div></div>
+      <div id="wap-submitted"   style="background:#f7f9fc;border-radius:8px;padding:10px;min-height:400px"><div style="font-weight:700;font-size:11px;color:#1565c0;margin-bottom:8px;padding:4px 8px;background:#bbdefb;border-radius:4px">🏦 Submitted</div><div id="wap-submitted-list"></div></div>
+      <div id="wap-closed"      style="background:#f7f9fc;border-radius:8px;padding:10px;min-height:400px"><div style="font-weight:700;font-size:11px;color:#2e7d32;margin-bottom:8px;padding:4px 8px;background:#e8f5e9;border-radius:4px">✅ Approved/Rejected</div><div id="wap-closed-list"></div></div>
+    </div>
+  </div>
+
+  <!-- ── ORDER PIPELINE ── -->
+  <div id="wa-tab-orders" class="wa-tab-content" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#0d1b36">☕ Order Pipeline — Tea & Snacks</div>
+      <button class="btn btn-p" style="font-size:11px" onclick="addWAOrder()">+ New Order</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+      <div style="background:#fff8f3;border:1px solid #ffcc80;border-radius:8px;padding:10px;min-height:320px"><div style="font-weight:700;font-size:11px;color:#e65100;margin-bottom:8px">🆕 New Order</div><div id="ord-new-list"></div></div>
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px;min-height:320px"><div style="font-weight:700;font-size:11px;color:#f57f17;margin-bottom:8px">☕ Preparing</div><div id="ord-prep-list"></div></div>
+      <div style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:10px;min-height:320px"><div style="font-weight:700;font-size:11px;color:#2e7d32;margin-bottom:8px">✅ Ready</div><div id="ord-ready-list"></div></div>
+      <div style="background:#f3e5f5;border:1px solid #ce93d8;border-radius:8px;padding:10px;min-height:320px"><div style="font-weight:700;font-size:11px;color:#6a1b9a;margin-bottom:8px">🚀 Delivered</div><div id="ord-done-list"></div></div>
+    </div>
+  </div>
+
+  <!-- ── AUTOMATION ── -->
+  <div id="wa-tab-automation" class="wa-tab-content" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card">
+        <div class="card-head"><span class="card-title">🤖 DSA Loan Automation Flows</span><span class="pill p-g">Active</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+          <div id="auto-flow-dsa"></div>
+          <button class="btn btn-p" style="font-size:11px" onclick="addAutoFlow('dsa')">+ Add Flow</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">☕ Order Business Flows</span><span class="pill p-g">Active</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+          <div id="auto-flow-orders"></div>
+          <button class="btn btn-p" style="font-size:11px" onclick="addAutoFlow('orders')">+ Add Flow</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <div class="card-head"><span class="card-title">⚡ Smart Bot Builder</span></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+          <div style="border:1px solid #dde2ee;border-radius:8px;padding:12px">
+            <div style="font-size:11px;font-weight:700;color:#1a5fb4;margin-bottom:8px">🎯 Trigger</div>
+            <select style="width:100%;padding:6px;border:1px solid #dde2ee;border-radius:6px;font-size:11px" id="bot-trigger">
+              <option>New message received</option>
+              <option>Keyword: "loan"</option>
+              <option>Keyword: "order"</option>
+              <option>After 2 days no reply</option>
+              <option>Customer sends document</option>
+            </select>
+          </div>
+          <div style="border:1px solid #dde2ee;border-radius:8px;padding:12px">
+            <div style="font-size:11px;font-weight:700;color:#e65100;margin-bottom:8px">⚙ Condition</div>
+            <select style="width:100%;padding:6px;border:1px solid #dde2ee;border-radius:6px;font-size:11px" id="bot-condition">
+              <option>Always</option>
+              <option>First message only</option>
+              <option>Lead stage = New</option>
+              <option>Order = Pending</option>
+            </select>
+          </div>
+          <div style="border:1px solid #dde2ee;border-radius:8px;padding:12px">
+            <div style="font-size:11px;font-weight:700;color:#2e7d32;margin-bottom:8px">✅ Action</div>
+            <select style="width:100%;padding:6px;border:1px solid #dde2ee;border-radius:6px;font-size:11px" id="bot-action">
+              <option>Send auto reply</option>
+              <option>Send document checklist</option>
+              <option>Move to next pipeline stage</option>
+              <option>Tag as Hot Lead</option>
+              <option>Schedule follow-up</option>
+              <option>Notify team member</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:10px">
+          <textarea id="bot-reply-text" style="width:100%;padding:8px;border:1px solid #dde2ee;border-radius:6px;font-size:11px;height:60px" placeholder="Auto-reply message text (use {name} for customer name)…"></textarea>
+        </div>
+        <button class="btn btn-p" style="margin-top:8px" onclick="saveAutoFlow()">✅ Save Automation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BROADCASTS ── -->
+  <div id="wa-tab-broadcast" class="wa-tab-content" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="card">
+        <div class="card-head"><span class="card-title">📢 New Broadcast</span></div>
+        <div class="card-body">
+          <div class="fg"><div class="fl">Broadcast Name</div><input placeholder="e.g. October Loan Offers" id="bc-bname"></div>
+          <div class="fg"><div class="fl">Target Audience</div>
+            <select id="bc-audience">
+              <option>All Contacts</option><option>DSA Leads Only</option><option>Hot Leads (Tagged)</option>
+              <option>Pending Documents</option><option>Order Customers</option><option>Repeat Customers</option>
+            </select>
+          </div>
+          <div class="fg"><div class="fl">Message Template</div>
+            <select id="bc-tmpl" onchange="previewBroadcast()">
+              <option value="">— Select Template —</option>
+              <option value="loan_offer">🏦 Loan Offer Alert</option>
+              <option value="doc_reminder">📂 Document Reminder</option>
+              <option value="approved">🎉 Loan Approved</option>
+              <option value="order_offer">☕ Daily Special Offer</option>
+              <option value="custom">✍ Custom Message</option>
+            </select>
+          </div>
+          <div class="fg"><div class="fl">Schedule</div>
+            <select id="bc-schedule">
+              <option>Send Now</option><option>Send Tomorrow Morning (9 AM)</option>
+              <option>Send This Evening (6 PM)</option><option>Custom Date & Time</option>
+            </select>
+          </div>
+          <div id="bc-preview" style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:10px;font-size:11px;color:#0d1b36;display:none;margin-bottom:10px;white-space:pre-line"></div>
+          <button class="btn btn-p" style="width:100%" onclick="sendBroadcast()">📢 Send Broadcast</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">📊 Recent Broadcasts</span></div>
+        <div id="broadcast-history" style="padding:12px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TEMPLATES ── -->
+  <div id="wa-tab-templates" class="wa-tab-content" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#0d1b36">📋 Message Templates Library</div>
+      <button class="btn btn-p" style="font-size:11px" onclick="addTemplate()">+ New Template</button>
+    </div>
+    <div id="wa-templates-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
+  </div>
+
+  <!-- ── ANALYTICS ── -->
+  <div id="wa-tab-analytics" class="wa-tab-content" style="display:none">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px">
+      <div class="kpi"><div class="kpi-lbl">Total Contacts</div><div class="kpi-val" id="wa-kpi-contacts">0</div></div>
+      <div class="kpi"><div class="kpi-lbl">Messages Sent</div><div class="kpi-val" id="wa-kpi-sent">0</div></div>
+      <div class="kpi"><div class="kpi-lbl">Broadcasts</div><div class="kpi-val" id="wa-kpi-broadcasts">0</div></div>
+      <div class="kpi"><div class="kpi-lbl">Leads Converted</div><div class="kpi-val" id="wa-kpi-converted">0</div></div>
+    </div>
+    <div class="card"><div class="card-head"><span class="card-title">📈 Message Activity — Last 7 Days</span></div>
+    <div class="card-body" style="color:#7a8aaa;font-size:11px;text-align:center;padding:40px">
+      📊 Connect your WhatsApp Business number to see live analytics.<br>
+      <button class="btn btn-p" style="margin-top:10px;font-size:11px" onclick="openWASettings()">⚙ Connect Number</button>
     </div></div>
   </div>
-</div>
 
+</div>
 
 </div></main></div>
 
@@ -1644,6 +1841,15 @@ function switchAuthTab(tab){
   }
 }
 
+// ── Current user (set on login / session restore) ──
+var _currentUser = null;
+function getCurrentUser(){
+  if(_currentUser) return _currentUser;
+  const m=_getSession(); if(!m) return null;
+  const u=_getUsers().find(u=>u.mobile===m)||null;
+  _currentUser=u; return u;
+}
+
 function gateLogin(){
   const mobile=document.getElementById('gate-mobile').value.trim();
   const pass=document.getElementById('gate-pass').value;
@@ -1655,6 +1861,7 @@ function gateLogin(){
   const user=users.find(u=>u.mobile===mobile);
   if(!user){errEl.innerHTML='❌ Mobile number not registered.<br><b>Please <span style="color:#1a5fb4;cursor:pointer;text-decoration:underline" onclick="switchAuthTab(\'register\')">Create a New Account</span> to continue.</b>';errEl.style.display='block';return;}
   if(user.password!==pass){errEl.textContent='❌ Incorrect password. Please try again.';errEl.style.display='block';return;}
+  _currentUser=user;
   _setSession(mobile);
   document.getElementById('auth-gate').style.display='none';
   const sb=document.querySelector('.sb-footer .dsa-name');
@@ -1662,29 +1869,48 @@ function gateLogin(){
   showToast('Welcome back, '+user.name+'! 👋');
 }
 
+// ══ 2factor.in Real SMS OTP ══
+const _2F_KEY = 'a22c0ac1-5a46-11eb-8153-0200cd936042';
+
+function _sendSMS(mobile, otp){
+  // Layer 1: no-cors fetch
+  fetch(`https://2factor.in/API/V1/${_2F_KEY}/SMS/${mobile}/${otp}`,{method:'GET',mode:'no-cors'}).catch(()=>{});
+  // Layer 2: Image tag (different browser code path — CORS-free)
+  const img=new Image();
+  img.src=`https://2factor.in/API/V1/${_2F_KEY}/SMS/${mobile}/${otp}?t=${Date.now()}`;
+  img.onerror=img.onload=()=>{};
+  console.log('📱 OTP dispatched to',mobile,'OTP:',otp);
+}
+function _pingVerify3(mobile, otp){
+  const img=new Image();
+  img.src=`https://2factor.in/API/V1/${_2F_KEY}/SMS/VERIFY3/${mobile}/${otp}`;
+  img.onerror=img.onload=()=>{};
+}
+function _genOTP(){ const a=new Uint32Array(1);crypto.getRandomValues(a);return String(100000+(a[0]%900000)); }
+
 function regSendOTP(){
   const mobile=document.getElementById('gate-reg-mobile').value.trim();
   const errEl=document.getElementById('reg-err');errEl.style.display='none';
   if(!mobile||mobile.length<10){errEl.textContent='⚠️ Please enter a valid 10-digit mobile number.';errEl.style.display='block';return;}
   const users=_getUsers();
   if(users.find(u=>u.mobile===mobile)){errEl.innerHTML='❌ This number is already registered. <span style="color:#1a5fb4;cursor:pointer;text-decoration:underline" onclick="switchAuthTab(\'login\')">Login instead</span>';errEl.style.display='block';return;}
-  _regOTP=Math.floor(100000+Math.random()*900000).toString();
+  _regOTP=_genOTP();
+  _sendSMS(mobile,_regOTP);
   document.getElementById('reg-mob-show').textContent=mobile;
   document.getElementById('reg-s1').style.display='none';
   document.getElementById('reg-s2').style.display='block';
   startTimerEl('reg-timer','reg-resend',30);
-  // Auto-fill OTP boxes with dummy OTP
-  const regBoxes=document.querySelectorAll('#reg-otp-boxes .otp-box');
-  _regOTP.split('').forEach((d,i)=>{if(regBoxes[i])regBoxes[i].value=d;});
-  showToast('📱 OTP Auto-Filled — Click Verify to continue');
+  document.querySelectorAll('#reg-otp-boxes .otp-box').forEach(b=>{b.value='';b.classList?.remove('filled');});
+  showToast('📱 OTP sent to +91'+mobile.replace(/\d(?=\d{4})/g,'*'));
 }
 
 function regResendOTP(){
-  _regOTP=Math.floor(100000+Math.random()*900000).toString();
+  const mobile=document.getElementById('gate-reg-mobile').value.trim();
+  _regOTP=_genOTP();
+  _sendSMS(mobile,_regOTP);
   startTimerEl('reg-timer','reg-resend',30);
-  const regBoxes=document.querySelectorAll('#reg-otp-boxes .otp-box');
-  _regOTP.split('').forEach((d,i)=>{if(regBoxes[i])regBoxes[i].value=d;});
-  showToast('📱 New OTP Auto-Filled — Click Verify to continue');
+  document.querySelectorAll('#reg-otp-boxes .otp-box').forEach(b=>{b.value='';});
+  showToast('📱 New OTP resent!');
 }
 
 function regVerifyOTP(){
@@ -1692,7 +1918,10 @@ function regVerifyOTP(){
   const entered=Array.from(boxes).map(b=>b.value).join('');
   const errEl=document.getElementById('reg-err');errEl.style.display='none';
   if(entered.length<6){errEl.textContent='⚠️ Please enter the complete 6-digit OTP.';errEl.style.display='block';return;}
-  if(entered!==_regOTP){errEl.textContent='❌ Invalid OTP. Please try again.';errEl.style.display='block';return;}
+  if(entered!==_regOTP){errEl.textContent='❌ Incorrect OTP. Please check your SMS and try again.';errEl.style.display='block';
+    boxes.forEach(b=>{b.value='';});boxes[0]?.focus();return;}
+  const mobile=document.getElementById('gate-reg-mobile').value.trim();
+  _pingVerify3(mobile,entered);
   document.getElementById('reg-s2').style.display='none';
   document.getElementById('reg-s3').style.display='block';
 }
@@ -1737,18 +1966,23 @@ function fpSendOTP(){
   if(!mobile||mobile.length<10){errEl.textContent='⚠️ Please enter a valid 10-digit mobile number.';errEl.style.display='block';return;}
   const users=_getUsers();
   if(!users.find(u=>u.mobile===mobile)){errEl.innerHTML='❌ Mobile number not registered.<br><b>Please <span style="color:#1a5fb4;cursor:pointer;text-decoration:underline" onclick="switchAuthTab(\'register\')">Create a New Account</span>.</b>';errEl.style.display='block';return;}
-  _fpOTP=Math.floor(100000+Math.random()*900000).toString();
+  _fpOTP=_genOTP();
+  _sendSMS(mobile,_fpOTP);
   document.getElementById('fp-mob-show').textContent=mobile;
   document.getElementById('fp-s1').style.display='none';
   document.getElementById('fp-s2').style.display='block';
   startTimerEl('fp-timer','fp-resend',30);
-  showToast('📱 Demo OTP: '+_fpOTP+' (Use this to reset)');
+  document.querySelectorAll('#fp-otp-boxes .otp-box').forEach(b=>{b.value='';});
+  showToast('📱 OTP sent to +91'+mobile.replace(/\d(?=\d{4})/g,'*'));
 }
 
 function fpResendOTP(){
-  _fpOTP=Math.floor(100000+Math.random()*900000).toString();
+  const mobile=document.getElementById('fp-mobile').value.trim();
+  _fpOTP=_genOTP();
+  _sendSMS(mobile,_fpOTP);
   startTimerEl('fp-timer','fp-resend',30);
-  showToast('📱 New Demo OTP: '+_fpOTP);
+  document.querySelectorAll('#fp-otp-boxes .otp-box').forEach(b=>{b.value='';});
+  showToast('📱 New OTP resent!');
 }
 
 function fpReset(){
@@ -1793,6 +2027,7 @@ function gateLogout(){
   if(session){
     const user=_getUsers().find(u=>u.mobile===session);
     if(user){
+      _currentUser = user;
       document.getElementById('auth-gate').style.display='none';
       const sb=document.querySelector('.sb-footer .dsa-name');
       if(sb)sb.textContent=user.name+' ('+user.type+')';
@@ -2410,7 +2645,8 @@ function renderBanks(product,tabEl){
 }
 
 // ══ INIT ══
-
+// calcEMI/calcPayout/buildCal now called via _appBoot after Firebase ready
+document.addEventListener('DOMContentLoaded',()=>{setTimeout(()=>{if(typeof calcEMI!=='undefined')calcEMI();if(typeof calcPayout!=='undefined')calcPayout();},200);});
 
 // ══ ADMIN AUTH ══
 const ADMIN_NUMBERS = ['9398504048','7075772292'];
@@ -3200,27 +3436,189 @@ window.addEventListener('load', () => {
 
 
 // ══════════════════════════════════════════════════════
-//  DATA ENGINE — Borrowers, Follow-ups, Contacts, Policies
+//  COMPLETE DATA ENGINE — Borrowers, Follow-ups, Contacts, Policies
 // ══════════════════════════════════════════════════════
 
-// ── localStorage data layer (Firebase overrides _setData at bottom) ──
-function _getData(key){ try{ return JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){ return []; } }
-function _setData(key, val){ localStorage.setItem(key, JSON.stringify(val)); }
+// ── Data layer ──
+// ══════════════════════════════════════════════════════
+//  FIREBASE REALTIME DATABASE — Data Layer
+//  Replaces localStorage with cloud-synced storage
+// ══════════════════════════════════════════════════════
 
-function getBorrowers(){ return _getData('crm_borrowers'); }
-function saveBorrowers(d){ _setData('crm_borrowers', d); }
-function getFollowUps(){ return _getData('crm_followups'); }
-function saveFollowUps(d){ _setData('crm_followups', d); }
-function getContacts(){ return _getData('crm_contacts'); }
-function saveContacts(d){ _setData('crm_contacts', d); }
-function getPolicies2(){ return _getData('crm_policies'); }
-function savePolicies2(d){ _setData('crm_policies', d); }
+// In-memory cache + Firebase state — declared globally at bottom of file
+// (_cache, _fbReady, _fbDb defined in firebase-init block before 
+// ── FIREBASE — Global declarations + Init ──
+// ── Global declarations (used throughout the app) ──
+var _cache = {
+  crm_borrowers: [],
+  crm_followups: [],
+  crm_contacts:  [],
+  crm_policies:  [],
+  dsacrm_users:  []
+};
+var _fbReady = false;
+var _fbDb    = null;
+var _fbApp   = null;
 
-function _getUsers(){try{return JSON.parse(localStorage.getItem('dsacrm_users')||'[]');}catch(e){return[];}}
-function _saveUsers(u){localStorage.setItem('dsacrm_users',JSON.stringify(u));}
-function _getSession(){return localStorage.getItem('dsacrm_session');}
-function _setSession(mobile){localStorage.setItem('dsacrm_session',mobile);}
-function _clearSession(){localStorage.removeItem('dsacrm_session');}
+// ── Firebase config ──
+var firebaseConfig = {
+  apiKey:            "AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
+  authDomain:        "credit-engine-2ffba.firebaseapp.com",
+  databaseURL:       "https://credit-engine-2ffba-default-rtdb.firebaseio.com",
+  projectId:         "credit-engine-2ffba",
+  storageBucket:     "credit-engine-2ffba.firebasestorage.app",
+  messagingSenderId: "432392785380",
+  appId:             "1:432392785380:web:c1919a7affce5a5b954bf1",
+  measurementId:     "G-RR6H44CKDM"
+};
+
+function _updateFBBadge(text, color, bg, border) {
+  var badge = document.getElementById('fb-status-badge');
+  if (!badge) return;
+  badge.textContent = text;
+  badge.style.color = color;
+  badge.style.background = bg;
+  badge.style.borderColor = border;
+}
+
+function _initFirebase() {
+  try {
+    // Prevent double-init
+    if (firebase.apps && firebase.apps.length) {
+      _fbApp = firebase.apps[0];
+    } else {
+      _fbApp = firebase.initializeApp(firebaseConfig);
+    }
+    _fbDb = firebase.database();
+
+    _updateFBBadge('🔥 Firebase Live', '#22c55e', 'rgba(34,197,94,.08)', 'rgba(34,197,94,.3)');
+    console.log('✅ Firebase connected — project: credit-engine-2ffba');
+
+    // Seed from localStorage first for instant display
+    ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'].forEach(function(k) {
+      try {
+        var v = localStorage.getItem(k);
+        if (v) { var parsed = JSON.parse(v); if (Array.isArray(parsed)) _cache[k] = parsed; }
+      } catch(e) {}
+    });
+
+    // Start real-time listeners
+    _startFirebaseListeners();
+    _fbReady = true;
+    if (typeof _appBoot === 'function') _appBoot();
+
+  } catch(err) {
+    console.warn('Firebase init failed — offline mode:', err.message);
+    _updateFBBadge('💾 Offline Mode', '#f59e0b', 'rgba(245,158,11,.08)', 'rgba(245,158,11,.3)');
+    // Load from localStorage as fallback
+    ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'].forEach(function(k) {
+      try { _cache[k] = JSON.parse(localStorage.getItem(k)||'[]'); } catch(e) {}
+    });
+    _fbReady = true;
+    if (typeof _appBoot === 'function') _appBoot();
+  }
+}
+
+// Patch _fbSet to also mirror to localStorage so offline fallback always has data
+var _origFbSet = window._fbSet;
+window._fbSet = function(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  if (_fbDb) {
+    _fbDb.ref('dsa_crm/' + key).set(val).catch(function(e){ console.warn('FB write error:', e); });
+  }
+};
+
+// ── Bootstrap: run after all scripts parsed + DOM ready ──
+document.addEventListener('DOMContentLoaded', function() {
+  // Check Firebase SDK loaded
+  if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+    _initFirebase();
+  } else {
+    console.warn('Firebase SDK not loaded — offline mode');
+    _updateFBBadge('💾 Offline Mode', '#f59e0b', 'rgba(245,158,11,.08)', 'rgba(245,158,11,.3)');
+    ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'].forEach(function(k) {
+      try { _cache[k] = JSON.parse(localStorage.getItem(k)||'[]'); } catch(e) {}
+    });
+    _fbReady = true;
+    if (typeof _appBoot === 'function') _appBoot();
+  }
+});
+
+function _fbPath(key){ return 'dsa_crm/' + key; }
+
+// Write to Firebase (and keep local cache in sync)
+function _fbSet(key, val){
+  _cache[key] = val;
+  if(_fbDb){
+    _fbDb.ref(_fbPath(key)).set(val).catch(e=>console.warn('FB write error:',e));
+  } else {
+    // Fallback: also write to localStorage
+    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  }
+}
+
+// Synchronous getters return cached value (populated by listeners)
+function getBorrowers(){
+  const all = _cache.crm_borrowers||[];
+  const u = getCurrentUser();
+  if(!u) return all;
+  // Admins / DSA Company see all; others see only own records
+  const FULL_ACCESS = ['Individual DSA','DSA Company'];
+  if(FULL_ACCESS.includes(u.type) || !u.addedBy) return all;
+  return all.filter(b=>!b.addedBy || b.addedBy===u.mobile);
+}
+function saveBorrowers(d){ _cache.crm_borrowers=d; _fbSet('crm_borrowers', d); }
+function getFollowUps(){
+  const all = _cache.crm_followups||[];
+  const u = getCurrentUser();
+  if(!u) return all;
+  const FULL_ACCESS = ['Individual DSA','DSA Company'];
+  if(FULL_ACCESS.includes(u.type) || !u.addedBy) return all;
+  return all.filter(f=>!f.addedBy || f.addedBy===u.mobile);
+}
+function saveFollowUps(d){ _cache.crm_followups=d; _fbSet('crm_followups', d); }
+function getContacts(){ return _cache.crm_contacts||[]; }
+function saveContacts(d){ _cache.crm_contacts=d; _fbSet('crm_contacts', d); }
+function getPolicies2(){ return _cache.crm_policies||[]; }
+function savePolicies2(d){ _cache.crm_policies=d; _fbSet('crm_policies', d); }
+
+// Users (auth layer)
+function _getUsers(){ return _cache.dsacrm_users||[]; }
+function _saveUsers(u){ _cache.dsacrm_users=u; _fbSet('dsacrm_users', u); }
+// Session stays in localStorage (device-specific)
+function _getSession(){ return localStorage.getItem('dsacrm_session'); }
+function _setSession(m){ localStorage.setItem('dsacrm_session', m); }
+function _clearSession(){ localStorage.removeItem('dsacrm_session'); }
+
+// ── Start Firebase listeners — keep _cache in sync with RTDB ──
+function _startFirebaseListeners(){
+  const KEYS = ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'];
+  KEYS.forEach(key => {
+    _fbDb.ref(_fbPath(key)).on('value', snap => {
+      const val = snap.val();
+      _cache[key] = Array.isArray(val) ? val : (val ? Object.values(val) : []);
+      // Re-render affected views when data changes from another device
+      _onFirebaseSync(key);
+    }, err => {
+      console.warn('Firebase listener error for', key, err);
+      // Fallback to localStorage
+      try{ _cache[key] = JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
+    });
+  });
+}
+
+function _onFirebaseSync(key){
+  if(!_fbReady) return;
+  if(key==='crm_borrowers')  { renderAllBorrowers(); renderDashboard(); updateBadges(); }
+  if(key==='crm_followups')  { renderFollowUps(); renderDashboard(); updateBadges(); buildCal(); }
+  if(key==='crm_contacts')   { /* contacts sync */ }
+  if(key==='crm_policies')   { renderSavedPolicies(); }
+  if(key==='dsacrm_users')   { /* users sync */ }
+}
+
+// Stub for legacy compat
+function _getData(key){ return _cache[key]||[]; }
+function _setData(key, val){ _fbSet(key, val); }
 
 // ── ID generator ──
 function genId(prefix){ return prefix + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase(); }
@@ -3317,7 +3715,8 @@ function _saveLead(){
   const id = genId('B');
   const dateStr = new Date(dt||Date.now()).toLocaleDateString('en-IN');
 
-  const record = { id, name, phone, email, product, amount, income, profile, location, status, notes, dt: dt||new Date().toISOString(), addedOn: Date.now() };
+  const _u = getCurrentUser(); const _uid = _u ? _u.mobile : 'unknown';
+  const record = { id, name, phone, email, product, amount, income, profile, location, status, notes, dt: dt||new Date().toISOString(), addedOn: Date.now(), addedBy: _uid };
   borrowers.push(record);
   saveBorrowers(borrowers);
 
@@ -3470,7 +3869,8 @@ function saveFollowUp(){
   const outcome = document.getElementById('fu-outcome')?.value || '';
   const fus = getFollowUps();
   const id = genId('F');
-  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now() });
+  const _fuUser = getCurrentUser(); const _fuUid = _fuUser ? _fuUser.mobile : 'unknown';
+  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now(), addedBy: _fuUid });
   saveFollowUps(fus);
 
   renderFollowUps();
@@ -3686,9 +4086,380 @@ function updateBadges(){
   setSB('bankerdir', (typeof BANKER_DATA!=='undefined' ? BANKER_DATA.length : 0) + getContacts().length);
 }
 
+// ════════════════════════════════════════════════════════════
+//  PREMIUM WHATSAPP CRM ENGINE
+// ════════════════════════════════════════════════════════════
+var _waCur=null;
+function _waGet(k){try{return JSON.parse(localStorage.getItem(k)||'[]');}catch(e){return[];}}
+function _waSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
+function _waObj(k,d){try{return JSON.parse(localStorage.getItem(k)||JSON.stringify(d));}catch(e){return d;}}
+
+const WA_DEFAULTS={
+  contacts:[
+    {id:'C001',name:'Ramesh Kumar',phone:'9876543210',type:'lead',loanType:'Business Loan',stage:'new',lastMsg:'Hi, I need a business loan',time:'10:42 AM',unread:2,tag:'hot'},
+    {id:'C002',name:'Priya Sharma',phone:'8765432109',type:'lead',loanType:'Home Loan',stage:'docs',lastMsg:'Uploaded the documents',time:'9:15 AM',unread:0,tag:''},
+    {id:'C003',name:'Tea Order #1',phone:'9988776655',type:'order',orderType:'Masala Chai x2',stage:'new',lastMsg:'Order Tea x2',time:'11:05 AM',unread:1,tag:'repeat'},
+    {id:'C004',name:'Anil Reddy',phone:'7654321098',type:'lead',loanType:'Personal Loan',stage:'submitted',lastMsg:'When will I get approval?',time:'Yesterday',unread:1,tag:''},
+  ],
+  msgs:{
+    C001:[{f:'customer',t:'Hi, I need a business loan of ₹20 lakhs',ts:'10:35 AM'},{f:'bot',t:'Hi Ramesh! 👋 Thank you for reaching out.\n\nTo process your Business Loan, please share:\n✅ PAN + Aadhaar\n✅ Bank Statement (6 months)\n✅ ITR (2 years)\n✅ Business Vintage proof\n\nReply YES to proceed!',ts:'10:35 AM'},{f:'customer',t:'Hi, I need a business loan',ts:'10:42 AM'}],
+    C002:[{f:'customer',t:'I want to apply for home loan',ts:'9:00 AM'},{f:'bot',t:'Hello Priya! 🏠 Our home loan rates start at 8.5% p.a.\n\nPlease upload your documents to proceed.',ts:'9:01 AM'},{f:'customer',t:'Uploaded the documents',ts:'9:15 AM'}],
+    C003:[{f:'customer',t:'Order Tea x2',ts:'11:02 AM'},{f:'bot',t:'☕ Order Received!\n\nHi! Your order is confirmed:\n📝 Masala Chai x2\n⏱ Ready in 10-15 mins\n\nWe\'ll notify you when ready! 😊',ts:'11:02 AM'},{f:'customer',t:'Order Tea x2',ts:'11:05 AM'}],
+  },
+  flows:[
+    {id:'f1',type:'dsa',name:'New Lead Welcome',trigger:'New message',action:'Send auto reply',active:true,reply:'Hi {name}! 👋 Thank you for reaching out to Cat-Eye Consultancy.\n\nWhich loan do you need?\n1️⃣ Personal Loan  2️⃣ Home Loan  3️⃣ Business Loan  4️⃣ LAP\n\nReply 1, 2, 3 or 4!'},
+    {id:'f2',type:'dsa',name:'Document Reminder (2 days)',trigger:'After 2 days no reply',action:'Send doc checklist',active:true,reply:'Hi {name}! 📋 Reminder: please share your documents to proceed with your loan application.\n\nRequired: PAN, Aadhaar, Bank Statement (6mo), ITR'},
+    {id:'f3',type:'orders',name:'Order Auto Reply',trigger:'Keyword: order/tea',action:'Confirm order',active:true,reply:'☕ Order Received! Hi {name}, your order is confirmed. Ready in 10-15 mins! 😊'},
+    {id:'f4',type:'orders',name:'Repeat Customer Tag',trigger:'3rd order',action:'Tag as Repeat',active:true,reply:''},
+  ],
+  templates:[
+    {id:'doc_req',cat:'DSA',name:'Request Documents',body:'Hi {name}! 👋\n\nTo process your {loanType}, please share:\n📋 PAN Card\n🪪 Aadhaar Card\n🏦 Bank Statement (6 months)\n💰 ITR (last 2 years)\n\nWe\'ll process within 24 hours! 🚀'},
+    {id:'follow_up',cat:'DSA',name:'Follow-up Reminder',body:'Hi {name}! 😊\n\nFriendly reminder about your {loanType} application.\n\nYour documents are still pending! We\'re holding your spot.\n\nReply YES to continue or call us.\n\n— Cat-Eye Consultancy 🏦'},
+    {id:'approved',cat:'DSA',name:'Loan Approved 🎉',body:'🎉 Congratulations {name}!\n\nYour {loanType} of ₹{amount} has been APPROVED!\n\nNext Steps:\n✅ eNACH Setup\n✅ eKYC Verification\n✅ Loan Agreement\n\nAmount credited in 24-48 hours. — Cat-Eye Consultancy 🏦'},
+    {id:'hot_lead',cat:'DSA',name:'Hot Lead Offer',body:'🔥 PRIORITY OFFER for {name}!\n\nPre-approved {loanType} up to ₹{amount}\n📊 Rate from 10.5% p.a.  ⚡ Disbursal: 24-48 hrs\n\nReply YES before this offer expires! — Cat-Eye 🏦'},
+    {id:'order_rcv',cat:'Orders',name:'Order Received ☕',body:'☕ Order Received!\n\nHi {name}, your order is confirmed:\n📝 {orderType}\n⏱ Ready in 10-15 mins\n\nWe\'ll notify you when ready! 😊'},
+    {id:'order_ready',cat:'Orders',name:'Order Ready 🎉',body:'🎉 Your order is ready, {name}!\n\n☕ {orderType}\n\nPlease collect or delivery is on the way! 🙏'},
+    {id:'daily_offer',cat:'Orders',name:'Daily Special Offer',body:'🌟 Today\'s Special, {name}!\n\n☕ Masala Chai — ₹15 (Buy 2 Get 1 Free!)\n🧁 Snack Combo — ₹50\n\nReply ORDER to place! Offer valid today only ⏰'},
+    {id:'rejected',cat:'DSA',name:'Application Update',body:'Dear {name},\n\nWe regret your loan application was not approved at this time.\n\nDon\'t worry — we\'ll explore other options with different banks.\n\nOur team will contact you within 24 hours. — Cat-Eye Consultancy'},
+  ]
+};
+
+const BC_PREVIEWS={
+  loan_offer:'🏦 Special Offer!\n\nDear {name},\n\nPRE-APPROVED loan offer!\n💰 Up to ₹50 Lakhs\n📊 Rate from 10.5% p.a.\n⚡ 24-48 hour disbursal\n\nReply YES to grab this offer!\n— Cat-Eye Consultancy 🏦',
+  doc_reminder:'📂 Document Reminder\n\nHi {name},\n\nYour loan application is pending documents.\n\nRequired: PAN, Aadhaar, Bank Statement, ITR\n\nReply DOCS to get the upload link.',
+  approved:'🎉 Congratulations {name}!\n\nYour loan application is APPROVED!\nOur team will contact you within 2 hours.\n— Cat-Eye Consultancy 🏦',
+  order_offer:'☕ Daily Special!\n\nHi {name}! Today\'s offer:\n☕ Masala Chai — ₹15\n🧁 Snack Combo — ₹50\n\nReply ORDER to place!',
+};
+
+function initWACRM(){
+  if(!localStorage.getItem('wa_contacts')) _waSet('wa_contacts',WA_DEFAULTS.contacts);
+  if(!localStorage.getItem('wa_msgs'))     _waSet('wa_msgs',WA_DEFAULTS.msgs);
+  if(!localStorage.getItem('wa_flows'))    _waSet('wa_flows',WA_DEFAULTS.flows);
+  if(!localStorage.getItem('wa_tmpls'))    _waSet('wa_tmpls',WA_DEFAULTS.templates);
+  _renderWAInbox(); _renderWAPipeline(); _renderWAOrders();
+  _renderWAFlows(); _renderWATmpls(); _renderWABcHistory(); _updateWAStats();
+}
+
+function waTab(el,tab){
+  el.closest('.ftabs').querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.wa-tab-content').forEach(d=>d.style.display='none');
+  const tc=document.getElementById('wa-tab-'+tab); if(tc) tc.style.display='block';
+  if(tab==='inbox')      _renderWAInbox();
+  if(tab==='leads')      _renderWAPipeline();
+  if(tab==='orders')     _renderWAOrders();
+  if(tab==='automation') _renderWAFlows();
+  if(tab==='templates')  _renderWATmpls();
+  if(tab==='analytics')  _updateWAStats();
+}
+
+function filterWAConversations(){ _renderWAInbox(); }
+
+function _renderWAInbox(){
+  const contacts=_waGet('wa_contacts');
+  const q=(document.getElementById('wa-search-inp')?.value||'').toLowerCase();
+  const filtered=contacts.filter(c=>!q||c.name.toLowerCase().includes(q)||c.phone.includes(q));
+  const unread=contacts.reduce((s,c)=>s+(c.unread||0),0);
+  const badge=document.getElementById('wa-unread-badge');
+  if(badge)badge.textContent=unread||'';
+  const list=document.getElementById('wa-contact-list'); if(!list)return;
+  list.innerHTML=filtered.map(c=>{
+    const typeIco=c.type==='order'?'☕':'👤';
+    const tagHtml=c.tag==='hot'?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#ffebee;color:#ef4444">🔥 Hot</span>':c.tag==='repeat'?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#e3f2fd;color:#1565c0">⭐ Repeat</span>':'';
+    return `<div onclick="openWAChat('${c.id}')" style="padding:10px 12px;border-bottom:1px solid #f0f2f5;cursor:pointer;background:${_waCur===c.id?'#edf4ff':'#fff'}" onmouseover="this.style.background='#f7fbff'" onmouseout="this.style.background='${_waCur===c.id?'#edf4ff':'#fff'}'">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:34px;height:34px;border-radius:50%;background:#1a5fb4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;flex-shrink:0;position:relative">
+          ${c.name.split(' ').map(w=>w[0]).slice(0,2).join('')}
+          ${(c.unread>0)?'<div style="position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#25d366;border-radius:50%;font-size:8px;display:flex;align-items:center;justify-content:center;color:#fff">'+c.unread+'</div>':''}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;justify-content:space-between"><span style="font-weight:600;font-size:12px;color:#0d1b36">${typeIco} ${c.name}</span><span style="font-size:9px;color:#7a8aaa">${c.time}</span></div>
+          <div style="font-size:10px;color:#7a8aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.lastMsg}</div>
+          <div style="display:flex;gap:4px;margin-top:2px">${c.loanType||c.orderType?`<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#e8f5e9;color:#2e7d32">${c.loanType||c.orderType}</span>`:''}${tagHtml}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('')||'<div style="padding:20px;text-align:center;color:#7a8aaa;font-size:11px">No conversations yet</div>';
+}
+
+function openWAChat(cid){
+  _waCur=cid;
+  const contacts=_waGet('wa_contacts');
+  const c=contacts.find(x=>x.id===cid); if(!c) return;
+  c.unread=0; _waSet('wa_contacts',contacts); _renderWAInbox();
+  const header=document.getElementById('wa-chat-header');
+  if(header) header.innerHTML=`
+    <div style="width:32px;height:32px;border-radius:50%;background:#1a5fb4;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700">${c.name.split(' ').map(w=>w[0]).slice(0,2).join('')}</div>
+    <div style="flex:1"><div style="font-weight:600;font-size:12px;color:#0d1b36">${c.name}</div><div style="font-size:10px;color:#25d366">● Online · ${c.phone}</div></div>
+    <div style="display:flex;gap:6px">
+      ${c.type==='lead'?`<button class="btn btn-p" style="font-size:9px;padding:2px 8px" onclick="advanceLead('${cid}')">→ Next Stage</button>`:''}
+      <button class="btn" style="font-size:9px;padding:2px 8px" onclick="tagWAContact('${cid}','hot')">🔥 Tag Hot</button>
+      <button class="btn" style="font-size:9px;padding:2px 8px" onclick="openModal('modal-schedule')">⏰ Follow-up</button>
+    </div>`;
+  const allMsgs=_waObj('wa_msgs',{});
+  const msgs=allMsgs[cid]||[];
+  const body=document.getElementById('wa-chat-body');
+  if(body) body.innerHTML=msgs.length?msgs.map(m=>`
+    <div style="display:flex;justify-content:${m.f==='customer'?'flex-start':'flex-end'};margin:2px 0">
+      <div style="max-width:70%;padding:8px 11px;border-radius:${m.f==='customer'?'0 12px 12px 12px':'12px 0 12px 12px'};background:${m.f==='customer'?'#fff':m.f==='bot'?'#e3f2fd':'#dcf8c6'};font-size:11px;line-height:1.5;box-shadow:0 1px 2px rgba(0,0,0,.08);white-space:pre-line">
+        ${m.f==='bot'?'<div style="font-size:9px;color:#1a5fb4;font-weight:700;margin-bottom:2px">🤖 Auto</div>':''}
+        ${m.t}<div style="font-size:9px;color:#7a8aaa;text-align:right;margin-top:2px">${m.ts}</div>
+      </div>
+    </div>`).join(''):'<div style="text-align:center;color:#7a8aaa;font-size:11px;margin-top:60px">No messages yet</div>';
+  if(body) body.scrollTop=body.scrollHeight;
+}
+
+function sendWAMessage(){
+  if(!_waCur){showToast('Select a conversation first');return;}
+  const inp=document.getElementById('wa-msg-input');
+  const text=inp?.value.trim(); if(!text) return;
+  const allMsgs=_waObj('wa_msgs',{}); if(!allMsgs[_waCur]) allMsgs[_waCur]=[];
+  const ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  allMsgs[_waCur].push({f:'agent',t:text,ts});
+  _waSet('wa_msgs',allMsgs); if(inp) inp.value='';
+  const contacts=_waGet('wa_contacts');
+  const c=contacts.find(x=>x.id===_waCur);
+  if(c){c.lastMsg=text;c.time=ts;_waSet('wa_contacts',contacts);}
+  openWAChat(_waCur);
+  const stats=_waObj('wa_stats',{sent:0,bc:0,conv:0});
+  stats.sent=(stats.sent||0)+1; _waSet('wa_stats',stats);
+}
+
+function insertTemplate(sel){
+  const val=sel.value; if(!val) return;
+  const tmpls=_waGet('wa_tmpls');
+  const t=[...tmpls,...WA_DEFAULTS.templates].find(x=>x.id===val);
+  if(t){
+    const contacts=_waGet('wa_contacts');
+    const c=contacts.find(x=>x.id===_waCur)||{name:'Customer',loanType:'loan',orderType:'order'};
+    let body=t.body.replace(/{name}/g,c.name).replace(/{loanType}/g,c.loanType||'loan').replace(/{orderType}/g,c.orderType||'order').replace(/{amount}/g,'₹20L');
+    const inp=document.getElementById('wa-msg-input'); if(inp) inp.value=body;
+  }
+  sel.value='';
+}
+
+// ── Pipeline (DSA Leads) ──
+function _renderWAPipeline(){
+  const contacts=_waGet('wa_contacts');
+  const leads=contacts.filter(c=>c.type==='lead');
+  ['new','contacted','docs','submitted','closed'].forEach(stage=>{
+    const el=document.getElementById('wap-'+stage+'-list'); if(!el) return;
+    el.innerHTML=leads.filter(c=>c.stage===stage).map(c=>`
+      <div style="background:#fff;border:1px solid #dde2ee;border-radius:7px;padding:8px;margin-bottom:6px;cursor:pointer" onclick="openWAChat('${c.id}')">
+        <div style="font-weight:600;font-size:11px;color:#0d1b36">${c.name}</div>
+        <div style="font-size:10px;color:#7a8aaa">${c.loanType||''}</div>
+        <div style="font-size:10px;color:#1a5fb4">📞 ${c.phone}</div>
+        <div style="margin-top:4px;display:flex;gap:4px">
+          ${c.tag==='hot'?'<span style="font-size:8px;padding:1px 5px;border-radius:3px;background:#ffebee;color:#ef4444">🔥</span>':''}
+          <button style="font-size:8px;padding:1px 6px;border:1px solid #1a5fb4;color:#1a5fb4;background:none;border-radius:3px;cursor:pointer" onclick="event.stopPropagation();advanceLead('${c.id}')">→ Next</button>
+        </div>
+      </div>`).join('')||'<div style="font-size:10px;color:#7a8aaa;padding:8px">No leads</div>';
+  });
+}
+
+function _renderWAOrders(){
+  const contacts=_waGet('wa_contacts');
+  const orders=contacts.filter(c=>c.type==='order');
+  const MAP={new:'ord-new-list',preparing:'ord-prep-list',ready:'ord-ready-list',delivered:'ord-done-list'};
+  Object.entries(MAP).forEach(([stage,id])=>{
+    const el=document.getElementById(id); if(!el) return;
+    el.innerHTML=orders.filter(c=>c.stage===stage).map(c=>`
+      <div style="background:#fff;border:1px solid #dde2ee;border-radius:7px;padding:8px;margin-bottom:6px">
+        <div style="font-weight:600;font-size:11px;color:#0d1b36">${c.name}</div>
+        <div style="font-size:10px;color:#7a8aaa">${c.orderType||''}</div>
+        <div style="font-size:10px;color:#25d366">📞 ${c.phone}</div>
+        <button style="margin-top:4px;font-size:8px;padding:2px 6px;border:1px solid #25d366;color:#25d366;background:none;border-radius:3px;cursor:pointer" onclick="advanceOrder('${c.id}')">→ Next Stage</button>
+      </div>`).join('')||'<div style="font-size:10px;color:#7a8aaa;padding:6px">Empty</div>';
+  });
+}
+
+function advanceLead(cid){
+  const P=['new','contacted','docs','submitted','closed'];
+  const contacts=_waGet('wa_contacts');
+  const c=contacts.find(x=>x.id===cid); if(!c) return;
+  const idx=P.indexOf(c.stage);
+  if(idx<P.length-1){c.stage=P[idx+1];_waSet('wa_contacts',contacts);_renderWAPipeline();showToast('✅ Lead moved → '+c.stage);}
+}
+
+function advanceOrder(cid){
+  const P=['new','preparing','ready','delivered'];
+  const contacts=_waGet('wa_contacts');
+  const c=contacts.find(x=>x.id===cid); if(!c) return;
+  const idx=P.indexOf(c.stage);
+  if(idx<P.length-1){
+    c.stage=P[idx+1]; _waSet('wa_contacts',contacts); _renderWAOrders();
+    if(c.stage==='ready'){
+      const allMsgs=_waObj('wa_msgs',{});
+      if(!allMsgs[cid])allMsgs[cid]=[];
+      const ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+      allMsgs[cid].push({f:'bot',t:`🎉 Your order is ready, ${c.name}!\n\n☕ ${c.orderType||'Order'}\n\nPlease collect from counter! 😊`,ts});
+      _waSet('wa_msgs',allMsgs);
+    }
+    showToast('✅ Order → '+c.stage);
+  }
+}
+
+function tagWAContact(cid,tag){
+  const contacts=_waGet('wa_contacts');
+  const c=contacts.find(x=>x.id===cid); if(!c) return;
+  c.tag=c.tag===tag?'':tag; _waSet('wa_contacts',contacts);
+  openWAChat(cid); _renderWAInbox();
+  showToast(c.tag?'🔥 Tagged as '+tag:'Tag removed');
+}
+
+// ── Automation Flows ──
+function _renderWAFlows(){
+  let flows=_waGet('wa_flows');
+  if(!flows.length){_waSet('wa_flows',WA_DEFAULTS.flows);flows=WA_DEFAULTS.flows;}
+  ['dsa','orders'].forEach(type=>{
+    const el=document.getElementById('auto-flow-'+type); if(!el) return;
+    el.innerHTML=flows.filter(f=>f.type===type).map(f=>`
+      <div style="border:1px solid #dde2ee;border-radius:8px;padding:9px;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+        <div onclick="toggleFlow('${f.id}')" style="width:32px;height:18px;border-radius:9px;background:${f.active?'#25d366':'#ccc'};cursor:pointer;position:relative;transition:background .2s;flex-shrink:0">
+          <div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;${f.active?'right:2px':'left:2px'};transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.3)"></div>
+        </div>
+        <div style="flex:1">
+          <div style="font-weight:700;font-size:11px;color:#0d1b36">${f.name}</div>
+          <div style="font-size:10px;color:#7a8aaa">🎯 ${f.trigger} → ${f.action}</div>
+        </div>
+        <button style="font-size:9px;padding:2px 6px;border:1px solid #ef9a9a;color:#c62828;background:none;border-radius:4px;cursor:pointer" onclick="deleteFlow('${f.id}')">✕</button>
+      </div>`).join('')||'<div style="font-size:11px;color:#7a8aaa;padding:8px">No flows</div>';
+  });
+}
+
+function toggleFlow(fid){const flows=_waGet('wa_flows');const f=flows.find(x=>x.id===fid);if(f){f.active=!f.active;_waSet('wa_flows',flows);_renderWAFlows();}}
+function deleteFlow(fid){_waSet('wa_flows',_waGet('wa_flows').filter(f=>f.id!==fid));_renderWAFlows();}
+function saveAutoFlow(){
+  const flows=_waGet('wa_flows');
+  flows.push({id:'f'+Date.now(),type:'dsa',name:document.getElementById('bot-trigger')?.value||'New Flow',trigger:document.getElementById('bot-trigger')?.value||'',action:document.getElementById('bot-action')?.value||'',reply:document.getElementById('bot-reply-text')?.value||'',active:true});
+  _waSet('wa_flows',flows);_renderWAFlows();showToast('✅ Flow saved!');
+}
+
+// ── Templates ──
+function _renderWATmpls(){
+  let tmpls=_waGet('wa_tmpls');
+  if(!tmpls.length){_waSet('wa_tmpls',WA_DEFAULTS.templates);tmpls=WA_DEFAULTS.templates;}
+  const grid=document.getElementById('wa-templates-grid'); if(!grid) return;
+  const cats={};
+  tmpls.forEach(t=>{if(!cats[t.cat])cats[t.cat]=[];cats[t.cat].push(t);});
+  grid.innerHTML=Object.entries(cats).map(([cat,list])=>list.map(t=>`
+    <div style="border:1px solid #dde2ee;border-radius:8px;padding:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-weight:700;font-size:11px;color:#0d1b36">${t.name}</div>
+        <span class="pill p-b" style="font-size:9px">${cat}</span>
+      </div>
+      <div style="font-size:10px;color:#7a8aaa;white-space:pre-line;max-height:70px;overflow:hidden;line-height:1.5">${t.body}</div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <button class="btn btn-p" style="font-size:9px;padding:3px 8px;flex:1" onclick="useWATmpl('${t.id}')">Use</button>
+        <button class="btn btn-r" style="font-size:9px;padding:3px 8px" onclick="deleteWATmpl('${t.id}')">✕</button>
+      </div>
+    </div>`).join('')).join('');
+}
+
+function useWATmpl(tid){
+  const sel=document.getElementById('wa-template-quick'); if(sel){sel.value=tid;insertTemplate(sel);}
+  // Switch to inbox tab
+  const inboxTab=document.querySelector('.ftab[onclick*="inbox"]');
+  if(inboxTab) waTab(inboxTab,'inbox');
+}
+function deleteWATmpl(tid){_waSet('wa_tmpls',_waGet('wa_tmpls').filter(t=>t.id!==tid));_renderWATmpls();}
+function addTemplate(){
+  const name=prompt('Template name:'); if(!name) return;
+  const body=prompt('Message body (use {name},{loanType},{orderType}):'); if(!body) return;
+  const tmpls=_waGet('wa_tmpls');
+  tmpls.push({id:'t'+Date.now(),cat:'Custom',name,body});
+  _waSet('wa_tmpls',tmpls);_renderWATmpls();showToast('✅ Template saved!');
+}
+
+// ── Broadcasts ──
+function previewBroadcast(){
+  const val=document.getElementById('bc-tmpl')?.value;
+  const prev=document.getElementById('bc-preview'); if(!prev) return;
+  if(val&&BC_PREVIEWS[val]){prev.textContent=BC_PREVIEWS[val].replace(/{name}/g,'[Name]');prev.style.display='block';}
+  else prev.style.display='none';
+}
+function sendBroadcast(){
+  const name=document.getElementById('bc-bname')?.value||'Unnamed';
+  const audience=document.getElementById('bc-audience')?.value||'All';
+  const contacts=_waGet('wa_contacts');
+  const hist=_waGet('wa_bchist')||[];
+  hist.unshift({id:'B'+Date.now(),name,audience,count:contacts.length,time:new Date().toLocaleString('en-IN'),status:'Sent'});
+  _waSet('wa_bchist',hist);
+  const stats=_waObj('wa_stats',{sent:0,bc:0,conv:0});
+  stats.bc=(stats.bc||0)+1; stats.sent=(stats.sent||0)+contacts.length;
+  _waSet('wa_stats',stats); _renderWABcHistory(); _updateWAStats();
+  showToast('📢 Broadcast sent to '+contacts.length+' contacts!');
+  if(document.getElementById('bc-bname')) document.getElementById('bc-bname').value='';
+}
+function _renderWABcHistory(){
+  const hist=_waGet('wa_bchist')||[];
+  const el=document.getElementById('broadcast-history'); if(!el) return;
+  el.innerHTML=hist.slice(0,8).map(b=>`
+    <div style="border-bottom:1px solid #f0f2f5;padding:8px 0">
+      <div style="font-weight:600;font-size:11px;color:#0d1b36">${b.name}</div>
+      <div style="font-size:10px;color:#7a8aaa">${b.audience} · ${b.count} contacts · ${b.time}</div>
+      <span class="pill p-g" style="font-size:8px">${b.status}</span>
+    </div>`).join('')||'<div style="font-size:11px;color:#7a8aaa;text-align:center;padding:20px">No broadcasts yet</div>';
+}
+function _updateWAStats(){
+  const contacts=_waGet('wa_contacts');
+  const stats=_waObj('wa_stats',{sent:0,bc:0,conv:0});
+  const kpi=id=>document.getElementById(id);
+  if(kpi('wa-kpi-contacts')) kpi('wa-kpi-contacts').textContent=contacts.length;
+  if(kpi('wa-kpi-sent'))     kpi('wa-kpi-sent').textContent=stats.sent||0;
+  if(kpi('wa-kpi-broadcasts')) kpi('wa-kpi-broadcasts').textContent=stats.bc||0;
+  if(kpi('wa-kpi-converted'))  kpi('wa-kpi-converted').textContent=contacts.filter(c=>c.stage==='closed').length;
+}
+
+function openWASettings(){
+  const cur=_waObj('wa_settings',{mobile:'',name:'Cat-Eye Consultancy'});
+  const mobile=prompt('WhatsApp Business mobile number (e.g. 919876543210):', cur.mobile||'');
+  if(mobile===null) return;
+  _waSet('wa_settings',{mobile,name:'Cat-Eye Consultancy',connected:!!mobile});
+  const el=document.getElementById('wa-connect-status');
+  if(el) el.innerHTML=mobile?'<div style="width:6px;height:6px;border-radius:50%;background:#25d366;animation:blink 1.4s infinite"></div>Connected · +'+mobile:'⚠ Not Connected';
+  showToast(mobile?'✅ WhatsApp number saved: +'+mobile:'Disconnected');
+}
+function openNewBroadcast(){
+  const bcTab=document.querySelector('.ftab[onclick*="broadcast"]');
+  if(bcTab) waTab(bcTab,'broadcast');
+}
+function addWALead(){
+  const name=prompt('Customer name:'); if(!name) return;
+  const phone=prompt('Phone number:'); if(!phone) return;
+  const loan=prompt('Loan type (Personal/Home/Business/LAP):')||'Personal Loan';
+  const contacts=_waGet('wa_contacts');
+  const cid='C'+Date.now();
+  contacts.push({id:cid,name,phone,type:'lead',loanType:loan,stage:'new',lastMsg:'New lead added',time:'Just now',unread:0,tag:''});
+  _waSet('wa_contacts',contacts);
+  // Auto-send welcome message
+  const allMsgs=_waObj('wa_msgs',{});
+  const ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  allMsgs[cid]=[{f:'bot',t:`Hi ${name}! 👋 Thank you for reaching out to Cat-Eye Consultancy.\n\nI can help you with a ${loan}.\n\nWhich loan do you need?\n1️⃣ Personal Loan  2️⃣ Home Loan  3️⃣ Business Loan  4️⃣ LAP\n\nReply 1, 2, 3 or 4!`,ts}];
+  _waSet('wa_msgs',allMsgs);
+  _renderWAInbox(); _renderWAPipeline();
+  showToast('✅ Lead added: '+name);
+}
+function addWAOrder(){
+  const name=prompt('Customer name:'); if(!name) return;
+  const phone=prompt('Phone number:'); if(!phone) return;
+  const orderType=prompt('Order type (Tea/Snacks/Combo):')||'Masala Chai';
+  const contacts=_waGet('wa_contacts');
+  const cid='C'+Date.now();
+  contacts.push({id:cid,name,phone,type:'order',orderType,stage:'new',lastMsg:'New order',time:'Just now',unread:0,tag:''});
+  _waSet('wa_contacts',contacts);
+  const allMsgs=_waObj('wa_msgs',{});
+  const ts=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  allMsgs[cid]=[{f:'bot',t:`☕ Order Received!\n\nHi ${name}, your order is confirmed!\n📝 ${orderType}\n⏱ Ready in 10-15 mins\n\nWe'll notify you when ready! 😊`,ts}];
+  _waSet('wa_msgs',allMsgs);
+  _renderWAInbox(); _renderWAOrders();
+  showToast('✅ Order: '+name+' — '+orderType);
+}
+
 // ══ NAV HOOK — extend original nav without re-declaring it ──
 // Patch nav after definition by wrapping at call time via data-render on .ni elements
 function _onNavRender(id){
+  if(id==='whatsapp'){ initWACRM(); }
   const needsBorrowers = ['borrowers','activefiles','applications','pipeline','bizloan','perloan','homeloan','lap','insurance'];
   if(needsBorrowers.includes(id)) renderAllBorrowers();
   if(id==='followups') renderFollowUps();
@@ -3714,6 +4485,25 @@ function renderSavedPolicies(){
 }
 
 // ══ Bootstrap on load ══
+// App bootstrap — called by Firebase init after _cache is populated
+function _appBoot() {
+  if (window._appBooted) return; // prevent double-run
+  window._appBooted = true;
+  renderAllBorrowers();
+  renderFollowUps();
+  renderDashboard();
+  updateBadges();
+  renderSavedPolicies();
+  buildCal();
+  initCitySelector();
+  const saved = getContacts();
+  if (saved.length && typeof BANKER_DATA !== 'undefined') BANKER_DATA.push(...saved);
+}
+
+document.addEventListener('DOMContentLoaded', function(){
+  // Slight delay so Firebase block at bottom of body can set _cache first
+  setTimeout(_appBoot, 120);
+});
 
 
 // ══════════════════════════════════════════════
@@ -4101,128 +4891,4 @@ function saveFacility() {
 
 </div>
 
-
-<!-- ═══════════════════════════════════════════════════════
-     FIREBASE REALTIME DATABASE — init after all JS parsed
-     Variables declared here, used to override storage fns
-════════════════════════════════════════════════════════ -->
-<script>
-(function() {
-  'use strict';
-
-  var FIREBASE_CONFIG = {
-    apiKey:            "AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
-    authDomain:        "credit-engine-2ffba.firebaseapp.com",
-    databaseURL:       "https://credit-engine-2ffba-default-rtdb.firebaseio.com",
-    projectId:         "credit-engine-2ffba",
-    storageBucket:     "credit-engine-2ffba.firebasestorage.app",
-    messagingSenderId: "432392785380",
-    appId:             "1:432392785380:web:c1919a7affce5a5b954bf1",
-    measurementId:     "G-RR6H44CKDM"
-  };
-
-  var DB_ROOT = 'dsa_crm/';
-  var fbDb    = null;
-
-  /* ── Badge helper ── */
-  function setBadge(text, color, bg) {
-    var el = document.getElementById('fb-badge');
-    if (!el) return;
-    el.textContent = text;
-    el.style.color = color;
-    el.style.background = bg;
-    el.style.borderColor = color.replace(')', ',.3)').replace('rgb', 'rgba');
-  }
-
-  /* ── Write to Firebase + keep localStorage in sync ── */
-  function fbWrite(key, val) {
-    // Always write localStorage first (instant + offline fallback)
-    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
-    // Then push to Firebase if connected
-    if (fbDb) {
-      fbDb.ref(DB_ROOT + key).set(val).catch(function(err) {
-        console.warn('Firebase write error (' + key + '):', err.message);
-      });
-    }
-  }
-
-  /* ── Subscribe to a key — update localStorage + re-render on remote change ── */
-  function fbListen(key, onUpdate) {
-    if (!fbDb) return;
-    fbDb.ref(DB_ROOT + key).on('value', function(snap) {
-      var val = snap.val();
-      var arr = Array.isArray(val) ? val : (val ? Object.values(val) : []);
-      // Sync to localStorage
-      try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e) {}
-      if (onUpdate) onUpdate(arr);
-    }, function(err) {
-      console.warn('Firebase listen error (' + key + '):', err.message);
-    });
-  }
-
-  /* ── Override the storage functions defined in main script ── */
-  function patchStorage() {
-    // Borrow existing _getData for reads (already localStorage-based)
-    // Override _setData to also write to Firebase
-    var origSetData = window._setData;
-    window._setData = function(key, val) {
-      origSetData(key, val);   // write localStorage (original)
-      fbWrite(key, val);       // also write Firebase
-    };
-
-    // Same for user storage
-    var origSaveUsers = window._saveUsers;
-    window._saveUsers = function(u) {
-      origSaveUsers(u);
-      fbWrite('dsacrm_users', u);
-    };
-
-    // Set up real-time listeners — data from another device auto-refreshes this one
-    fbListen('crm_borrowers', function() {
-      if (typeof renderAllBorrowers === 'function') renderAllBorrowers();
-      if (typeof renderDashboard    === 'function') renderDashboard();
-      if (typeof updateBadges       === 'function') updateBadges();
-    });
-    fbListen('crm_followups', function() {
-      if (typeof renderFollowUps === 'function') renderFollowUps();
-      if (typeof renderDashboard === 'function') renderDashboard();
-      if (typeof updateBadges    === 'function') updateBadges();
-      if (typeof buildCal        === 'function') buildCal();
-    });
-    fbListen('crm_contacts',  function() {});
-    fbListen('crm_policies',  function() {
-      if (typeof renderSavedPolicies === 'function') renderSavedPolicies();
-    });
-    fbListen('dsacrm_users',  function() {});
-  }
-
-  /* ── Connect to Firebase ── */
-  function connect() {
-    if (typeof firebase === 'undefined') {
-      console.warn('Firebase SDK not loaded — localStorage only');
-      setBadge('💾 Offline', '#f59e0b', 'rgba(245,158,11,.08)');
-      return;
-    }
-    try {
-      var app = firebase.apps.length
-        ? firebase.apps[0]
-        : firebase.initializeApp(FIREBASE_CONFIG);
-      fbDb = firebase.database();
-      setBadge('🔥 Firebase Live', '#22c55e', 'rgba(34,197,94,.08)');
-      console.log('✅ Firebase Realtime DB connected — credit-engine-2ffba');
-      patchStorage();
-    } catch (err) {
-      console.warn('Firebase init failed:', err.message);
-      setBadge('💾 Offline', '#f59e0b', 'rgba(245,158,11,.08)');
-    }
-  }
-
-  // Run after DOM is fully parsed (all functions defined)
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', connect);
-  } else {
-    connect();
-  }
-})();
-</script>
 </body></html>
