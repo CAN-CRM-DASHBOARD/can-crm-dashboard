@@ -1789,6 +1789,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
+// ══ EARLY _cache SEED — before ANY function reads _cache ══
+function _lsParse(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):[]; }catch(e){ return []; } }
+var _cache = {
+  dsacrm_users:  _lsParse('dsacrm_users'),
+  crm_borrowers: _lsParse('crm_borrowers'),
+  crm_followups: _lsParse('crm_followups'),
+  crm_contacts:  _lsParse('crm_contacts'),
+  crm_policies:  _lsParse('crm_policies'),
+};
+// ═══════════════════════════════════════════════════════
+
 // ══ NAVIGATION ══
 const TITLES={dashboard:'Dashboard',followups:"Today's Follow-ups",borrowers:'All Borrowers',activefiles:'Active Files',calendar:'Follow-up Calendar',pipeline:'Pipeline Board',applications:'Applications Register',eligibility:'Loan Eligibility Platform',admin:'Admin Dashboard',instantloan:'Instant Loan',insurance:'Insurance Queue',bizloan:'Business Loan Queue',perloan:'Personal Loan Queue',homeloan:'Home Loan Queue',lap:'LAP Queue',womenfl:'Women Freelancer',bizfl:'Business Freelancer',bankerdir:'Banker Directory',policies:'Bank Policies',emi:'EMI Calculator',payout:'Payout Calculator',filesdump:'Files Dump',whatsapp:'WhatsApp CRM'};
 function nav(el,id){
@@ -3449,13 +3460,12 @@ window.addEventListener('load', () => {
 // (_cache, _fbReady, _fbDb defined in firebase-init block before 
 // ── FIREBASE — Global declarations + Init ──
 // ── Global declarations (used throughout the app) ──
-var _cache = {
-  crm_borrowers: [],
-  crm_followups: [],
-  crm_contacts:  [],
-  crm_policies:  [],
-  dsacrm_users:  []
-};
+// _cache already declared above — refresh from localStorage in case anything changed
+_cache.dsacrm_users  = _cache.dsacrm_users.length  ? _cache.dsacrm_users  : _lsParse('dsacrm_users');
+_cache.crm_borrowers = _cache.crm_borrowers.length ? _cache.crm_borrowers : _lsParse('crm_borrowers');
+_cache.crm_followups = _cache.crm_followups.length ? _cache.crm_followups : _lsParse('crm_followups');
+_cache.crm_contacts  = _cache.crm_contacts.length  ? _cache.crm_contacts  : _lsParse('crm_contacts');
+_cache.crm_policies  = _cache.crm_policies.length  ? _cache.crm_policies  : _lsParse('crm_policies');
 var _fbReady = false;
 var _fbDb    = null;
 var _fbApp   = null;
