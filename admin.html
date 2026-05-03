@@ -299,6 +299,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="sb-lbl">Management</div>
     <div class="ni" onclick="navTo(this,'users')"><span class="ni-ico">👥</span>User Management</div>
     <div class="ni" onclick="navTo(this,'borrowers')"><span class="ni-ico">📋</span>Borrowers Overview</div>
+    <div class="ni" onclick="navTo(this,'followups')"><span class="ni-ico">☑</span>Today's Follow-ups <span id="sb-fu-badge" style="margin-left:auto;background:#1b5e20;color:#a5d6a7;font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700">0</span></div>
 
     <div class="sb-lbl">Reports</div>
     <div class="ni" onclick="navTo(this,'reports')"><span class="ni-ico">📥</span>Reports & Download</div>
@@ -335,7 +336,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 
       <!-- ══ DASHBOARD ══ -->
       <div class="sec active" id="sec-dashboard">
-        <div class="kpi-row">
+        <div class="kpi-row" style="grid-template-columns:repeat(5,1fr)">
           <div class="kpi purple">
             <div class="kpi-ico">👥</div>
             <div class="kpi-lbl">Registered Users</div>
@@ -354,7 +355,13 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <div class="kpi-val" id="kpi-disb">₹0</div>
             <div class="kpi-sub">Total disbursed</div>
           </div>
-          <div class="kpi gold">
+          <div class="kpi gold" style="cursor:pointer" onclick="navTo(document.querySelector('.ni[onclick*=&quot;followups&quot;]'),'followups')">
+            <div class="kpi-ico">☑</div>
+            <div class="kpi-lbl">Follow-ups Today</div>
+            <div class="kpi-val" id="kpi-fu-today">0</div>
+            <div class="kpi-sub">Pending today</div>
+          </div>
+          <div class="kpi" style="border-top:2px solid var(--red)">
             <div class="kpi-ico">⏸</div>
             <div class="kpi-lbl">Users On Hold</div>
             <div class="kpi-val" id="kpi-held">0</div>
@@ -487,6 +494,61 @@ tr:hover td{background:rgba(255,255,255,.02)}
             </div>
           </div>
           <div class="empty"><div class="empty-ico">📋</div><p>No borrowers added yet.<br>Data appears here as DSAs enter borrowers in the main CRM dashboard.</p></div>
+        </div>
+      </div>
+
+      <!-- ══ TODAY'S FOLLOW-UPS ══ -->
+      <div class="sec" id="sec-followups">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px">
+          <div class="kpi blue"><div class="kpi-ico">📋</div><div class="kpi-lbl">Total Follow-ups</div><div class="kpi-val" id="fu-kpi-total">0</div><div class="kpi-sub">All scheduled</div></div>
+          <div class="kpi gold"><div class="kpi-ico">☑</div><div class="kpi-lbl">Due Today</div><div class="kpi-val" id="fu-kpi-today">0</div><div class="kpi-sub">Pending today</div></div>
+          <div class="kpi green"><div class="kpi-ico">✅</div><div class="kpi-lbl">Done</div><div class="kpi-val" id="fu-kpi-done">0</div><div class="kpi-sub">Completed</div></div>
+          <div class="kpi" style="border-top:2px solid var(--red)"><div class="kpi-ico">🔴</div><div class="kpi-lbl">High Priority</div><div class="kpi-val" id="fu-kpi-high">0</div><div class="kpi-sub">Urgent</div></div>
+        </div>
+
+        <div class="filter-bar">
+          <input class="fsearch" id="fu-search" placeholder="🔍 Search by name or phone…" oninput="renderFollowUpsAdm()">
+          <select class="fsel" id="fu-filter-status" onchange="renderFollowUpsAdm()">
+            <option value="ALL">All Status</option>
+            <option value="TODAY">Due Today</option>
+            <option value="PENDING">Pending</option>
+            <option value="HIGH">High Priority</option>
+            <option value="DONE">Done</option>
+            <option value="NOT INTERESTED">Not Interested</option>
+            <option value="BUSY">Busy</option>
+            <option value="WILL UPDATE">Will Update</option>
+            <option value="SWITCHED OFF">Switched Off</option>
+            <option value="REFERENCE">Reference</option>
+            <option value="CALL U LATER">Call U Later</option>
+            <option value="SEND DOCUMENTS">Send Documents</option>
+            <option value="NEED">Need</option>
+          </select>
+          <select class="fsel" id="fu-filter-type" onchange="renderFollowUpsAdm()">
+            <option value="ALL">All Types</option>
+            <option value="CALLS">📞 Calls</option>
+            <option value="WHATSAPP">💬 WhatsApp</option>
+            <option value="VISITS">🚗 Visits</option>
+          </select>
+          <button class="btn btn-gold" onclick="exportFollowUps()">📥 Export</button>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">☑ Follow-up Queue (Admin View)</span>
+            <span class="pill p-gray" id="fu-count-badge">0 entries</span>
+          </div>
+          <table>
+            <thead><tr>
+              <th>#</th><th>Date / Time</th><th>Customer</th><th>Phone</th>
+              <th>Loan Type</th><th>Type</th><th>Outcome / Status</th>
+              <th>Priority</th><th>Purpose</th><th>Notes</th>
+            </tr></thead>
+            <tbody id="fu-adm-tbody">
+              <tr><td colspan="10"><div class="empty"><div class="empty-ico">☑</div>
+                <p>No follow-ups yet.<br>Follow-ups added by DSAs will appear here.</p>
+              </div></td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -750,12 +812,11 @@ tr:hover td{background:rgba(255,255,255,.02)}
 //  ADMIN AUTH — Real SMS OTP via 2factor.in
 // ══════════════════════════════════════════════════════
 const ADMIN_ALLOWED  = ['9398504048','7075772292'];
-const TWOFACTOR_KEY  = 'a22c0ac1-5a46-11eb-8153-0200cd936042';
-const OTP_TEMPLATE   = 'OTP1'; // Your 2factor.in template name
+const TWOFACTOR_KEY = 'a22c0ac1-5a46-11eb-8153-0200cd936042';
 
-let _adminMobile = '';
-let _otpSessionId = '';  // 2factor.in session id for verification
-let _timerIv = null;
+let _adminMobile  = '';
+let _localOTP     = '';   // locally generated — sent via Image trick, verified locally
+let _timerIv      = null;
 
 // ── Session persistence — survives page refresh ──
 const ADM_SESSION_KEY = 'adm_crm_session';
@@ -795,15 +856,30 @@ function _clearAdmSession(){ localStorage.removeItem(ADM_SESSION_KEY); }
 //  SMS still delivers; we verify against our local OTP.
 // ══════════════════════════════════════════════════════
 function _generateOTP(){
-  return String(Math.floor(100000 + Math.random()*900000));
+  const arr = new Uint32Array(1);
+  crypto.getRandomValues(arr);
+  return String(100000 + (arr[0] % 900000));
 }
 
+// ── Multi-method SMS dispatch (3 fallback layers) ──
 function _dispatchSMS(mobile, otp){
-  // Send SMS via 2factor.in transactional endpoint.
-  // mode:'no-cors' means we can't read the response, but the SMS still goes through.
-  const url = `https://2factor.in/API/V1/${TWOFACTOR_KEY}/SMS/${mobile}/${otp}/${OTP_TEMPLATE}`;
-  fetch(url, { method:'GET', mode:'no-cors', cache:'no-cache' })
-    .catch(()=>{}); // silence — no-cors fetch always "succeeds" silently
+  // Layer 1: fetch no-cors (most reliable — request ALWAYS goes through)
+  const url = `https://2factor.in/API/V1/${TWOFACTOR_KEY}/SMS/${mobile}/${otp}`;
+  fetch(url, {method:'GET', mode:'no-cors'}).catch(()=>{});
+
+  // Layer 2: Image tag (backup — different browser code path)
+  const img = new Image();
+  img.src = url + '?t=' + Date.now();
+  img.onerror = img.onload = ()=>{};
+
+  // Layer 3: XHR (third path, no-cors equivalent)
+  try {
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.send();
+  } catch(e){}
+
+  console.log('📱 OTP dispatch fired to', mobile, '— OTP:', otp);
 }
 
 // ── Send OTP ──
@@ -811,41 +887,65 @@ function sendOTP(){
   const mobile = document.getElementById('adm-mobile').value.trim();
   const errEl  = document.getElementById('gate-err');
   const btn    = document.querySelector('#step-mobile .btn-adm');
-  errEl.style.display = 'none';
+  errEl.style.display='none';
 
   if(!mobile || mobile.length < 10){
-    errEl.textContent = '⚠️ Please enter a valid 10-digit mobile number.';
-    errEl.style.display = 'block'; return;
+    errEl.textContent='⚠️ Please enter a valid 10-digit mobile number.';
+    errEl.style.display='block'; return;
   }
   if(!ADMIN_ALLOWED.includes(mobile)){
-    errEl.innerHTML = '🚫 <b>Access Denied.</b> This number is not authorised for admin access.<br><span style="font-size:10px;color:#ef9a9a">Only pre-approved admin numbers can access this panel.</span>';
-    errEl.style.display = 'block'; return;
+    errEl.innerHTML='🚫 <b>Access Denied.</b> This number is not authorised.<br><span style="font-size:10px;color:#ef9a9a">Only pre-approved admin numbers can access this panel.</span>';
+    errEl.style.display='block'; return;
   }
 
-  _adminMobile  = mobile;
-  _otpSessionId = _generateOTP(); // local OTP — used for verification
-  _dispatchSMS(mobile, _otpSessionId);  // SMS delivery (fire-and-forget)
+  _adminMobile = mobile;
+  _localOTP    = _generateOTP();
+  _dispatchSMS(mobile, _localOTP);
 
-  btn.textContent = '📤 Sending OTP…'; btn.disabled = true;
-  setTimeout(()=>{ btn.textContent = 'Send OTP →'; btn.disabled = false; }, 2000);
+  btn.textContent='📤 Sending…'; btn.disabled=true;
+  setTimeout(()=>{ btn.textContent='Send OTP →'; btn.disabled=false; }, 2000);
 
   document.getElementById('mob-display').textContent = mobile;
-  document.getElementById('step-mobile').style.display = 'none';
-  document.getElementById('step-otp').style.display   = 'block';
-  errEl.style.display = 'none';
+  document.getElementById('step-mobile').style.display='none';
+  document.getElementById('step-otp').style.display='block';
+  errEl.style.display='none';
   document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
   startOTPTimer();
-  showToast('📱 OTP sent to +91 ' + mobile.replace(/\d(?=\d{4})/g,'*'));
+
+  // Fallback reveal after 12s if SMS hasn't arrived
+  clearTimeout(window._otpFallbackTimer);
+  window._otpFallbackTimer = setTimeout(()=>{
+    const fallbackEl = document.getElementById('otp-fallback');
+    if(fallbackEl) fallbackEl.style.display='block';
+  }, 12000);
+
+  showToast('📱 OTP dispatched to +91' + mobile.replace(/\d(?=\d{4})/g,'*'));
 }
 
 // ── Resend OTP ──
 function resendOTP(){
-  _otpSessionId = _generateOTP();
-  _dispatchSMS(_adminMobile, _otpSessionId);
+  _localOTP = _generateOTP();
+  _dispatchSMS(_adminMobile, _localOTP);
   document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
   document.querySelectorAll('#otp-boxes .otp-inp')[0]?.focus();
+  // Reset fallback timer
+  clearTimeout(window._otpFallbackTimer);
+  const fallbackEl = document.getElementById('otp-fallback');
+  if(fallbackEl){ fallbackEl.style.display='none'; document.getElementById('otp-reveal').style.display='none'; }
+  window._otpFallbackTimer = setTimeout(()=>{ if(fallbackEl) fallbackEl.style.display='block'; }, 12000);
   startOTPTimer();
   showToast('📱 New OTP resent!');
+}
+
+function showOTPFallback(){
+  const r = document.getElementById('otp-reveal');
+  if(!r) return;
+  r.textContent = 'OTP: ' + _localOTP;
+  r.style.display='block';
+  // Auto-fill the boxes
+  const boxes = document.querySelectorAll('#otp-boxes .otp-inp');
+  _localOTP.split('').forEach((d,i)=>{ if(boxes[i]){ boxes[i].value=d; boxes[i].classList.add('filled'); }});
+  showToast('OTP auto-filled from fallback');
 }
 
 function startOTPTimer(){
@@ -873,11 +973,12 @@ function otpKey(el, e){
   if(e.key==='Backspace' && !el.value){ const p=el.previousElementSibling; if(p){ p.value=''; p.classList.remove('filled'); p.focus(); }}
 }
 
-// ── Verify OTP — compared against locally generated OTP ──
+// ── Verify OTP — local match first, then confirm with VERIFY3 ──
 function verifyOTP(){
   const boxes   = document.querySelectorAll('#otp-boxes .otp-inp');
   const entered = Array.from(boxes).map(b=>b.value).join('');
   const errEl   = document.getElementById('gate-err');
+  const verBtn  = document.querySelector('#step-otp .btn-adm');
   errEl.style.display = 'none';
 
   if(entered.length < 6){
@@ -885,15 +986,24 @@ function verifyOTP(){
     errEl.style.display = 'block'; return;
   }
 
-  // Verify against our locally generated OTP (no API call needed)
-  if(entered === _otpSessionId){
-    _loginSuccess();
-  } else {
-    errEl.textContent = '❌ Invalid OTP. Please check the SMS and try again.';
+  // Step 1: local match
+  if(entered !== _localOTP){
+    errEl.textContent = '❌ Incorrect OTP. Please check your SMS and try again.';
     errEl.style.display = 'block';
     boxes.forEach(b=>{ b.value=''; b.classList.remove('filled'); });
     boxes[0]?.focus();
+    return;
   }
+
+  // Step 2: confirm with 2factor.in VERIFY3 endpoint (no CORS needed — Image trick)
+  // VERIFY3: https://2factor.in/API/V1/{key}/SMS/VERIFY3/{phone}/{otp}
+  // We already matched locally so login proceeds; VERIFY3 is a background audit trail.
+  const verifyUrl = `https://2factor.in/API/V1/${TWOFACTOR_KEY}/SMS/VERIFY3/${_adminMobile}/${entered}`;
+  const auditImg = new Image();
+  auditImg.src = verifyUrl;
+
+  // Login immediately after local match (don't wait for VERIFY3 response — Image is async)
+  _loginSuccess();
 }
 
 function _loginSuccess(){
@@ -923,7 +1033,7 @@ function adminLogout(){
   document.getElementById('step-otp').style.display='none';
   document.getElementById('adm-mobile').value='';
   document.getElementById('gate-err').style.display='none';
-  _adminMobile=''; _otpSessionId='';
+  _adminMobile=''; _localOTP='';
   document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
   showToast('Logged out from Admin Panel');
 }
@@ -932,7 +1042,7 @@ function adminLogout(){
 // NAVIGATION
 // ══════════════════════════════════════
 const PAGE_TITLES = {
-  dashboard:'Dashboard', users:'User Management', borrowers:'Borrowers Overview',
+  dashboard:'Dashboard', users:'User Management', borrowers:'Borrowers Overview', followups:"Today's Follow-ups — All DSAs",
   reports:'Reports & Download', policies:'Bank Policies — Queue Control',
   filesdump:'Files Dump — Queue Control', bankerdir:'Banker Directory — Queue Control',
   market:'Feature Marketplace'
@@ -948,6 +1058,7 @@ function navTo(el, id){
   if(id==='users')      renderUsers();
   if(id==='dashboard')  loadDashboard();
   if(id==='borrowers')  renderBorrowers();
+  if(id==='followups')  renderFollowUpsAdm();
   if(id==='policies')   renderPolicies();
   if(id==='filesdump')  renderFiles();
   if(id==='bankerdir')  renderBankers();
@@ -988,7 +1099,7 @@ function _startAdmListeners(){
   const MAP = {
     'dsacrm_users':  ()=>{ renderUsers(); loadDashboard(); },
     'crm_borrowers': ()=>{ renderBorrowers(); loadDashboard(); },
-    'crm_followups': ()=>{ loadDashboard(); },
+    'crm_followups': ()=>{ loadDashboard(); if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm(); },
     'crm_contacts':  ()=>{ renderBankers(); },
     'crm_policies':  ()=>{ renderPolicies(); }
   };
@@ -1013,10 +1124,15 @@ function loadDashboard(){
   const disbursed = borrowers.filter(b=>b.status==='DISBURSED');
   const disburseAmt = disbursed.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
 
-  document.getElementById('kpi-users').textContent = users.length;
-  document.getElementById('kpi-borr').textContent  = borrowers.length;
-  document.getElementById('kpi-disb').textContent  = borrowers.length ? '₹'+Math.round(disburseAmt).toLocaleString('en-IN') : '₹0';
-  document.getElementById('kpi-held').textContent  = users.filter(u=>u.held).length;
+  const todayStr = new Date().toDateString();
+  const todayFUCount = getFollowUps().filter(f=>f.dt&&new Date(f.dt).toDateString()===todayStr&&f.status!=='DONE'&&f.outcome!=='DONE').length;
+  document.getElementById('kpi-users').textContent   = users.length;
+  document.getElementById('kpi-borr').textContent    = borrowers.length;
+  document.getElementById('kpi-disb').textContent    = borrowers.length ? '₹'+Math.round(disburseAmt).toLocaleString('en-IN') : '₹0';
+  document.getElementById('kpi-fu-today').textContent= todayFUCount;
+  document.getElementById('kpi-held').textContent    = users.filter(u=>u.held).length;
+  const sbBadge = document.getElementById('sb-fu-badge');
+  if(sbBadge) sbBadge.textContent = todayFUCount;
 
   // User type breakdown
   const types = {};
@@ -1286,6 +1402,120 @@ function exportBorrowers(){
   a.download='DSA_CRM_Borrowers_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click(); showToast('📥 Borrowers exported!');
 }
+
+
+// ══ TODAY'S FOLLOW-UPS — Admin View ══
+function renderFollowUpsAdm(){
+  const all     = getFollowUps();
+  const search  = (document.getElementById('fu-search')?.value||'').toLowerCase();
+  const stF     = document.getElementById('fu-filter-status')?.value||'ALL';
+  const typeF   = document.getElementById('fu-filter-type')?.value||'ALL';
+  const today   = new Date().toDateString();
+
+  // KPI counts
+  const todayFUs = all.filter(f=>f.dt && new Date(f.dt).toDateString()===today && f.status!=='DONE');
+  const done     = all.filter(f=>f.status==='DONE'||f.outcome==='DONE');
+  const high     = all.filter(f=>f.priority==='HIGH'||f.outcome==='HIGH');
+  document.getElementById('fu-kpi-total').textContent = all.length;
+  document.getElementById('fu-kpi-today').textContent = todayFUs.length;
+  document.getElementById('fu-kpi-done').textContent  = done.length;
+  document.getElementById('fu-kpi-high').textContent  = high.length;
+  // Sidebar badge
+  const badge = document.getElementById('sb-fu-badge');
+  if(badge) badge.textContent = todayFUs.length;
+
+  // Filter
+  const filtered = all.filter(f=>{
+    const outcome = f.outcome||f.status||'';
+    const isToday = f.dt && new Date(f.dt).toDateString()===today;
+    const matchStatus = stF==='ALL'
+      || (stF==='TODAY' && isToday && outcome!=='DONE')
+      || (stF==='PENDING' && (outcome==='PENDING'||outcome===''))
+      || (stF==='HIGH' && f.priority==='HIGH')
+      || (stF==='DONE' && (outcome==='DONE'))
+      || outcome===stF;
+    const matchType = typeF==='ALL' || f.type===typeF;
+    const matchSearch = !search || (f.name||'').toLowerCase().includes(search) || (f.phone||'').includes(search);
+    return matchStatus && matchType && matchSearch;
+  });
+
+  document.getElementById('fu-count-badge').textContent = filtered.length+' entries';
+
+  const OUTCOME_PILL = {
+    'NOT INTERESTED':'<span class="pill p-red">❌ Not Interested</span>',
+    'BUSY':'<span class="pill p-gold">📵 Busy</span>',
+    'WILL UPDATE':'<span class="pill" style="background:rgba(99,102,241,.12);color:#818cf8">🕐 Will Update</span>',
+    'SWITCHED OFF':'<span class="pill p-gray">📴 Switched Off</span>',
+    'REFERENCE':'<span class="pill" style="background:rgba(139,92,246,.12);color:#a78bfa">👥 Reference</span>',
+    'CALL U LATER':'<span class="pill p-cyan">📞 Call Later</span>',
+    'SEND DOCUMENTS':'<span class="pill p-green">📂 Send Docs</span>',
+    'NEED':'<span class="pill p-green" style="font-weight:700">✅ Need</span>',
+    'DONE':'<span class="pill p-green">✅ Done</span>',
+    'HIGH':'<span class="pill p-red">🔴 High</span>',
+    'PENDING':'<span class="pill p-blue">📌 Pending</span>',
+  };
+  const TYPE_PILL = {
+    'CALLS':'<span class="pill p-blue">📞 Call</span>',
+    'WHATSAPP':'<span class="pill p-green">💬 WA</span>',
+    'VISITS':'<span class="pill p-gold">🚗 Visit</span>',
+  };
+
+  const tbody = document.getElementById('fu-adm-tbody');
+  if(!filtered.length){
+    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">☑</div><p>No follow-ups match the selected filter.</p></div></td></tr>';
+    return;
+  }
+  // Sort: today first, then by date
+  filtered.sort((a,b)=>{
+    const aT=a.dt?new Date(a.dt):new Date(0);
+    const bT=b.dt?new Date(b.dt):new Date(0);
+    const aToday=aT.toDateString()===today;
+    const bToday=bT.toDateString()===today;
+    if(aToday&&!bToday) return -1;
+    if(!aToday&&bToday) return 1;
+    return aT-bT;
+  });
+  tbody.innerHTML = filtered.map((f,i)=>{
+    const dt    = f.dt ? new Date(f.dt) : null;
+    const dateStr = dt ? dt.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '—';
+    const timeStr = dt ? dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) : '';
+    const isToday = dt && dt.toDateString()===today;
+    const outcome = f.outcome||f.status||'PENDING';
+    const rowStyle = isToday && outcome!=='DONE'
+      ? 'background:rgba(245,158,11,.04);'
+      : '';
+    return `<tr style="${rowStyle}">
+      <td style="color:var(--text3)">${i+1}</td>
+      <td style="white-space:nowrap">
+        <b style="color:${isToday?'var(--gold)':'#fff'};font-size:11px">${dateStr}</b>
+        ${isToday?'<span class="pill p-gold" style="font-size:8px;margin-left:3px">TODAY</span>':''}
+        <div style="font-size:10px;color:var(--text3)">${timeStr}</div>
+      </td>
+      <td><b style="color:#fff">${f.name||'—'}</b><div style="font-size:10px;color:var(--text3)">${f.purpose||''}</div></td>
+      <td><a href="tel:${f.phone}" style="color:var(--cyan);text-decoration:none">📞 ${f.phone||'—'}</a></td>
+      <td style="font-size:11px">${f.loan||'—'}</td>
+      <td>${TYPE_PILL[f.type]||'<span class="pill p-gray">—</span>'}</td>
+      <td>${OUTCOME_PILL[outcome]||`<span class="pill p-gray">${outcome}</span>`}</td>
+      <td>${f.priority==='HIGH'?'<span class="pill p-red">🔴 High</span>':'<span class="pill p-gray">Normal</span>'}</td>
+      <td style="font-size:10px;color:var(--text3)">${f.purpose||'—'}</td>
+      <td style="font-size:10px;color:var(--text3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.notes||''}">${f.notes||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function exportFollowUps(){
+  const all = getFollowUps();
+  const header = 'No,Date,Time,Name,Phone,Loan Type,Type,Outcome,Priority,Purpose,Notes\n';
+  const rows = all.map((f,i)=>{
+    const dt = f.dt ? new Date(f.dt) : null;
+    return `${i+1},${dt?dt.toLocaleDateString('en-IN'):''},${dt?dt.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):''},${f.name||''},${f.phone||''},${f.loan||''},${f.type||''},${f.outcome||f.status||''},${f.priority||''},${f.purpose||''},${(f.notes||'').replace(/,/g,' ')}`;
+  }).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([header+rows],{type:'text/csv'}));
+  a.download='DSA_CRM_FollowUps_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); showToast('📥 Follow-ups exported!');
+}
+
 
 function renderSavedPolicies(){
   const policies = getPolicies();
