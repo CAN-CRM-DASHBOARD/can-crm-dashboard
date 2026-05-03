@@ -376,27 +376,55 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 <!-- ADD POLICY MODAL -->
 <div class="modal-overlay" id="modal-add-policy">
-  <div class="modal-box">
-    <div class="modal-head"><h3>+ Add / Paste Bank Policy</h3><button class="modal-close" onclick="closeModal('modal-add-policy')">✕</button></div>
+  <div class="modal-box" style="max-width:680px;width:95%">
+    <div class="modal-head"><h3>+ Add New Bank Policy</h3><button class="modal-close" onclick="closeModal('modal-add-policy')">✕</button></div>
     <div class="modal-body">
-      <div class="form-grid">
-        <div class="fg"><div class="fl">Bank / NBFC Name</div><input placeholder="e.g. HDFC Bank" id="pol-bank"></div>
-        <div class="fg"><div class="fl">Product</div><select id="pol-product"><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option></select></div>
-        <div class="fg"><div class="fl">Min Loan Amount</div><input placeholder="₹1,00,000" id="pol-minl"></div>
-        <div class="fg"><div class="fl">Max Loan Amount</div><input placeholder="₹40,00,000" id="pol-maxl"></div>
-        <div class="fg"><div class="fl">Interest Rate From</div><input placeholder="10.75%" id="pol-roi1"></div>
-        <div class="fg"><div class="fl">Interest Rate To</div><input placeholder="14.5%" id="pol-roi2"></div>
-        <div class="fg"><div class="fl">Min CIBIL</div><input placeholder="700" id="pol-cibil"></div>
-        <div class="fg"><div class="fl">Max FOIR %</div><input placeholder="55%" id="pol-foir"></div>
-        <div class="fg"><div class="fl">Min ABB Required</div><input placeholder="₹15,000" id="pol-abb"></div>
-        <div class="fg"><div class="fl">Effective Date</div><input type="date" id="pol-date"></div>
+      <!-- Tab switcher -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;border-radius:8px;overflow:hidden;border:1px solid #dde2ee;margin-bottom:16px">
+        <button id="pol-tab-manual" onclick="switchPolTab('manual')" style="padding:10px;font-size:12px;font-weight:600;border:none;background:#1e2a3a;color:#7a8aaa;cursor:pointer;transition:all .2s">📝 Manual Entry</button>
+        <button id="pol-tab-paste"  onclick="switchPolTab('paste')"  style="padding:10px;font-size:12px;font-weight:600;border:none;background:#0f1e35;color:#22d3ee;cursor:pointer;border-left:2px solid #22d3ee">📋 Paste &amp; Auto-Fill</button>
       </div>
-      <div class="fg"><div class="fl">Paste Full Policy (Auto-splits by Bank)</div><textarea rows="5" placeholder="Paste policy text here — system will auto-split and categorise by Bank/NBFC…"></textarea></div>
-      <div style="background:#edf4ff;border:1px solid #c2d4f5;border-radius:8px;padding:10px;font-size:11px;color:#1565c0;margin-top:8px">💡 <b>Auto-Split:</b> Paste a full multi-bank policy document — system will automatically split and categorise by Bank/NBFC in proper order.</div>
+
+      <!-- Manual tab -->
+      <div id="pol-manual-pane">
+        <div class="form-grid">
+          <div class="fg" style="grid-column:1/-1"><div class="fl">Bank / NBFC Name *</div><input placeholder="e.g. HDFC Bank, TATA Capital…" id="pol-bank"></div>
+          <div class="fg"><div class="fl">Product Type</div>
+            <select id="pol-product">
+              <option>Home Loan</option><option>LAP</option><option>Business Loan</option>
+              <option>Personal Loan</option><option>Plot Loan</option><option>Home Loan + LAP</option>
+            </select>
+          </div>
+          <div class="fg"><div class="fl">ROI (e.g. 8.5% or 8.5–12%)</div><input placeholder="8.5% – 12%" id="pol-roi"></div>
+          <div class="fg"><div class="fl">Loan Amount (Min)</div><input placeholder="e.g. ₹20L" id="pol-minl"></div>
+          <div class="fg"><div class="fl">Loan Amount (Max)</div><input placeholder="e.g. ₹3Cr" id="pol-maxl"></div>
+          <div class="fg"><div class="fl">Min CIBIL</div><input placeholder="700 / As per profile" id="pol-cibil"></div>
+          <div class="fg"><div class="fl">TAT (Turnaround Time)</div><input placeholder="3–5 Days" id="pol-tat"></div>
+          <div class="fg"><div class="fl">Max FOIR %</div><input placeholder="55%" id="pol-foir"></div>
+          <div class="fg"><div class="fl">Min ABB Required</div><input placeholder="₹15,000" id="pol-abb"></div>
+          <div class="fg"><div class="fl">Location / Cities</div><input placeholder="Hyderabad, Vijayawada, Vizag" id="pol-location"></div>
+          <div class="fg"><div class="fl">Contact Person</div><input placeholder="Name – Designation" id="pol-contact"></div>
+          <div class="fg"><div class="fl">Contact Mobile</div><input placeholder="9876543210" id="pol-contact-ph"></div>
+        </div>
+        <div class="fg" style="margin-top:10px"><div class="fl">Key Highlights / Features (one per line)</div>
+          <textarea id="pol-highlights" rows="4" placeholder="e.g.&#10;No income docs – BT+Topup on RTR/ABB&#10;Plot + Construction: 75% MV + 100%&#10;FOIR 80% for salaried&#10;Age upto 70 years"></textarea>
+        </div>
+        <div class="fg"><div class="fl">Programs / Sub-products</div>
+          <textarea id="pol-programs" rows="2" placeholder="e.g. Home Loan Purchase, Plot + Construction HL, BT + Top-Up"></textarea>
+        </div>
+      </div>
+
+      <!-- Paste tab -->
+      <div id="pol-paste-pane" style="display:none">
+        <div style="font-size:11px;color:#7a8aaa;margin-bottom:8px">📋 Paste complete policy text — all fields auto-fill from any format.</div>
+        <textarea id="pol-paste-text" rows="10" style="width:100%;padding:10px;border:1px solid #2a3a50;border-radius:8px;background:#0d1829;color:#e0e8f5;font-size:12px;resize:vertical" placeholder="Paste any bank policy WhatsApp message here…"></textarea>
+        <button onclick="autoParsePolicyText()" style="width:100%;margin-top:10px;padding:13px;background:linear-gradient(135deg,#7c3aed,#6d28d9);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px">● Auto-Parse &amp; Fill Form →</button>
+        <div id="pol-parse-result" style="display:none;margin-top:8px;background:#0a2214;border:1px solid #22c55e;border-radius:6px;padding:8px;font-size:11px;color:#86efac"></div>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('modal-add-policy')">Cancel</button>
-      <button class="btn btn-p" onclick="closeModal('modal-add-policy');showToast('Policy saved and auto-split!')">Save Policy</button>
+      <button class="btn btn-p" style="background:linear-gradient(135deg,#0ea5e9,#22d3ee);min-width:160px" onclick="savePolicy()">💾 Save Bank Policy</button>
     </div>
   </div>
 </div>
@@ -1474,19 +1502,37 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 <!-- BANK POLICIES -->
 <div class="sec" id="sec-policies">
-  <div class="sec-hdr"><div class="card-title">Bank Policies</div><div style="display:flex;gap:6px">
-    <button class="btn" onclick="triggerImport('policies')">📥 Import Excel</button><input type="file" id="imp-policies" accept=".xlsx,.xls,.csv,.xlsm,.xlsb,.ods" style="display:none" onchange="importExcel(this,'policies')">
-    <button class="btn btn-p" onclick="openModal('modal-add-policy')">+ Add / Paste Policy</button>
-  </div></div>
-  <div class="ftabs">
-    <span class="ftab active" onclick="filterRows('pol-tbody','ALL',this)">All</span>
-    <span class="ftab" onclick="filterRows('pol-tbody','BUSINESS',this)">🏭 Business Loan</span>
-    <span class="ftab" onclick="filterRows('pol-tbody','PERSONAL',this)">💳 Personal Loan</span>
-    <span class="ftab" onclick="filterRows('pol-tbody','HOME',this)">🏠 Home Loan</span>
-    <span class="ftab" onclick="filterRows('pol-tbody','LAP',this)">🏗️ LAP</span>
+  <div class="sec-hdr" style="flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="font-weight:700;font-size:16px;color:#0d1b36">🏦 Bank Policies</div>
+      <div id="pol-count-badge" style="background:#1a5fb4;color:#fff;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700">0 Banks</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input id="pol-search" style="padding:6px 12px;border:1px solid #dde2ee;border-radius:20px;font-size:11px;min-width:180px" placeholder="🔍 Search bank or product…" oninput="renderSavedPolicies()">
+      <button class="btn" onclick="triggerImport('policies')">📥 Import Excel</button>
+      <input type="file" id="imp-policies" accept=".xlsx,.xls,.csv,.xlsm,.xlsb,.ods" style="display:none" onchange="importExcel(this,'policies')">
+      <button class="btn btn-p" onclick="openModal('modal-add-policy')">+ Add / Paste Policy</button>
+    </div>
   </div>
-  <div class="card"><table><thead><tr><th>Bank / NBFC</th><th>Product</th><th>Min Loan</th><th>Max Loan</th><th>ROI</th><th>Min CIBIL</th><th>Min ABB</th><th>Updated</th><th>Actions</th></tr></thead>
-  <tbody id="pol-tbody"><tr><td colspan="9"><div class="empty-state"><div class="ei">⌘</div><p>No policies added yet. Import Excel or Paste Policy.</p></div></td></tr></tbody></table></div>
+
+  <!-- Product filter tabs -->
+  <div class="ftabs" style="margin:10px 0">
+    <span class="ftab active" onclick="filterPolicies('ALL',this)">All</span>
+    <span class="ftab" onclick="filterPolicies('Home Loan',this)">🏠 Home Loan</span>
+    <span class="ftab" onclick="filterPolicies('LAP',this)">🏗 LAP</span>
+    <span class="ftab" onclick="filterPolicies('Business Loan',this)">🏭 Business Loan</span>
+    <span class="ftab" onclick="filterPolicies('Personal Loan',this)">💳 Personal Loan</span>
+    <span class="ftab" onclick="filterPolicies('Plot Loan',this)">🏞 Plot</span>
+  </div>
+
+  <!-- Cards grid -->
+  <div id="pol-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px">
+    <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#7a8aaa">
+      <div style="font-size:2.5rem;margin-bottom:10px">🏦</div>
+      <p style="font-weight:600">No policies added yet.</p>
+      <p style="font-size:12px">Click <b>+ Add / Paste Policy</b> to add your first bank policy.</p>
+    </div>
+  </div>
 </div>
 
 <!-- EMI CALCULATOR -->
@@ -2175,9 +2221,16 @@ function showCalPopup(d, m, y){
 
 function changeFUOutcome(id, newOutcome){
   if(!newOutcome) return;
-  const fus=getFollowUps();
-  const i=fus.findIndex(f=>f.id===id);
-  if(i>=0){ fus[i].outcome=newOutcome; fus[i].status=newOutcome; saveFollowUps(fus); renderFollowUps(); buildCal(); updateBadges(); showToast('Status updated: '+newOutcome); }
+  // Operate on full cache — only modify own record
+  const all = _cache.crm_followups||[];
+  const u = getCurrentUser();
+  const i = all.findIndex(f=>f.id===id && (!f.addedBy||f.addedBy===(u&&u.mobile)));
+  if(i>=0){
+    all[i].outcome=newOutcome; all[i].status=newOutcome;
+    saveFollowUps(all);
+    renderFollowUps(); buildCal(); updateBadges();
+    showToast('Status updated: '+newOutcome);
+  }
 }
 
 // ══ EMI CALC ══
@@ -3571,21 +3624,20 @@ function _fbSet(key, val){
 function getBorrowers(){
   const all = _cache.crm_borrowers||[];
   const u = getCurrentUser();
-  if(!u) return all;
-  // Admins / DSA Company see all; others see only own records
-  const FULL_ACCESS = ['Individual DSA','DSA Company'];
-  if(FULL_ACCESS.includes(u.type) || !u.addedBy) return all;
+  if(!u) return [];
+  // STRICT isolation — every user sees only records they added
   return all.filter(b=>!b.addedBy || b.addedBy===u.mobile);
 }
+// saveBorrowers always receives the FULL array (not filtered) to preserve all users' data
 function saveBorrowers(d){ _cache.crm_borrowers=d; _fbSet('crm_borrowers', d); }
 function getFollowUps(){
   const all = _cache.crm_followups||[];
   const u = getCurrentUser();
-  if(!u) return all;
-  const FULL_ACCESS = ['Individual DSA','DSA Company'];
-  if(FULL_ACCESS.includes(u.type) || !u.addedBy) return all;
+  if(!u) return [];
+  // STRICT isolation — every user sees only follow-ups they added
   return all.filter(f=>!f.addedBy || f.addedBy===u.mobile);
 }
+// saveFollowUps always receives the FULL array to preserve all users' data
 function saveFollowUps(d){ _cache.crm_followups=d; _fbSet('crm_followups', d); }
 function getContacts(){ return _cache.crm_contacts||[]; }
 function saveContacts(d){ _cache.crm_contacts=d; _fbSet('crm_contacts', d); }
@@ -3674,11 +3726,13 @@ function statusEditSelect(id, current){
 }
 
 function updateBorrowerStatus(id, newStatus){
-  const borrowers = getBorrowers();
-  const i = borrowers.findIndex(b=>b.id===id);
+  // Always operate on FULL cache — never overwrite others' records
+  const all = _cache.crm_borrowers||[];
+  const u = getCurrentUser();
+  const i = all.findIndex(b=>b.id===id && (!b.addedBy||b.addedBy===(u&&u.mobile)));
   if(i>=0){
-    borrowers[i].status = newStatus;
-    saveBorrowers(borrowers);
+    all[i].status = newStatus;
+    saveBorrowers(all);
     renderAllBorrowers();
     renderDashboard();
     updateBadges();
@@ -3721,14 +3775,12 @@ function _saveLead(){
   const notes   = document.getElementById('ab-notes')?.value || '';
   const dt      = document.getElementById('ab-date')?.value || new Date().toISOString();
 
-  const borrowers = getBorrowers();
-  const id = genId('B');
-  const dateStr = new Date(dt||Date.now()).toLocaleDateString('en-IN');
-
+  // Push to FULL cache (not filtered getBorrowers) to preserve other users' data
+  const allBorr = _cache.crm_borrowers||[];
   const _u = getCurrentUser(); const _uid = _u ? _u.mobile : 'unknown';
   const record = { id, name, phone, email, product, amount, income, profile, location, status, notes, dt: dt||new Date().toISOString(), addedOn: Date.now(), addedBy: _uid };
-  borrowers.push(record);
-  saveBorrowers(borrowers);
+  allBorr.push(record);
+  saveBorrowers(allBorr);
 
   // Render everywhere
   renderAllBorrowers();
@@ -3877,7 +3929,8 @@ function saveFollowUp(){
   if(!name){ showToast('⚠️ Please enter customer name'); return; }
 
   const outcome = document.getElementById('fu-outcome')?.value || '';
-  const fus = getFollowUps();
+  // Push to FULL cache to preserve other users' follow-ups
+  const fus = _cache.crm_followups||[];
   const id = genId('F');
   const _fuUser = getCurrentUser(); const _fuUid = _fuUser ? _fuUser.mobile : 'unknown';
   fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now(), addedBy: _fuUid });
@@ -3929,13 +3982,17 @@ function renderFollowUps(){
 }
 
 function markFUDone(id){
-  const fus = getFollowUps();
-  const i = fus.findIndex(f=>f.id===id);
-  if(i>=0){ fus[i].status='DONE'; saveFollowUps(fus); renderFollowUps(); updateBadges(); renderDashboard(); showToast('✅ Follow-up marked done!'); }
+  const all = _cache.crm_followups||[];
+  const u = getCurrentUser();
+  const i = all.findIndex(f=>f.id===id && (!f.addedBy||f.addedBy===(u&&u.mobile)));
+  if(i>=0){ all[i].status='DONE'; saveFollowUps(all); renderFollowUps(); updateBadges(); renderDashboard(); showToast('✅ Follow-up marked done!'); }
 }
 function deleteFU(id){
-  const fus = getFollowUps().filter(f=>f.id!==id);
-  saveFollowUps(fus); renderFollowUps(); updateBadges(); renderDashboard();
+  const all = _cache.crm_followups||[];
+  const u = getCurrentUser();
+  // Only delete own follow-ups
+  const filtered = all.filter(f=>!(f.id===id && (!f.addedBy||f.addedBy===(u&&u.mobile))));
+  saveFollowUps(filtered); renderFollowUps(); updateBadges(); renderDashboard();
   showToast('Follow-up removed');
 }
 
@@ -3967,42 +4024,193 @@ function saveContact(){
 }
 
 // ══ SAVE POLICY ══
+// ══ POLICY TAB SWITCH ══
+function switchPolTab(tab){
+  document.getElementById('pol-manual-pane').style.display = tab==='manual'?'block':'none';
+  document.getElementById('pol-paste-pane').style.display  = tab==='paste' ?'block':'none';
+  const manual=document.getElementById('pol-tab-manual');
+  const paste =document.getElementById('pol-tab-paste');
+  if(manual&&paste){
+    manual.style.color = tab==='manual'?'#22d3ee':'#7a8aaa';
+    manual.style.borderBottom = tab==='manual'?'2px solid #22d3ee':'none';
+    paste.style.color  = tab==='paste' ?'#22d3ee':'#7a8aaa';
+    paste.style.borderBottom = tab==='paste'?'2px solid #22d3ee':'none';
+  }
+}
+
+// ══ AUTO-PARSE: Paste text → fill manual form ══
+function autoParsePolicyText(){
+  const raw = (document.getElementById('pol-paste-text')?.value||'').trim();
+  if(!raw){ showToast('⚠️ Paste some policy text first'); return; }
+
+  // ── Field extractors ──
+  function extract(patterns, text){
+    for(const p of patterns){
+      const m=text.match(p);
+      if(m) return (m[1]||m[0]).trim();
+    }
+    return '';
+  }
+  const t=raw;
+
+  const bank = extract([
+    /^([A-Z][A-Z &.\-']+(?:BANK|FINANCE|CAPITAL|HOUSING|NBF|HFC|NBFC|LTD|LIMITED|CORP)[A-Z &.\-']*)/im,
+    /Bank[:\-\s]+([^\n]+)/i,
+    /NBFC[:\-\s]+([^\n]+)/i,
+    /Lender[:\-\s]+([^\n]+)/i,
+  ], t) || raw.split('\n')[0].replace(/[*_#]/g,'').trim().slice(0,60);
+
+  const product = (/LAP|Loan Against Property/i.test(t)&&/Home Loan/i.test(t))
+    ? 'Home Loan + LAP'
+    : /Business Loan|BL\b/i.test(t) ? 'Business Loan'
+    : /Personal Loan|PL\b/i.test(t) ? 'Personal Loan'
+    : /Home Loan|HL\b/i.test(t) ? 'Home Loan'
+    : /LAP\b|Loan Against Property/i.test(t) ? 'LAP'
+    : /Plot/i.test(t) ? 'Plot Loan'
+    : 'Home Loan';
+
+  const roi = extract([
+    /ROI[:\s]+([0-9.]+%?\s*[-–to]+\s*[0-9.]+%?)/i,
+    /Interest[:\s]+([0-9.]+%?\s*[-–to]+\s*[0-9.]+%?)/i,
+    /Rate[:\s]+([0-9.]+%?\s*[-–to]+\s*[0-9.]+%?)/i,
+    /HL[:\s]+([0-9.]+%)/i,
+    /([0-9]{1,2}\.[0-9]{1,2}%\s*[-–]\s*[0-9]{1,2}\.[0-9]{1,2}%)/,
+    /([0-9]{1,2}\.[0-9]{1,2}%)/,
+  ], t);
+
+  const minL = extract([
+    /Min(?:imum)?\s*Loan[:\s]+([₹\dL Cr,]+)/i,
+    /Loan\s*from[:\s]+([₹\dL Cr,]+)/i,
+    /([₹\d]+L)\s*[-–to]+/i,
+    /Amount[:\s]+([₹\d]+[LCr]+)/i,
+  ], t);
+
+  const maxL = extract([
+    /Max(?:imum)?\s*Loan[:\s]+([₹\dL Cr,]+)/i,
+    /Upto\s*([₹\d]+\s*Cr)/i,
+    /No\s*Limit/i.test(t)?/()/:null,
+    /[-–to]+\s*([₹\d]+\s*[LCr]+)/,
+  ].filter(Boolean), t) || (/No Limit/i.test(t)?'No Limit':'');
+
+  const cibil = extract([
+    /CIBIL[:\s]+([0-9]+\+?)/i,
+    /Min(?:imum)?\s*CIBIL[:\s]+([0-9]+)/i,
+    /Credit\s*Score[:\s]+([0-9]+)/i,
+    /([0-9]{3})\+\s*CIBIL/i,
+  ], t) || 'As per profile';
+
+  const tat = extract([
+    /TAT[:\s]+([0-9–\-]+\s*(?:days?|hours?|hrs?)?)/i,
+    /Turnaround[:\s]+([^\n]+)/i,
+    /Disburs(?:al|ement)[:\s]+([0-9–\-]+\s*(?:days?|hours?)?)/i,
+  ], t);
+
+  const foir = extract([
+    /FOIR[:\s]+([0-9]+%?)/i,
+    /Max\s*FOIR[:\s]+([0-9]+%?)/i,
+  ], t);
+
+  const abb = extract([
+    /ABB[:\s]+([₹\d,L Cr]+)/i,
+    /Min.*ABB[:\s]+([₹\d,L]+)/i,
+    /Average.*Balance[:\s]+([₹\d,L]+)/i,
+  ], t);
+
+  const location = extract([
+    /Location[:\s]+([^\n]+)/i,
+    /Cities?[:\s]+([^\n]+)/i,
+    /Serving[:\s]+([^\n]+)/i,
+  ], t);
+
+  const contact = extract([
+    /([A-Z][a-z]+ [A-Z][a-z]+)\s*[-–]\s*((?:Manager|ASM|RM|DSM|CEO|SM|AM|Area)[^\n]*)/i,
+    /Contact[:\s]+([^\n]+)/i,
+    /POC[:\s]+([^\n]+)/i,
+  ], t);
+
+  const contactPh = extract([
+    /([6-9]\d{9})\b/,
+  ], t);
+
+  // Programs: lines starting with • or *
+  const programLines = t.split('\n').filter(l=>/^[•*\-]/.test(l.trim())).map(l=>l.replace(/^[•*\-\s]+/,'').trim()).filter(l=>l.length>3);
+  const highlightLines = t.split('\n').filter(l=>{
+    const trimmed=l.trim();
+    return trimmed.length>10 && !trimmed.startsWith('•') && !trimmed.startsWith('*')
+      && !/^(Bank|ROI|CIBIL|TAT|FOIR|Min|Max|Location|Contact|Amount|Date|Product)/i.test(trimmed);
+  }).slice(0,8);
+
+  // Fill form fields
+  function setVal(id,val){ const el=document.getElementById(id); if(el&&val) el.value=val; }
+  setVal('pol-bank',     bank);
+  setVal('pol-roi',      roi);
+  setVal('pol-minl',     minL);
+  setVal('pol-maxl',     maxL);
+  setVal('pol-cibil',    cibil);
+  setVal('pol-tat',      tat);
+  setVal('pol-foir',     foir);
+  setVal('pol-abb',      abb);
+  setVal('pol-location', location);
+  setVal('pol-contact',  contact);
+  setVal('pol-contact-ph', contactPh);
+  setVal('pol-highlights', highlightLines.join('\n'));
+  setVal('pol-programs',   programLines.join(', '));
+  // Set product dropdown
+  const sel=document.getElementById('pol-product');
+  if(sel) sel.value=product;
+
+  // Switch to manual pane to show filled fields
+  switchPolTab('manual');
+
+  const resultEl=document.getElementById('pol-parse-result');
+  const filled=[bank,roi,minL,maxL,cibil,tat,foir,abb,location,contact].filter(Boolean);
+  if(resultEl){
+    resultEl.innerHTML='✅ Parsed '+filled.length+' fields: '+filled.slice(0,4).join(' · ')+(filled.length>4?' …':'');
+    resultEl.style.display='block';
+  }
+  showToast('✅ Auto-parsed! Review and click Save Bank Policy.');
+}
+
+// ══ SAVE POLICY ══
 function savePolicy(){
   const bank = (document.getElementById('pol-bank')?.value||'').trim();
-  if(!bank){ showToast('⚠️ Enter bank name'); return; }
-  const product = document.getElementById('pol-product')?.value||'Business Loan';
-  const minL   = document.getElementById('pol-minl')?.value||'—';
-  const maxL   = document.getElementById('pol-maxl')?.value||'—';
-  const roi1   = document.getElementById('pol-roi1')?.value||'';
-  const roi2   = document.getElementById('pol-roi2')?.value||'';
-  const roi    = roi1 && roi2 ? `${roi1}–${roi2}` : roi1||roi2||'—';
-  const cibil  = document.getElementById('pol-cibil')?.value||'—';
-  const foir   = document.getElementById('pol-foir')?.value||'—';
-  const abb    = document.getElementById('pol-abb')?.value||'—';
-  const date   = document.getElementById('pol-date')?.value||new Date().toLocaleDateString('en-IN');
+  if(!bank){ showToast('⚠️ Enter bank name first'); return; }
+
+  const product    = document.getElementById('pol-product')?.value||'Home Loan';
+  const roi        = document.getElementById('pol-roi')?.value||'—';
+  const minL       = document.getElementById('pol-minl')?.value||'—';
+  const maxL       = document.getElementById('pol-maxl')?.value||'—';
+  const cibil      = document.getElementById('pol-cibil')?.value||'As per profile';
+  const tat        = document.getElementById('pol-tat')?.value||'—';
+  const foir       = document.getElementById('pol-foir')?.value||'—';
+  const abb        = document.getElementById('pol-abb')?.value||'—';
+  const location   = document.getElementById('pol-location')?.value||'';
+  const contact    = document.getElementById('pol-contact')?.value||'';
+  const contactPh  = document.getElementById('pol-contact-ph')?.value||'';
+  const highlights = document.getElementById('pol-highlights')?.value||'';
+  const programs   = document.getElementById('pol-programs')?.value||'';
+  const date       = new Date().toLocaleDateString('en-IN');
 
   const policies = getPolicies2();
-  const idx = policies.length + 1;
-  policies.push({ bank, product, minL, maxL, roi, cibil, foir, abb, date, addedOn: Date.now() });
+  const pol = { id:'P'+Date.now(), bank, product, roi, minL, maxL, cibil, tat, foir, abb,
+                location, contact, contactPh,
+                highlights: highlights.split('\n').map(s=>s.trim()).filter(Boolean),
+                programs:   programs.split(',').map(s=>s.trim()).filter(Boolean),
+                date, addedOn: Date.now() };
+  policies.push(pol);
   savePolicies2(policies);
 
-  const tbody = document.getElementById('pol-tbody');
-  if(tbody){
-    const emptyRow = tbody.querySelector('.empty-state');
-    if(emptyRow) tbody.innerHTML='';
-    const row = document.createElement('tr');
-    row.innerHTML = `<td>${policies.length}</td><td><b>${bank}</b></td>
-      <td><span class="pill p-b">${product}</span></td>
-      <td>${minL}</td><td>${maxL}</td><td style="color:#f59e0b">${roi}</td>
-      <td>${cibil}</td><td>${foir}</td><td>${abb}</td>
-      <td style="font-size:10px;color:#7a8aaa">${date}</td>`;
-    tbody.appendChild(row);
-  }
-  updateBadges();
+  // Clear all fields
+  ['pol-bank','pol-roi','pol-minl','pol-maxl','pol-cibil','pol-tat','pol-foir',
+   'pol-abb','pol-location','pol-contact','pol-contact-ph',
+   'pol-highlights','pol-programs','pol-paste-text'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
 
-  ['pol-bank','pol-minl','pol-maxl','pol-roi1','pol-roi2','pol-cibil','pol-foir','pol-abb','pol-date'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
   closeModal('modal-add-policy');
-  showToast(`✅ Policy for "${bank}" saved to Bank Policies!`);
+  renderSavedPolicies();
+  updateBadges();
+  showToast(`✅ "${bank}" policy saved!`);
 }
 
 // ══ SAVE BL PROFILE ══
@@ -4479,19 +4687,157 @@ function _onNavRender(id){
   if(id==='policies') renderSavedPolicies();
 }
 
+let _polFilter = 'ALL';
+function filterPolicies(type, el){
+  _polFilter=type;
+  el.closest('.ftabs').querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderSavedPolicies();
+}
+
 function renderSavedPolicies(){
-  const policies = getPolicies2();
-  if(!policies.length) return;
-  const tbody = document.getElementById('pol-tbody');
-  if(!tbody) return;
-  tbody.innerHTML = policies.map((p,i)=>`<tr>
-    <td>${i+1}</td><td><b>${p.bank}</b></td>
-    <td><span class="pill p-b">${p.product}</span></td>
-    <td>${p.minL}</td><td>${p.maxL}</td>
-    <td style="color:#f59e0b">${p.roi}</td>
-    <td>${p.cibil}</td><td>${p.foir||'—'}</td><td>${p.abb}</td>
-    <td style="font-size:10px;color:#7a8aaa">${p.date}</td>
-  </tr>`).join('');
+  const all      = getPolicies2();
+  const search   = (document.getElementById('pol-search')?.value||'').toLowerCase();
+  const filtered = all.filter(p=>{
+    const matchType = _polFilter==='ALL' || (p.product||'').includes(_polFilter);
+    const matchSearch = !search || (p.bank||'').toLowerCase().includes(search)
+      || (p.product||'').toLowerCase().includes(search)
+      || (p.location||'').toLowerCase().includes(search);
+    return matchType && matchSearch;
+  });
+
+  const badge=document.getElementById('pol-count-badge');
+  if(badge) badge.textContent = all.length+' Banks';
+
+  const grid=document.getElementById('pol-cards-grid');
+  if(!grid) return;
+
+  if(!filtered.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:#7a8aaa">
+      <div style="font-size:2.5rem;margin-bottom:10px">🏦</div>
+      <p style="font-weight:600">${all.length?'No policies match the filter.':'No policies added yet.'}</p>
+      ${!all.length?'<p style="font-size:12px">Click <b>+ Add / Paste Policy</b> to add your first bank policy.</p>':''}
+    </div>`;
+    return;
+  }
+
+  const PRODUCT_COLORS = {
+    'Home Loan':{'bg':'#0f3460','text':'#60a5fa','border':'#1e4d8c'},
+    'LAP':{'bg':'#1a1036','text':'#a78bfa','border':'#4c1d95'},
+    'Business Loan':{'bg':'#1c2a12','text':'#86efac','border':'#166534'},
+    'Personal Loan':{'bg':'#1c1200','text':'#fcd34d','border':'#78350f'},
+    'Plot Loan':{'bg':'#1a1010','text':'#fca5a5','border':'#7f1d1d'},
+    'Home Loan + LAP':{'bg':'#0f1e35','text':'#38bdf8','border':'#0369a1'},
+  };
+
+  grid.innerHTML = filtered.map(p=>{
+    const pc = PRODUCT_COLORS[p.product]||{'bg':'#1e2a3a','text':'#94a3b8','border':'#334155'};
+    const products = (p.product||'').split('+').map(s=>s.trim());
+    const badges = products.map(prod=>{
+      const c2=PRODUCT_COLORS[prod]||PRODUCT_COLORS[p.product]||pc;
+      return `<span style="font-size:10px;padding:2px 8px;border-radius:3px;font-weight:700;background:${c2.bg};color:${c2.text};border:1px solid ${c2.border}">${prod.toUpperCase()}</span>`;
+    }).join('');
+
+    const roiColor = p.roi&&p.roi!=='—' ? '#22d3ee' : '#7a8aaa';
+    const highlights = (p.highlights||[]).slice(0,8);
+    const programs   = (p.programs||[]).slice(0,6);
+
+    return `<div style="background:#0d1829;border:1px solid #1e3a5f;border-radius:12px;overflow:hidden;display:flex;flex-direction:column">
+      <!-- Card header -->
+      <div style="padding:12px 14px;border-bottom:1px solid #1e3a5f">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
+          <div style="font-weight:800;font-size:13px;color:#e0e8f5;line-height:1.3">${p.bank}</div>
+          <div style="color:${roiColor};font-weight:800;font-size:12px;white-space:nowrap">${p.roi&&p.roi!=='—'?p.roi:'Competitive'}</div>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">${badges}</div>
+      </div>
+
+      <!-- Key metrics -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #1e3a5f">
+        <div style="padding:10px 14px;border-right:1px solid #1e3a5f">
+          <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">LOAN AMOUNT</div>
+          <div style="font-size:12px;font-weight:700;color:#e0e8f5">${p.minL&&p.minL!=='—'?p.minL:'—'} – ${p.maxL&&p.maxL!=='—'?p.maxL:'—'}</div>
+        </div>
+        <div style="padding:10px 14px">
+          <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">MIN CIBIL</div>
+          <div style="font-size:12px;font-weight:700;color:#e0e8f5">${p.cibil||'As per profile'}</div>
+        </div>
+        <div style="padding:10px 14px;border-right:1px solid #1e3a5f;border-top:1px solid #1e3a5f">
+          <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">ROI</div>
+          <div style="font-size:12px;font-weight:700;color:${roiColor}">${p.roi||'Competitive'}</div>
+        </div>
+        <div style="padding:10px 14px;border-top:1px solid #1e3a5f">
+          <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">TAT</div>
+          <div style="font-size:12px;font-weight:700;color:#e0e8f5">${p.tat||'Standard'}</div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      ${p.location?`<div style="padding:8px 14px;border-bottom:1px solid #1e3a5f;display:flex;align-items:center;gap:6px">
+        <span style="color:#ef4444;font-size:12px">📍</span>
+        <span style="font-size:11px;color:#94a3b8">${p.location}</span>
+      </div>`:''}
+
+      <!-- Highlights -->
+      ${highlights.length?`<div style="padding:10px 14px;border-bottom:1px solid #1e3a5f;flex:1">
+        ${highlights.map(h=>`<div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:4px">
+          <span style="color:#22d3ee;flex-shrink:0;margin-top:1px">→</span>
+          <span style="font-size:10.5px;color:#94a3b8;line-height:1.4">${h}</span>
+        </div>`).join('')}
+      </div>`:''}
+
+      <!-- Programs -->
+      ${programs.length?`<div style="padding:8px 14px;border-bottom:1px solid #1e3a5f">
+        <div style="font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">PROGRAMS</div>
+        ${programs.map(prog=>`<div style="font-size:10px;color:#7a8aaa;margin-bottom:2px">• ${prog}</div>`).join('')}
+      </div>`:''}
+
+      <!-- Contact + Actions -->
+      <div style="padding:10px 14px">
+        ${p.contact||p.contactPh?`<div style="background:#0f2244;border:1px solid #1e4d8c;border-radius:6px;padding:8px 10px;display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <span style="color:#22d3ee">📞</span>
+          <span style="font-size:11px;color:#94a3b8;flex:1">${[p.contact,p.contactPh].filter(Boolean).join(' | ')}</span>
+        </div>`:''}
+        <div style="display:flex;gap:6px">
+          <button onclick="editPolicy('${p.id}')" style="flex:1;padding:7px;background:#0f1e35;border:1px solid #1e4d8c;color:#60a5fa;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">Full Details →</button>
+          <button onclick="editPolicy('${p.id}')" style="width:34px;background:#0f1e35;border:1px solid #1e4d8c;color:#fbbf24;border-radius:6px;cursor:pointer;font-size:14px">✏</button>
+          <button onclick="deletePolicy('${p.id}')" style="width:34px;background:#1a0808;border:1px solid #7f1d1d;color:#ef4444;border-radius:6px;cursor:pointer;font-size:14px">🗑</button>
+        </div>
+        <div style="font-size:9px;color:#334155;margin-top:5px;text-align:right">Updated: ${p.date}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function deletePolicy(pid){
+  if(!confirm('Delete this policy?')) return;
+  savePolicies2(getPolicies2().filter(p=>p.id!==pid));
+  renderSavedPolicies(); updateBadges();
+  showToast('Policy deleted');
+}
+
+function editPolicy(pid){
+  const p=getPolicies2().find(x=>x.id===pid); if(!p) return;
+  // fill form
+  const setVal=(id,val)=>{const el=document.getElementById(id);if(el)el.value=val||'';};
+  setVal('pol-bank',     p.bank);
+  setVal('pol-roi',      p.roi);
+  setVal('pol-minl',     p.minL);
+  setVal('pol-maxl',     p.maxL);
+  setVal('pol-cibil',    p.cibil);
+  setVal('pol-tat',      p.tat);
+  setVal('pol-foir',     p.foir);
+  setVal('pol-abb',      p.abb);
+  setVal('pol-location', p.location);
+  setVal('pol-contact',  p.contact);
+  setVal('pol-contact-ph', p.contactPh);
+  setVal('pol-highlights', (p.highlights||[]).join('\n'));
+  setVal('pol-programs',   (p.programs||[]).join(', '));
+  const sel=document.getElementById('pol-product'); if(sel) sel.value=p.product;
+  // Delete old and open modal in manual tab
+  savePolicies2(getPolicies2().filter(x=>x.id!==pid));
+  switchPolTab('manual');
+  openModal('modal-add-policy');
 }
 
 // ══ Bootstrap on load ══
