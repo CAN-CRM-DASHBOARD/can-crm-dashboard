@@ -340,6 +340,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="tb-right">
         <div style="font-size:10px;color:var(--text3)" id="adm-datetime"></div>
         <span id="adm-fb-badge" style="font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.07);font-weight:600">⏳ Connecting…</span>
+        <button id="adm-retry-btn" onclick="admRetryFirebase()" title="Retry Firebase connection" style="display:none;font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(124,58,237,.4);color:var(--purple3);background:rgba(124,58,237,.1);cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s">↻ Retry</button>
         <div class="tb-badge"><div class="live-dot"></div>ADMIN ACTIVE</div>
       </div>
     </div>
@@ -1954,6 +1955,8 @@ function _startOfflinePoll(){
       if(typeof renderBorrowers==='function') renderBorrowers();
       var badge=document.getElementById('adm-fb-badge');
       if(badge) badge.textContent='💾 Offline (synced)';
+      var retryBtn=document.getElementById('adm-retry-btn');
+      if(retryBtn) retryBtn.style.display='inline-block';
     }
   }, 5000);
 }
@@ -1970,6 +1973,50 @@ function showToast(msg){
   t.textContent = msg; t.style.display='block';
   clearTimeout(t._tid);
   t._tid = setTimeout(()=>{ t.style.display='none'; }, 3200);
+}
+
+// ── Manual Firebase reconnect — triggered by ↻ Retry button ──
+function admRetryFirebase(){
+  const btn = document.getElementById('adm-retry-btn');
+  const badge = document.getElementById('adm-fb-badge');
+  if(btn){ btn.textContent='↻ Retrying…'; btn.disabled=true; }
+  if(badge){ badge.textContent='⏳ Connecting…'; badge.style.color='#94a3b8'; }
+
+  // Reset init flag so init() can run again
+  if(typeof window._admFirebaseInit === 'function'){
+    // Patch: temporarily reset _admInited via re-expose trick
+    // We directly attempt Firebase init here
+  }
+
+  setTimeout(function(){
+    if(typeof firebase === 'undefined'){
+      if(badge){ badge.textContent='💾 Offline'; badge.style.color='#f59e0b'; }
+      if(btn){ btn.textContent='↻ Retry'; btn.disabled=false; }
+      showToast('⚠️ Firebase SDK not available. Check network connection.');
+      return;
+    }
+    try{
+      var app = (firebase.apps&&firebase.apps.length) ? firebase.apps[0] : firebase.initializeApp({
+        apiKey:"AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
+        authDomain:"credit-engine-2ffba.firebaseapp.com",
+        databaseURL:"https://credit-engine-2ffba-default-rtdb.firebaseio.com",
+        projectId:"credit-engine-2ffba",
+        storageBucket:"credit-engine-2ffba.firebasestorage.app",
+        messagingSenderId:"432392785380",
+        appId:"1:432392785380:web:c1919a7affce5a5b954bf1"
+      });
+      _admDb = firebase.database();
+      if(badge){ badge.textContent='🔥 Firebase Live'; badge.style.color='#22c55e'; }
+      if(btn){ btn.style.display='none'; btn.disabled=false; btn.textContent='↻ Retry'; }
+      _startAdmListeners();
+      loadDashboard();
+      showToast('🔥 Firebase reconnected! Dashboard syncing…');
+    }catch(e){
+      if(badge){ badge.textContent='💾 Offline'; badge.style.color='#f59e0b'; }
+      if(btn){ btn.textContent='↻ Retry'; btn.disabled=false; }
+      showToast('❌ Reconnect failed: '+e.message);
+    }
+  }, 800);
 }
 
 function updateDateTime(){
@@ -2001,9 +2048,11 @@ function updateDateTime(){
     appId:             "1:432392785380:web:c1919a7affce5a5b954bf1"
   };
 
-  function badge(txt,col){
+  function badge(txt,col,showRetry){
     var el=document.getElementById('adm-fb-badge');
     if(el){el.textContent=txt;el.style.color=col;}
+    var retryBtn=document.getElementById('adm-retry-btn');
+    if(retryBtn) retryBtn.style.display=showRetry?'inline-block':'none';
   }
 
   function init(){
@@ -2011,7 +2060,7 @@ function updateDateTime(){
     _admInited = true;
 
     if(typeof firebase==='undefined'){
-      badge('💾 Offline','#f59e0b');
+      badge('💾 Offline','#f59e0b',true);
       console.warn('Firebase SDK not loaded — using localStorage cache');
       if(typeof loadDashboard==='function') loadDashboard();
       if(typeof renderUsers==='function') renderUsers();
@@ -2022,11 +2071,11 @@ function updateDateTime(){
     try{
       var app = (firebase.apps&&firebase.apps.length) ? firebase.apps[0] : firebase.initializeApp(CFG);
       _admDb = firebase.database();
-      badge('🔥 Firebase Live','#22c55e');
+      badge('🔥 Firebase Live','#22c55e',false);
       console.log('✅ Admin Firebase connected');
       _startAdmListeners();
     }catch(e){
-      badge('💾 Offline','#f59e0b');
+      badge('💾 Offline','#f59e0b',true);
       console.warn('Firebase init failed:',e.message);
       if(typeof loadDashboard==='function') loadDashboard();
       if(typeof renderUsers==='function') renderUsers();
@@ -2037,6 +2086,27 @@ function updateDateTime(){
 
   // Expose globally so the waterfall loader's SDK onload callback can trigger init
   window._admFirebaseInit = init;
+
+  // ── Active retry loop — covers GitHub Pages CDN / cache timing edge cases ──
+  // Polls every 500ms for up to 10s waiting for Firebase SDK to appear.
+  // Once Firebase is available it calls init() (idempotency guard prevents double-run).
+  (function retryUntilFirebase(){
+    var attempts = 0;
+    var maxAttempts = 20; // 20 × 500ms = 10 seconds
+    var iv = setInterval(function(){
+      attempts++;
+      if(typeof firebase !== 'undefined'){
+        clearInterval(iv);
+        if(typeof window._admFirebaseInit === 'function') window._admFirebaseInit();
+        return;
+      }
+      if(attempts >= maxAttempts){
+        clearInterval(iv);
+        // SDK never arrived — ensure offline mode is running
+        if(!_admInited && typeof window._admFirebaseInit === 'function') window._admFirebaseInit();
+      }
+    }, 500);
+  })();
 
   // ── window.storage listener — instant cross-tab sync when CRM writes to localStorage ──
   // Fires immediately when another tab on the same origin (the CRM) writes dsacrm_users
