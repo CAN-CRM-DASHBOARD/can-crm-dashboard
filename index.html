@@ -1989,6 +1989,18 @@ function gateLogin(){
   if(user.password!==pass){errEl.textContent='❌ Incorrect password. Please try again.';errEl.style.display='block';return;}
   _currentUser=user;
   _setSession(mobile);
+  // Migrate orphaned records — tag any records without addedBy as belonging to THIS user
+  // This fixes data added before isolation was implemented
+  (function migrateUntagged(){
+    var changed = false;
+    var allB = _cache.crm_borrowers||[];
+    allB.forEach(function(b){ if(!b.addedBy){ b.addedBy=mobile; changed=true; } });
+    if(changed) saveBorrowers(allB);
+    var allF = _cache.crm_followups||[];
+    var changedF = false;
+    allF.forEach(function(f){ if(!f.addedBy){ f.addedBy=mobile; changedF=true; } });
+    if(changedF) saveFollowUps(allF);
+  })();
   document.getElementById('auth-gate').style.display='none';
   const sb=document.querySelector('.sb-footer .dsa-name');
   if(sb)sb.textContent=user.name+' ('+user.type+')';
@@ -2154,6 +2166,16 @@ function gateLogout(){
     const user=_getUsers().find(u=>u.mobile===session);
     if(user){
       _currentUser = user;
+      // Migrate orphaned records on session restore
+      (function migrateOnRestore(){
+        var m=user.mobile, changed=false;
+        var allB=_cache.crm_borrowers||[];
+        allB.forEach(function(b){ if(!b.addedBy){ b.addedBy=m; changed=true; } });
+        if(changed) saveBorrowers(allB);
+        var allF=_cache.crm_followups||[], changedF=false;
+        allF.forEach(function(f){ if(!f.addedBy){ f.addedBy=m; changedF=true; } });
+        if(changedF) saveFollowUps(allF);
+      })();
       document.getElementById('auth-gate').style.display='none';
       const sb=document.querySelector('.sb-footer .dsa-name');
       if(sb)sb.textContent=user.name+' ('+user.type+')';
@@ -3694,8 +3716,9 @@ function getBorrowers(){
   const all = _cache.crm_borrowers||[];
   const u = getCurrentUser();
   if(!u) return [];
-  // STRICT isolation — every user sees only records they added
-  return all.filter(b=>!b.addedBy || b.addedBy===u.mobile);
+  // STRICT: only show records explicitly tagged with this user's mobile
+  // Records with no addedBy (old data) are hidden from everyone — prevents cross-user leakage
+  return all.filter(function(b){ return b.addedBy === u.mobile; });
 }
 // saveBorrowers always receives the FULL array (not filtered) to preserve all users' data
 function saveBorrowers(d){ _cache.crm_borrowers=d; _fbSet('crm_borrowers', d); }
@@ -3703,8 +3726,8 @@ function getFollowUps(){
   const all = _cache.crm_followups||[];
   const u = getCurrentUser();
   if(!u) return [];
-  // STRICT isolation — every user sees only follow-ups they added
-  return all.filter(f=>!f.addedBy || f.addedBy===u.mobile);
+  // STRICT: only show follow-ups tagged with this user's mobile
+  return all.filter(function(f){ return f.addedBy === u.mobile; });
 }
 // saveFollowUps always receives the FULL array to preserve all users' data
 function saveFollowUps(d){ _cache.crm_followups=d; _fbSet('crm_followups', d); }
@@ -3846,7 +3869,11 @@ function _saveLead(){
 
   // Push to FULL cache (not filtered getBorrowers) to preserve other users' data
   const allBorr = _cache.crm_borrowers||[];
-  const _u = getCurrentUser(); const _uid = _u ? _u.mobile : 'unknown';
+  // Always get current user — fall back directly to session mobile if _currentUser not set yet
+  var _uid = '';
+  if(_currentUser && _currentUser.mobile){ _uid = _currentUser.mobile; }
+  else { var _sess = _getSession(); if(_sess) _uid = _sess; }
+  if(!_uid){ showToast('⚠️ Please login again — session expired'); return; }
   const record = { id, name, phone, email, product, amount, income, profile, location, status, notes, dt: dt||new Date().toISOString(), addedOn: Date.now(), addedBy: _uid };
   allBorr.push(record);
   saveBorrowers(allBorr);
@@ -4001,7 +4028,10 @@ function saveFollowUp(){
   // Push to FULL cache to preserve other users' follow-ups
   const fus = _cache.crm_followups||[];
   const id = genId('F');
-  const _fuUser = getCurrentUser(); const _fuUid = _fuUser ? _fuUser.mobile : 'unknown';
+  var _fuUid = '';
+  if(_currentUser && _currentUser.mobile){ _fuUid = _currentUser.mobile; }
+  else { const _fsSess = _getSession(); if(_fsSess) _fuUid = _fsSess; }
+  if(!_fuUid){ showToast('⚠️ Session expired — please login again'); return; }
   fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now(), addedBy: _fuUid });
   saveFollowUps(fus);
 
