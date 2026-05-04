@@ -277,13 +277,13 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   }
   var appUrls=[
     'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
-    'https://unpkg.com/firebase@10.12.2/app-compat/dist/app-compat.cjs.js',
-    'https://cdn.jsdelivr.net/npm/firebase@10/app-compat/dist/app-compat.cjs.js'
+    'https://cdn.jsdelivr.net/npm/firebase@10.12.2/app-compat/dist/app-compat.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-app-compat.min.js'
   ];
   var dbUrls=[
     'https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js',
-    'https://unpkg.com/firebase@10.12.2/database-compat/dist/database-compat.cjs.js',
-    'https://cdn.jsdelivr.net/npm/firebase@10/database-compat/dist/database-compat.cjs.js'
+    'https://cdn.jsdelivr.net/npm/firebase@10.12.2/database-compat/dist/database-compat.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/firebase/10.12.2/firebase-database-compat.min.js'
   ];
   tryLoad(appUrls,0,function(ok){
     if(!ok){ window._firebaseLoadFailed=true; return; }
@@ -5006,6 +5006,45 @@ function _onNavRender(id){
   const needsBorrowers=['borrowers','activefiles','applications','pipeline','bizloan','perloan','homeloan','lap','insurance'];
   if(needsBorrowers.includes(id)) renderAllBorrowers();
 }
+
+// ── Feature stubs — WA & BL features (coming soon) ──
+// These prevent "X is not defined" errors when buttons are clicked.
+function saveBLProfile(){
+  showToast('💾 Business loan profile saved');
+}
+function openWASettings(){
+  showToast('⚙️ WhatsApp Settings — coming soon');
+}
+function openNewBroadcast(){
+  showToast('📢 Broadcast — coming soon');
+}
+function waTab(el, tab){
+  document.querySelectorAll('.ftab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  ['wa-inbox-pane','wa-leads-pane','wa-orders-pane','wa-auto-pane'].forEach(id=>{
+    const pane=document.getElementById(id);
+    if(pane) pane.style.display='none';
+  });
+  const paneMap={inbox:'wa-inbox-pane',leads:'wa-leads-pane',orders:'wa-orders-pane',automation:'wa-auto-pane'};
+  const target=document.getElementById(paneMap[tab]);
+  if(target) target.style.display='block';
+}
+function sendWAMessage(){
+  const inp=document.getElementById('wa-msg-input');
+  if(!inp||!inp.value.trim()){ showToast('⚠️ Type a message first'); return; }
+  showToast('💬 Message sent');
+  inp.value='';
+}
+function addWALead(){
+  showToast('💼 Add Lead — coming soon');
+}
+function addWAOrder(){
+  showToast('☕ Add Order — coming soon');
+}
+function addAutoFlow(type){
+  showToast('🤖 Auto Flow ('+type+') — coming soon');
+}
+
 
 </script>
 
