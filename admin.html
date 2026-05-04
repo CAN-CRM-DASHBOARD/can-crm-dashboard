@@ -218,11 +218,23 @@ tr:hover td{background:rgba(255,255,255,.02)}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 </style>
-<!-- Firebase v10 Compat SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"
-  onerror="document.head.insertAdjacentHTML('beforeend','<script src=&quot;https://cdn.jsdelivr.net/npm/firebase@9.23.0/compat/app/dist/app.js&quot;><\/script>')">
+<!-- Firebase Compat SDK — multi-CDN waterfall loader -->
+<script>
+(function(){
+  function load(urls,i,next){
+    if(i>=urls.length){if(next)next(false);return;}
+    var s=document.createElement('script');s.src=urls[i];
+    s.onload=function(){if(next)next(true);};
+    s.onerror=function(){load(urls,i+1,next);};
+    document.head.appendChild(s);
+  }
+  var appUrls=['https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
+               'https://unpkg.com/firebase@10.12.2/app-compat/dist/app-compat.cjs.js'];
+  var dbUrls =['https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js',
+               'https://unpkg.com/firebase@10.12.2/database-compat/dist/database-compat.cjs.js'];
+  load(appUrls,0,function(ok){if(ok)load(dbUrls,0,null);});
+})();
 </script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -421,7 +433,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <span class="pill p-gray" id="usr-count">0 users</span>
           </div>
           <table>
-            <thead><tr><th>#</th><th>Mobile</th><th>Name</th><th>User Type</th><th>Extra Info</th><th>DSA Name / Bank</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+            <thead><tr><th>#</th><th>Mobile</th><th>Name</th><th>User Type</th><th>Extra Info</th><th>DSA Name / Bank</th><th>Status</th><th>Joined</th><th>Leads</th><th>Actions</th></tr></thead>
             <tbody id="usr-tbody"></tbody>
           </table>
         </div>
@@ -1066,12 +1078,13 @@ function navTo(el, id){
 
 // ══════════════════════════════════════
 // ══ DATA LAYER — in-memory cache (populated by Firebase listeners) ══
+function _admParse(k){try{var v=localStorage.getItem(k);return v?JSON.parse(v):[];}catch(e){return[];}}
 var _admCache = {
-  dsacrm_users:  JSON.parse(localStorage.getItem('dsacrm_users') ||'[]'),
-  crm_borrowers: JSON.parse(localStorage.getItem('crm_borrowers')||'[]'),
-  crm_followups: JSON.parse(localStorage.getItem('crm_followups')||'[]'),
-  crm_contacts:  JSON.parse(localStorage.getItem('crm_contacts') ||'[]'),
-  crm_policies:  JSON.parse(localStorage.getItem('crm_policies') ||'[]'),
+  dsacrm_users:  _admParse('dsacrm_users'),
+  crm_borrowers: _admParse('crm_borrowers'),
+  crm_followups: _admParse('crm_followups'),
+  crm_contacts:  _admParse('crm_contacts'),
+  crm_policies:  _admParse('crm_policies'),
 };
 var _admDb = null;
 
@@ -1118,8 +1131,8 @@ function _startAdmListeners(){
 // ══════════════════════════════════════
 function loadDashboard(){
   const users     = getUsers();
-  const borrowers = getBorrowers();
-  const fus       = getFollowUps();
+  const borrowers = _admCache.crm_borrowers||[];  // ALL borrowers — not filtered by user
+  const fus       = _admCache.crm_followups||[];  // ALL follow-ups
   const active    = borrowers.filter(b=>!['REJECTED','CLOSED'].includes(b.status));
   const disbursed = borrowers.filter(b=>b.status==='DISBURSED');
   const disburseAmt = disbursed.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
@@ -1183,7 +1196,10 @@ function renderUsers(){
       ? '<span class="pill p-gold">⏸ On Hold</span>'
       : '<span class="pill p-green">● Active</span>';
     const extra = u.dsaName ? u.dsaName : (u.bankName ? u.bankName : '—');
-    const joined = u.joinedAt ? new Date(u.joinedAt).toLocaleDateString('en-IN') : 'N/A';
+    // Support both registeredOn (new) and joinedAt (legacy)
+    const regTs = u.registeredOn || u.joinedAt;
+    const joined = regTs ? new Date(regTs).toLocaleDateString('en-IN') : 'N/A';
+    const borrowerCount = getBorrowers().filter(b=>b.addedBy===u.mobile).length;
     return `<tr class="${heldClass}" id="urow-${globalIdx}">
       <td style="color:var(--text3)">${idx+1}</td>
       <td><b style="color:#fff">${u.mobile}</b></td>
@@ -1193,6 +1209,7 @@ function renderUsers(){
       <td style="font-size:10px">${extra}</td>
       <td>${statusPill}</td>
       <td style="font-size:10px;color:var(--text3)">${joined}</td>
+      <td style="font-size:11px;color:#60a5fa;font-weight:600">${borrowerCount}</td>
       <td>
         <button class="act-btn act-view" onclick="viewUser(${globalIdx})">👁 View</button>
         <button class="act-btn ${u.held?'act-held':'act-hold'}" onclick="toggleHold(${globalIdx})">${u.held?'▶ Unhold':'⏸ Hold'}</button>
@@ -1235,19 +1252,35 @@ function toggleHold(idx){
 function deleteUser(idx){
   const users = getUsers();
   if(!users[idx]) return;
-  if(!confirm('Delete user "'+users[idx].name+'" ('+users[idx].mobile+')?\nThis cannot be undone.')) return;
-  const name = users[idx].name;
+  const u = users[idx];
+  if(!confirm('Delete user "'+u.name+'" ('+u.mobile+')?\n\nThis will also remove all their customer data.\nThis cannot be undone.')) return;
+  const name = u.name;
+  const mobile = u.mobile;
+
+  // Remove the user
   users.splice(idx, 1);
   saveUsers(users);
+
+  // Remove ALL borrowers added by this user from the shared array
+  const allBorr = getBorrowers().filter ? 
+    _admCache.crm_borrowers.filter(b=>b.addedBy!==mobile) :
+    _admCache.crm_borrowers;
+  _admWrite('crm_borrowers', allBorr.filter(b=>b.addedBy!==mobile));
+
+  // Remove ALL follow-ups added by this user
+  const allFU = _admCache.crm_followups||[];
+  _admWrite('crm_followups', allFU.filter(f=>f.addedBy!==mobile));
+
   renderUsers();
+  renderBorrowers();
   loadDashboard();
-  showToast('🗑 User deleted: '+name);
+  showToast('🗑 User deleted: '+name+' (and their data removed)');
 }
 
 // ══ RENDER BORROWERS (admin view of all CRM borrowers) ══
 function renderBorrowers(){
-  const all = getBorrowers();
-  const fus = getFollowUps();
+  const all = _admCache.crm_borrowers||[];  // Admin sees ALL borrowers across all users
+  const fus = _admCache.crm_followups||[];
   const active    = all.filter(b=>!['REJECTED','CLOSED'].includes(b.status));
   const disbursed = all.filter(b=>b.status==='DISBURSED');
   const sanctioned= all.filter(b=>b.status==='SANCTIONED');
@@ -1342,14 +1375,15 @@ function buildAdmBorrTable(all){
   const tbl = document.createElement('table');
   tbl.innerHTML = `<thead><tr>
     <th>#</th><th>ID</th><th>Name</th><th>Phone</th><th>Product</th>
-    <th>Amount</th><th>Profile</th><th>Location</th><th>Status</th><th>Added On</th>
+    <th>Amount</th><th>Profile</th><th>Location</th><th>Status</th><th>Added By</th><th>Added On</th>
   </tr></thead><tbody id="adm-borr-tbody"></tbody>`;
   body.appendChild(tbl);
   renderAdmBorrRows(all);
 }
 
 function renderAdmBorrRows(data){
-  const all = data || getBorrowers();
+  // Admin always sees ALL borrowers — use full _admCache not filtered getBorrowers()
+  const all = data || (_admCache.crm_borrowers||[]);
   const queueF  = document.getElementById('borr-queue')?.value  || 'ALL';
   const statusF = document.getElementById('borr-status')?.value || 'ALL';
   const filtered = all.filter(b=>
@@ -1359,9 +1393,13 @@ function renderAdmBorrRows(data){
   const tbody = document.getElementById('adm-borr-tbody');
   if(!tbody){ buildAdmBorrTable(all); return; }
   if(!filtered.length){
-    tbody.innerHTML = '<tr><td colspan="10"><div class="empty"><div class="empty-ico">📋</div><p>No borrowers found for selected filter.</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-ico">📋</div><p>No borrowers found for selected filter.</p></div></td></tr>';
     return;
   }
+  // Build mobile→name lookup for owner identification
+  const users = getUsers();
+  const ownerName = {};
+  users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
   const PILL = {
     ACTIVE:'<span class="pill p-green">🟢 Applied</span>',
     LEAD:'<span class="pill p-blue">💡 Lead</span>',
@@ -1379,7 +1417,9 @@ function renderAdmBorrRows(data){
     NEED:'<span class="pill p-green" style="font-weight:700">✅ Need</span>',
     CLOSED:'<span class="pill p-gray">🔒 Closed</span>',
   };
-  tbody.innerHTML = filtered.map((b,i)=>`<tr>
+  tbody.innerHTML = filtered.map((b,i)=>{
+    const owner = b.addedBy ? (ownerName[b.addedBy]||b.addedBy) : '—';
+    return `<tr>
     <td style="color:var(--text3)">${i+1}</td>
     <td style="font-size:10px;color:var(--text3)">${b.id||'—'}</td>
     <td><b style="color:#fff">${b.name}</b><div style="font-size:10px;color:var(--text3)">${b.email||''}</div></td>
@@ -1389,14 +1429,19 @@ function renderAdmBorrRows(data){
     <td style="color:var(--text3);font-size:10px">${b.profile||'—'}</td>
     <td style="color:var(--text3);font-size:10px">${b.location||'—'}</td>
     <td>${PILL[b.status]||`<span class="pill p-gray">${b.status||'—'}</span>`}</td>
+    <td style="font-size:10px;color:var(--cyan)">${owner}</td>
     <td style="font-size:10px;color:var(--text3)">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
-  </tr>`).join('');
+  </tr>`;
+  }).join('');
 }
 
 function exportBorrowers(){
-  const all = getBorrowers();
-  const header = 'No,ID,Name,Phone,Product,Amount,Profile,Location,Status,Added On\n';
-  const rows = all.map((b,i)=>`${i+1},${b.id||''},${b.name||''},${b.phone||''},${b.product||''},${b.amount||''},${b.profile||''},${b.location||''},${b.status||''},${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):''}`).join('\n');
+  const all = _admCache.crm_borrowers||[];
+  const users = getUsers();
+  const ownerName = {};
+  users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
+  const header = 'No,ID,Name,Phone,Product,Amount,Profile,Location,Status,Added By,Added On\n';
+  const rows = all.map((b,i)=>`${i+1},${b.id||''},${b.name||''},${b.phone||''},${b.product||''},${b.amount||''},${b.profile||''},${b.location||''},${b.status||''},${b.addedBy?(ownerName[b.addedBy]||b.addedBy):''},${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):''}`).join('\n');
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([header+rows],{type:'text/csv'}));
   a.download='DSA_CRM_Borrowers_'+new Date().toISOString().slice(0,10)+'.csv';
@@ -1406,7 +1451,7 @@ function exportBorrowers(){
 
 // ══ TODAY'S FOLLOW-UPS — Admin View ══
 function renderFollowUpsAdm(){
-  const all     = getFollowUps();
+  const all     = _admCache.crm_followups||[];  // Admin sees ALL follow-ups
   const search  = (document.getElementById('fu-search')?.value||'').toLowerCase();
   const stF     = document.getElementById('fu-filter-status')?.value||'ALL';
   const typeF   = document.getElementById('fu-filter-type')?.value||'ALL';
