@@ -51,7 +51,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .back-link span:hover{color:#fff}
 
 /* ── MAIN LAYOUT ── */
-#app{display:flex;height:100vh;width:100%;display:none}
+#app{height:100vh;width:100%;display:none}
 
 /* ── SIDEBAR ── */
 .sb{width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
@@ -229,9 +229,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
     document.head.appendChild(s);
   }
   var appUrls=['https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
-               'https://unpkg.com/firebase@10.12.2/app-compat/dist/app-compat.cjs.js'];
+               'https://cdn.jsdelivr.net/npm/firebase@10.12.2/app-compat/dist/app-compat.js'];
   var dbUrls =['https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js',
-               'https://unpkg.com/firebase@10.12.2/database-compat/dist/database-compat.cjs.js'];
+               'https://cdn.jsdelivr.net/npm/firebase@10.12.2/database-compat/dist/database-compat.js'];
   load(appUrls,0,function(ok){if(ok)load(dbUrls,0,null);});
 })();
 </script>
@@ -648,7 +648,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option value="LAP">LAP</option>
           </select>
           <button class="btn btn-p" onclick="openAddModal('policy')">+ Add Policy</button>
-          <button class="btn btn-gold" onclick="dlReport('policies','all')">📥 Export Excel</button>
+          <button class="btn btn-gold" onclick="dlReport('csv','policies','all')">📥 Export Excel</button>
         </div>
         <div class="card">
           <div class="card-head">
@@ -678,7 +678,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option value="TAX">Tax</option>
           </select>
           <button class="btn btn-p" onclick="openAddModal('file')">+ Add File Entry</button>
-          <button class="btn btn-gold" onclick="dlReport('filesdump','all')">📥 Export Excel</button>
+          <button class="btn btn-gold" onclick="dlReport('csv','filesdump','all')">📥 Export Excel</button>
         </div>
         <div class="card">
           <div class="card-head">
@@ -704,7 +704,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option value="LAP">LAP</option>
           </select>
           <button class="btn btn-p" onclick="openAddModal('banker')">+ Add Contact</button>
-          <button class="btn btn-gold" onclick="dlReport('bankerdir','all')">📥 Export Excel</button>
+          <button class="btn btn-gold" onclick="dlReport('csv','bankerdir','all')">📥 Export Excel</button>
         </div>
         <div class="card">
           <div class="card-head">
@@ -891,7 +891,7 @@ function _dispatchSMS(mobile, otp){
     xhr.send();
   } catch(e){}
 
-  console.log('📱 OTP dispatch fired to', mobile, '— OTP:', otp);
+  console.log('📱 OTP dispatch fired to', mobile);
 }
 
 // ── Send OTP ──
@@ -1917,7 +1917,7 @@ function dlReport(format, queue, period){
     csvContent += `FILES DUMP\nNo,File Name,Category,Borrower,Uploaded By,Size,Date,Status\n`;
     _files.forEach((f,i)=>{ csvContent+=`${i+1},${f.name},${f.category},${f.borrower},${f.by},${f.size},${f.date},${f.status}\n`; });
   }
-  const ext = format==='csv'?'csv':'csv';
+  const ext = 'csv';
   download(`DSA_CRM_Admin_${qL.replace(/ /g,'_')}_${pL.replace(/ /g,'_')}_${today()}.${ext}`, csvContent);
   showToast('📥 Report downloaded: '+qL+' — '+pL);
 }
