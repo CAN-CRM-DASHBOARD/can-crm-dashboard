@@ -1524,30 +1524,86 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 </div>
 
 <!-- FREELANCERS -->
+<!-- WOMEN FREELANCER -->
 <div class="sec" id="sec-womenfl">
-  <div class="sec-hdr"><div class="card-title">Women Freelancer Program</div><button class="btn btn-p" onclick="openModal('modal-add-borrower')">+ Register</button></div>
-  <div class="ftabs">
-    <span class="ftab active" onclick="filterRows('wf-tbody','ALL',this)">All</span>
-    <span class="ftab" onclick="filterRows('wf-tbody','VERIFIED',this)">✅ Verified</span>
-    <span class="ftab" onclick="filterRows('wf-tbody','KYC PENDING',this)">🪪 KYC Pending</span>
-    <span class="ftab" onclick="filterRows('wf-tbody','TOP5',this)">⭐ Top 5%</span>
-    <span class="ftab" onclick="filterRows('wf-tbody','NEW',this)">🆕 New This Week</span>
+  <div class="sec-hdr" style="flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="font-weight:700;font-size:15px;color:#0d1b36">♀ Women Freelancer Program</div>
+      <div id="wf-count-badge" style="background:#7c3aed;color:#fff;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700">0</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="triggerImport('womenfl')">📥 Import Excel</button>
+      <input type="file" id="imp-womenfl" accept=".xlsx,.xls,.csv,.xlsm,.xlsb,.ods,.xlam,.xltx,.xltm" style="display:none" onchange="importExcel(this,'womenfl')">
+      <button class="btn btn-p" onclick="openModal('modal-register-fl');document.getElementById('fl-modal-title').textContent='♀ Register Women Freelancer';window._flType='women'">+ Register</button>
+    </div>
   </div>
-  <div class="card"><table><thead><tr><th>Name</th><th>Mobile</th><th>District</th><th>Referrals</th><th>Commission</th><th>Status</th></tr></thead>
-  <tbody id="wf-tbody"><tr><td colspan="6"><div class="empty-state"><div class="ei">♀</div><p>No women freelancers registered yet.</p></div></td></tr></tbody></table></div>
+  <div class="ftabs" style="flex-wrap:wrap">
+    <span class="ftab active" onclick="filterRows('wf-tbody','ALL',this)">All</span>
+    <span class="ftab" onclick="filterRows('wf-tbody','Part Time',this)">⏰ Part Time</span>
+    <span class="ftab" onclick="filterRows('wf-tbody','Full Time',this)">🕐 Full Time</span>
+    <span class="ftab" onclick="filterRows('wf-tbody','VERIFIED',this)">✅ Verified</span>
+    <span class="ftab" onclick="filterRows('wf-tbody','PENDING',this)">⏳ Pending</span>
+  </div>
+  <div class="card"><table><thead><tr>
+    <th>#</th><th>Name</th><th>Mobile</th><th>Email</th><th>Location</th><th>Profile</th><th>Expected Business/Month</th><th>Remarks</th><th>Date</th><th>Action</th>
+  </tr></thead>
+  <tbody id="wf-tbody"><tr><td colspan="10"><div class="empty-state"><div class="ei">♀</div><p>No women freelancers registered yet.<br>Click <b>+ Register</b> to add.</p></div></td></tr></tbody></table></div>
 </div>
 
+<!-- BUSINESS FREELANCER -->
 <div class="sec" id="sec-bizfl">
-  <div class="sec-hdr"><div class="card-title">Business Freelancer Program</div><button class="btn btn-p" onclick="openModal('modal-add-borrower')">+ Register</button></div>
-  <div class="ftabs">
-    <span class="ftab active" onclick="filterRows('bf-tbody','ALL',this)">All</span>
-    <span class="ftab" onclick="filterRows('bf-tbody','GST VERIFIED',this)">🧾 GST Verified</span>
-    <span class="ftab" onclick="filterRows('bf-tbody','D2C',this)">🛒 D2C</span>
-    <span class="ftab" onclick="filterRows('bf-tbody','SERVICES',this)">🔧 Services</span>
-    <span class="ftab" onclick="filterRows('bf-tbody','MANUFACTURING',this)">🏭 Manufacturing</span>
+  <div class="sec-hdr" style="flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="font-weight:700;font-size:15px;color:#0d1b36">♠ Business Freelancer Program</div>
+      <div id="bf-count-badge" style="background:#1a5fb4;color:#fff;border-radius:12px;padding:2px 10px;font-size:11px;font-weight:700">0</div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="triggerImport('bizfl')">📥 Import Excel</button>
+      <input type="file" id="imp-bizfl" accept=".xlsx,.xls,.csv,.xlsm,.xlsb,.ods,.xlam,.xltx,.xltm" style="display:none" onchange="importExcel(this,'bizfl')">
+      <button class="btn btn-p" onclick="openModal('modal-register-fl');document.getElementById('fl-modal-title').textContent='♠ Register Business Freelancer';window._flType='biz'">+ Register</button>
+    </div>
   </div>
-  <div class="card"><table><thead><tr><th>Business Name</th><th>Owner</th><th>Type</th><th>GST</th><th>Referrals</th><th>Commission</th><th>Status</th></tr></thead>
-  <tbody id="bf-tbody"><tr><td colspan="7"><div class="empty-state"><div class="ei">♠</div><p>No business freelancers registered yet.</p></div></td></tr></tbody></table></div>
+  <div class="ftabs" style="flex-wrap:wrap">
+    <span class="ftab active" onclick="filterRows('bf-tbody','ALL',this)">All</span>
+    <span class="ftab" onclick="filterRows('bf-tbody','Part Time',this)">⏰ Part Time</span>
+    <span class="ftab" onclick="filterRows('bf-tbody','Full Time',this)">🕐 Full Time</span>
+    <span class="ftab" onclick="filterRows('bf-tbody','VERIFIED',this)">✅ Verified</span>
+    <span class="ftab" onclick="filterRows('bf-tbody','PENDING',this)">⏳ Pending</span>
+  </div>
+  <div class="card"><table><thead><tr>
+    <th>#</th><th>Name</th><th>Mobile</th><th>Email</th><th>Location</th><th>Profile</th><th>Expected Business/Month</th><th>Remarks</th><th>Date</th><th>Action</th>
+  </tr></thead>
+  <tbody id="bf-tbody"><tr><td colspan="10"><div class="empty-state"><div class="ei">♠</div><p>No business freelancers registered yet.<br>Click <b>+ Register</b> to add.</p></div></td></tr></tbody></table></div>
+</div>
+
+<!-- FREELANCER REGISTER MODAL (shared for both types) -->
+<div class="modal-overlay" id="modal-register-fl">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-head">
+      <h3 id="fl-modal-title">+ Register Freelancer</h3>
+      <button class="modal-close" onclick="closeModal('modal-register-fl')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg" style="grid-column:1/-1"><div class="fl">Customer Name *</div><input id="fl-name" placeholder="Full name"></div>
+        <div class="fg"><div class="fl">Contact Number *</div><input id="fl-phone" type="tel" maxlength="10" placeholder="10-digit mobile" oninput="this.value=this.value.replace(/\D/g,'')"></div>
+        <div class="fg"><div class="fl">Email ID</div><input id="fl-email" type="email" placeholder="email@example.com"></div>
+        <div class="fg"><div class="fl">Location *</div><input id="fl-location" placeholder="City / District"></div>
+        <div class="fg"><div class="fl">Profile Type *</div>
+          <select id="fl-profile">
+            <option value="Part Time">⏰ Part Time</option>
+            <option value="Full Time">🕐 Full Time</option>
+          </select>
+        </div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl">Expected Business per Month (₹ Lakhs)</div><input id="fl-expected" type="number" step="0.1" placeholder="e.g. 2.5"></div>
+      </div>
+      <div class="fg"><div class="fl">Remarks</div><textarea id="fl-remarks" rows="3" placeholder="Any additional notes or remarks…"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-register-fl')">Cancel</button>
+      <button class="btn btn-p" onclick="saveFreelancer()">💾 Save</button>
+    </div>
+  </div>
 </div>
 
 <!-- BANKER DIRECTORY -->
@@ -1989,17 +2045,24 @@ function gateLogin(){
   if(user.password!==pass){errEl.textContent='❌ Incorrect password. Please try again.';errEl.style.display='block';return;}
   _currentUser=user;
   _setSession(mobile);
-  // Migrate orphaned records — tag any records without addedBy as belonging to THIS user
-  // This fixes data added before isolation was implemented
+  // Migrate orphaned records — only once per user, only if this is the FIRST user login
+  // Prevents stealing records when multiple users exist
   (function migrateUntagged(){
+    var allUsers = _getUsers();
+    // Only migrate if this is the only/first user — otherwise records belong to whoever
+    // was the original user before multi-user isolation was introduced
+    var migKey = 'crm_migrated_' + mobile;
+    if(localStorage.getItem(migKey)) return; // already migrated for this user
+    if(allUsers.length > 1) { localStorage.setItem(migKey,'1'); return; } // multi-user — skip
     var changed = false;
     var allB = _cache.crm_borrowers||[];
     allB.forEach(function(b){ if(!b.addedBy){ b.addedBy=mobile; changed=true; } });
-    if(changed) saveBorrowers(allB);
+    if(changed){ saveBorrowers(allB); }
     var allF = _cache.crm_followups||[];
     var changedF = false;
     allF.forEach(function(f){ if(!f.addedBy){ f.addedBy=mobile; changedF=true; } });
-    if(changedF) saveFollowUps(allF);
+    if(changedF){ saveFollowUps(allF); }
+    localStorage.setItem(migKey,'1');
   })();
   document.getElementById('auth-gate').style.display='none';
   const sb=document.querySelector('.sb-footer .dsa-name');
@@ -2091,8 +2154,11 @@ function gateRegister(){
   if(!pass||pass.length<6){errEl.textContent='⚠️ Password must be at least 6 characters.';errEl.style.display='block';return;}
   if(pass!==pass2){errEl.textContent='❌ Passwords do not match.';errEl.style.display='block';return;}
   const users=_getUsers();
-  users.push({mobile,name,type,password:pass,...extraData});
+  const newUser = {mobile,name,type,password:pass,registeredOn:Date.now(),...extraData};
+  users.push(newUser);
   _saveUsers(users);
+  // Force localStorage write immediately so admin sees it even before Firebase syncs
+  try{ localStorage.setItem('dsacrm_users', JSON.stringify(users)); }catch(e){}
   infoEl.textContent='✅ Account created successfully! Redirecting to login…';
   infoEl.style.display='block';
   setTimeout(()=>switchAuthTab('login'),1500);
@@ -2166,15 +2232,20 @@ function gateLogout(){
     const user=_getUsers().find(u=>u.mobile===session);
     if(user){
       _currentUser = user;
-      // Migrate orphaned records on session restore
+      // Migrate on restore — same safe rules as login migration
       (function migrateOnRestore(){
-        var m=user.mobile, changed=false;
-        var allB=_cache.crm_borrowers||[];
-        allB.forEach(function(b){ if(!b.addedBy){ b.addedBy=m; changed=true; } });
+        var m=user.mobile;
+        var migKey='crm_migrated_'+m;
+        if(localStorage.getItem(migKey)) return;
+        var allUsers=_getUsers();
+        if(allUsers.length>1){localStorage.setItem(migKey,'1');return;}
+        var allB=_cache.crm_borrowers||[],changed=false;
+        allB.forEach(function(b){if(!b.addedBy){b.addedBy=m;changed=true;}});
         if(changed) saveBorrowers(allB);
-        var allF=_cache.crm_followups||[], changedF=false;
-        allF.forEach(function(f){ if(!f.addedBy){ f.addedBy=m; changedF=true; } });
+        var allF=_cache.crm_followups||[],changedF=false;
+        allF.forEach(function(f){if(!f.addedBy){f.addedBy=m;changedF=true;}});
         if(changedF) saveFollowUps(allF);
+        localStorage.setItem(migKey,'1');
       })();
       document.getElementById('auth-gate').style.display='none';
       const sb=document.querySelector('.sb-footer .dsa-name');
@@ -3539,6 +3610,27 @@ function populateQueue(queue, rows, fname) {
     }).join('');
     if (tbody) tbody.innerHTML = newRows;
     showToast(`✅ Imported ${count} borrowers from ${fname}`);
+  } else if (queue === 'womenfl' || queue === 'bizfl') {
+    const key = queue === 'womenfl' ? 'crm_womenfl' : 'crm_bizfl';
+    const existing = JSON.parse(localStorage.getItem(key)||'[]');
+    const uid = getCurrentUser()?.mobile||_getSession()||'unknown';
+    const newRecs = rows.map(r => ({
+      id: 'FL'+Date.now()+Math.random().toString(36).slice(2,5),
+      name:     r['Name']||r['Customer Name']||r['CUSTOMER NAME']||Object.values(r)[0]||'',
+      phone:    r['Phone']||r['Mobile']||r['Contact Number']||r['PHONE']||'',
+      email:    r['Email']||r['Email ID']||r['MAIL']||r['Mail Id']||'',
+      location: r['Location']||r['City']||r['LOCATION']||'',
+      profile:  r['Profile']||r['Profile Type']||r['Type']||'Part Time',
+      expected: r['Expected Business']||r['Business/Month']||r['Expected']||'',
+      remarks:  r['Remarks']||r['Notes']||r['REMARKS']||'',
+      dt: new Date().toLocaleDateString('en-IN'),
+      addedOn: Date.now(), addedBy: uid, status:'PENDING'
+    })).filter(r=>r.name);
+    const merged = [...existing, ...newRecs];
+    localStorage.setItem(key, JSON.stringify(merged));
+    if(typeof _fbSet==='function') _fbSet(key, merged);
+    renderFreelancers();
+    showToast(`✅ Imported ${newRecs.length} freelancers from ${fname}`);
   } else {
     showToast(`✅ Imported ${count} rows from ${fname}`);
   }
@@ -4687,6 +4779,105 @@ function saveFacility() {
   showToast(`✅ "${name}" added as Instant Loan partner!`);
 }
 
+// ══ FREELANCER PROGRAM ══
+var _flType = 'women'; // 'women' or 'biz'
+
+function saveFreelancer(){
+  const name    = (document.getElementById('fl-name')?.value||'').trim();
+  const phone   = (document.getElementById('fl-phone')?.value||'').trim();
+  const email   = (document.getElementById('fl-email')?.value||'').trim();
+  const location= (document.getElementById('fl-location')?.value||'').trim();
+  const profile = document.getElementById('fl-profile')?.value||'Part Time';
+  const expected= document.getElementById('fl-expected')?.value||'';
+  const remarks = (document.getElementById('fl-remarks')?.value||'').trim();
+
+  if(!name){showToast('⚠️ Please enter customer name');return;}
+  if(!phone||phone.length<10){showToast('⚠️ Please enter valid mobile number');return;}
+  if(!location){showToast('⚠️ Please enter location');return;}
+
+  const type = window._flType||'women';
+  const key  = type==='women' ? 'crm_womenfl' : 'crm_bizfl';
+  const fl   = JSON.parse(localStorage.getItem(key)||'[]');
+  const rec  = {
+    id:'FL'+Date.now(), name, phone, email, location, profile, expected, remarks,
+    type: profile, dt: new Date().toLocaleDateString('en-IN'), addedOn: Date.now(),
+    addedBy: getCurrentUser()?.mobile||_getSession()||'unknown', status:'PENDING'
+  };
+  fl.push(rec);
+  localStorage.setItem(key, JSON.stringify(fl));
+  if(typeof _fbSet==='function') _fbSet(key, fl);
+
+  // Clear form
+  ['fl-name','fl-phone','fl-email','fl-location','fl-expected','fl-remarks'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  closeModal('modal-register-fl');
+  renderFreelancers();
+  showToast('✅ Freelancer registered: '+name);
+}
+
+function renderFreelancers(){
+  var wf = JSON.parse(localStorage.getItem('crm_womenfl')||'[]');
+  var bf = JSON.parse(localStorage.getItem('crm_bizfl')||'[]');
+
+  // Badge counts
+  var wb = document.getElementById('wf-count-badge'); if(wb) wb.textContent=wf.length;
+  var bb = document.getElementById('bf-count-badge'); if(bb) bb.textContent=bf.length;
+
+  function renderTable(list, tbodyId, colCount){
+    var tbody = document.getElementById(tbodyId); if(!tbody) return;
+    if(!list.length){
+      tbody.innerHTML='<tr><td colspan="'+colCount+'"><div class="empty-state"><div class="ei">👤</div><p>No registrations yet.</p></div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = list.map(function(r,i){
+      return '<tr data-status="'+(r.type||r.profile||'')+'">'+
+        '<td style="color:#7a8aaa">'+(i+1)+'</td>'+
+        '<td><b>'+r.name+'</b></td>'+
+        '<td><a href="tel:'+r.phone+'" style="color:#1a5fb4">📞 '+r.phone+'</a></td>'+
+        '<td style="font-size:10px">'+( r.email||'—')+'</td>'+
+        '<td>'+( r.location||'—')+'</td>'+
+        '<td><span class="pill '+(r.profile==='Full Time'?'p-g':'p-b')+'">'+r.profile+'</span></td>'+
+        '<td>'+( r.expected ? '₹'+r.expected+'L/mo' : '—')+'</td>'+
+        '<td style="font-size:10px;color:#7a8aaa;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+( r.remarks||'')+'">'+( r.remarks||'—')+'</td>'+
+        '<td style="font-size:10px;color:#7a8aaa">'+r.dt+'</td>'+
+        '<td><button onclick="deleteFL(\''+key(r.type)+'\',\''+r.id+'\')" style="font-size:9px;padding:2px 6px;border:1px solid #ef9a9a;color:#c62828;background:none;border-radius:4px;cursor:pointer">✕</button></td>'+
+      '</tr>';
+    }).join('');
+  }
+  function key(t){ return t==='Full Time'||t==='Part Time' ? 'crm_womenfl' : 'crm_womenfl'; }
+  renderTable(wf, 'wf-tbody', 10);
+  renderTable(bf, 'bf-tbody', 10);
+
+  // Fix bf key for deletion
+  var bfTbody = document.getElementById('bf-tbody');
+  if(bfTbody){
+    bfTbody.innerHTML = bf.length ? bf.map(function(r,i){
+      return '<tr data-status="'+(r.type||r.profile||'')+'">'+
+        '<td style="color:#7a8aaa">'+(i+1)+'</td>'+
+        '<td><b>'+r.name+'</b></td>'+
+        '<td><a href="tel:'+r.phone+'" style="color:#1a5fb4">📞 '+r.phone+'</a></td>'+
+        '<td style="font-size:10px">'+( r.email||'—')+'</td>'+
+        '<td>'+( r.location||'—')+'</td>'+
+        '<td><span class="pill '+(r.profile==='Full Time'?'p-g':'p-b')+'">'+r.profile+'</span></td>'+
+        '<td>'+( r.expected ? '₹'+r.expected+'L/mo' : '—')+'</td>'+
+        '<td style="font-size:10px;color:#7a8aaa;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+( r.remarks||'')+'">'+( r.remarks||'—')+'</td>'+
+        '<td style="font-size:10px;color:#7a8aaa">'+r.dt+'</td>'+
+        '<td><button onclick="deleteFL(\'crm_bizfl\',\''+r.id+'\')" style="font-size:9px;padding:2px 6px;border:1px solid #ef9a9a;color:#c62828;background:none;border-radius:4px;cursor:pointer">✕</button></td>'+
+      '</tr>';
+    }).join('') : '<tr><td colspan="10"><div class="empty-state"><div class="ei">♠</div><p>No business freelancers registered yet.</p></div></td></tr>';
+  }
+}
+
+function deleteFL(key, id){
+  if(!confirm('Remove this registration?')) return;
+  var list = JSON.parse(localStorage.getItem(key)||'[]').filter(function(r){return r.id!==id;});
+  localStorage.setItem(key, JSON.stringify(list));
+  if(typeof _fbSet==='function') _fbSet(key, list);
+  renderFreelancers();
+  showToast('Registration removed');
+}
+
 // ══ NAV RENDER HOOK — called from nav() on every section switch ══
 function _onNavRender(id){
   if(id==='whatsapp'){    if(typeof initWACRM==='function') initWACRM(); }
@@ -4695,6 +4886,7 @@ function _onNavRender(id){
   if(id==='bankerdir'){   if(typeof renderBankerDirectory==='function') renderBankerDirectory(typeof _currentCity!=='undefined'?_currentCity:''); }
   if(id==='calendar'){    buildCal(); }
   if(id==='followups'){   renderFollowUps(); }
+  if(id==='womenfl'||id==='bizfl'){ renderFreelancers(); }
   const needsBorrowers=['borrowers','activefiles','applications','pipeline','bizloan','perloan','homeloan','lap','insurance'];
   if(needsBorrowers.includes(id)) renderAllBorrowers();
 }
