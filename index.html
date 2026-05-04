@@ -311,7 +311,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
         <div class="fg"><div class="fl">Loan Amount</div><input placeholder="₹ Amount" id="ab-amount"></div>
         <div class="fg"><div class="fl">Monthly Income</div><input placeholder="₹ Monthly income" id="ab-income"></div>
         <div class="fg"><div class="fl">Location</div><input placeholder="City / District" id="ab-location"></div>
-        <div class="fg"><div class="fl">Follow-up Status</div><select id="ab-status">
+        <div class="fg"><div class="fl">Follow-up Status</div><select id="ab-status" onchange="abStatusChange(this.value)">
   <optgroup label="── Lead Status ──">
     <option value="LEAD">💡 Lead</option>
     <option value="ACTIVE">📋 Applied</option>
@@ -334,6 +334,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     <option value="CLOSED">🔒 Closed</option>
   </optgroup>
 </select></div>
+        <div class="fg" id="ab-bank-wrap" style="display:none"><div class="fl">🏦 Loan Bank Name</div><input placeholder="Enter bank / lender name manually" id="ab-bank"></div>
         <div class="fg"><div class="fl">Date & Time</div><input type="datetime-local" id="ab-date"></div>
       </div>
       <div class="fg"><div class="fl">Notes / Remarks</div><textarea rows="3" placeholder="Enter remarks…" id="ab-notes"></textarea></div>
@@ -354,6 +355,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
       <div class="fg"><div class="fl">Mobile Number</div><input placeholder="10-digit mobile" id="fu-phone" type="tel"></div>
       <div class="form-grid">
         <div class="fg"><div class="fl">Follow-up Date & Time</div><input type="datetime-local" id="fu-datetime"></div>
+        <div class="fg"><div class="fl">Location</div><input placeholder="City / District" id="fu-location"></div>
         <div class="fg"><div class="fl">Loan Type</div><select id="fu-loan"><option>Personal Loan</option><option>Business Loan</option><option>Home Loan</option><option>LAP</option><option>Car Loan</option><option>Education</option><option>Insurance</option></select></div>
         <div class="fg"><div class="fl">Priority</div><select id="fu-priority"><option value="PENDING">Normal</option><option value="HIGH">🔴 High Priority</option></select></div>
         <div class="fg"><div class="fl">Type</div><select id="fu-type"><option value="CALLS">📞 Call</option><option value="WHATSAPP">💬 WhatsApp</option><option value="VISITS">🚗 Visit</option></select></div>
@@ -366,8 +368,9 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
           <option>Re-verification</option>
           <option>Others</option>
         </select></div>
-        <div class="fg"><div class="fl">Call Outcome / Status</div><select id="fu-outcome">
+        <div class="fg"><div class="fl">Call Outcome / Status</div><select id="fu-outcome" onchange="fuOutcomeChange(this.value)">
           <option value="">— Select Outcome —</option>
+          <option value="APPLIED">📋 Applied</option>
           <option value="NOT INTERESTED">❌ Not Interested</option>
           <option value="BUSY">📵 Busy</option>
           <option value="WILL UPDATE">🕐 Will Update</option>
@@ -377,6 +380,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
           <option value="SEND DOCUMENTS">📂 Send the Documents</option>
           <option value="NEED">✅ Need (Interested)</option>
         </select></div>
+        <div class="fg" id="fu-bank-wrap" style="display:none"><div class="fl">🏦 Loan Bank Name</div><input placeholder="Enter bank / lender name manually" id="fu-bank"></div>
       </div>
       <div class="fg"><div class="fl">Notes</div><textarea rows="2" placeholder="Follow-up notes…" id="fu-notes"></textarea></div>
     </div>
@@ -886,6 +890,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
       </select>
     </div>
     <span id="fb-status-badge" style="font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid rgba(245,166,35,.3);color:#f59e0b;background:rgba(245,166,35,.08);white-space:nowrap;transition:all .4s">🔄 Connecting…</span>
+    <button id="fb-retry-btn" onclick="crmRetryFirebase()" title="Retry Firebase connection" style="display:none;font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(26,95,180,.35);color:#1a5fb4;background:rgba(26,95,180,.08);cursor:pointer;font-weight:700;transition:all .2s;white-space:nowrap">↻ Retry</button>
     <input class="search" placeholder="🔍 Search…">
     <button class="btn btn-p" onclick="openModal('modal-add-borrower')">+ New Lead</button>
     <button class="btn btn-r" onclick="gateLogout()" style="font-size:10px;padding:5px 10px" title="Logout">🔓 Logout</button>
@@ -3801,6 +3806,9 @@ function _updateFBBadge(text, color, bg, border){
   if(!el) return;
   el.textContent=text; el.style.color=color;
   el.style.background=bg; el.style.borderColor=border;
+  // Show retry button only when offline
+  var retryBtn=document.getElementById('fb-retry-btn');
+  if(retryBtn) retryBtn.style.display=(text.toLowerCase().includes('offline'))?'inline-block':'none';
 }
 
 // ── Firebase config ──
@@ -3947,6 +3955,56 @@ function fuStatusEditSelect(id, current){
 const PRODUCT_ICON = {'Business Loan':'🏭','Personal Loan':'💳','Home Loan':'🏠','LAP':'🏗️','Insurance':'⛨','Car Loan':'🚗','Education':'🎓'};
 
 // ══ SAVE LEAD / BORROWER ══
+// ── Show/hide Bank Name field in Add Borrower modal when status = Applied ──
+function abStatusChange(val){
+  var wrap=document.getElementById('ab-bank-wrap');
+  if(wrap) wrap.style.display=(val==='ACTIVE')?'block':'none';
+  if(val!=='ACTIVE'){ var el=document.getElementById('ab-bank'); if(el) el.value=''; }
+}
+
+// ── Show/hide Bank Name field in Follow-Up modal when outcome = Applied ──
+function fuOutcomeChange(val){
+  var wrap=document.getElementById('fu-bank-wrap');
+  if(wrap) wrap.style.display=(val==='APPLIED')?'block':'none';
+  if(val!=='APPLIED'){ var el=document.getElementById('fu-bank'); if(el) el.value=''; }
+}
+
+// ── Manual Firebase reconnect for CRM dashboard ──
+function crmRetryFirebase(){
+  var btn=document.getElementById('fb-retry-btn');
+  var badge=document.getElementById('fb-status-badge');
+  if(btn){ btn.textContent='↻ Retrying…'; btn.disabled=true; }
+  if(badge){ badge.textContent='🔄 Connecting…'; badge.style.color='#94a3b8'; }
+  setTimeout(function(){
+    if(typeof firebase==='undefined'){
+      _updateFBBadge('💾 Offline Mode','#f59e0b','rgba(245,158,11,.08)','rgba(245,158,11,.3)');
+      if(btn){ btn.textContent='↻ Retry'; btn.disabled=false; }
+      showToast('⚠️ Firebase SDK not available — check network connection');
+      return;
+    }
+    try{
+      var app=(firebase.apps&&firebase.apps.length)?firebase.apps[0]:firebase.initializeApp({
+        apiKey:"AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
+        authDomain:"credit-engine-2ffba.firebaseapp.com",
+        databaseURL:"https://credit-engine-2ffba-default-rtdb.firebaseio.com",
+        projectId:"credit-engine-2ffba",
+        storageBucket:"credit-engine-2ffba.firebasestorage.app",
+        messagingSenderId:"432392785380",
+        appId:"1:432392785380:web:c1919a7affce5a5b954bf1"
+      });
+      _fbDb=firebase.database();
+      _updateFBBadge('🔥 Firebase Live','#22c55e','rgba(34,197,94,.08)','rgba(34,197,94,.3)');
+      if(btn){ btn.style.display='none'; btn.disabled=false; btn.textContent='↻ Retry'; }
+      _startFirebaseListeners();
+      showToast('🔥 Firebase reconnected! Syncing data…');
+    }catch(e){
+      _updateFBBadge('💾 Offline Mode','#f59e0b','rgba(245,158,11,.08)','rgba(245,158,11,.3)');
+      if(btn){ btn.textContent='↻ Retry'; btn.disabled=false; }
+      showToast('❌ Reconnect failed: '+e.message);
+    }
+  },800);
+}
+
 function _saveLead(){
   // ── Read form values ──
   var nameEl     = document.getElementById('ab-name');
@@ -3960,6 +4018,7 @@ function _saveLead(){
   var statusEl   = document.getElementById('ab-status');
   var notesEl    = document.getElementById('ab-notes');
   var dateEl     = document.getElementById('ab-date');
+  var bankEl     = document.getElementById('ab-bank');
 
   var name     = nameEl     ? nameEl.value.trim()     : '';
   var phone    = phoneEl    ? phoneEl.value.trim()    : '';
@@ -3972,6 +4031,7 @@ function _saveLead(){
   var status   = statusEl   ? statusEl.value          : 'LEAD';
   var notes    = notesEl    ? notesEl.value.trim()    : '';
   var dt       = (dateEl && dateEl.value) ? dateEl.value : new Date().toISOString();
+  var bank     = bankEl     ? bankEl.value.trim()     : '';
 
   // ── Validate required fields ──
   if(!name){
@@ -3999,6 +4059,7 @@ function _saveLead(){
     id: id, name: name, phone: phone, email: email,
     product: product, amount: amount, income: income,
     profile: profile, location: location, status: status,
+    bank: bank,
     notes: notes, dt: dt, addedOn: Date.now(), addedBy: uid
   };
 
@@ -4023,9 +4084,10 @@ function _saveLead(){
   try{ if(typeof updateBadges      ==='function') updateBadges();       }catch(e){}
 
   // ── Clear form ──
-  ['ab-name','ab-phone','ab-email','ab-amount','ab-income','ab-location','ab-notes'].forEach(function(fid){
+  ['ab-name','ab-phone','ab-email','ab-amount','ab-income','ab-location','ab-notes','ab-bank'].forEach(function(fid){
     var el=document.getElementById(fid); if(el) el.value='';
   });
+  var abBankWrap=document.getElementById('ab-bank-wrap'); if(abBankWrap) abBankWrap.style.display='none';
   if(dateEl) dateEl.value='';
 
   // ── Notify and close ──
@@ -4168,7 +4230,9 @@ function saveFollowUp(){
 
   if(!name){ showToast('⚠️ Please enter customer name'); return; }
 
-  const outcome = document.getElementById('fu-outcome')?.value || '';
+  const outcome  = document.getElementById('fu-outcome')?.value || '';
+  const location = (document.getElementById('fu-location')?.value||'').trim();
+  const bank     = (document.getElementById('fu-bank')?.value||'').trim();
   // Push to FULL cache to preserve other users' follow-ups
   const fus = _cache.crm_followups||[];
   const id = genId('F');
@@ -4176,16 +4240,17 @@ function saveFollowUp(){
   if(_currentUser && _currentUser.mobile){ _fuUid = _currentUser.mobile; }
   else { const _fsSess = _getSession(); if(_fsSess) _fuUid = _fsSess; }
   if(!_fuUid){ showToast('⚠️ Session expired — please login again'); return; }
-  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now(), addedBy: _fuUid });
+  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, location, bank, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now(), addedBy: _fuUid });
   saveFollowUps(fus);
 
   renderFollowUps();
   renderDashboard();
   updateBadges();
 
-  ['fu-name','fu-phone','fu-notes'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
+  ['fu-name','fu-phone','fu-notes','fu-location','fu-bank'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
   ['fu-datetime'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
   const fuOut=document.getElementById('fu-outcome'); if(fuOut)fuOut.value='';
+  const fuBankWrap=document.getElementById('fu-bank-wrap'); if(fuBankWrap) fuBankWrap.style.display='none';
 
   closeModal('modal-schedule');
   showToast(`📅 Follow-up scheduled for "${name}"!`);
