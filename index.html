@@ -3692,19 +3692,74 @@ window.addEventListener('load', () => {
 //  Replaces localStorage with cloud-synced storage
 // ══════════════════════════════════════════════════════
 
-// In-memory cache + Firebase state — declared globally at bottom of file
-// (_cache, _fbReady, _fbDb defined in firebase-init block before 
-// ── FIREBASE — Global declarations + Init ──
-// ── Global declarations (used throughout the app) ──
-// _cache already declared above — refresh from localStorage in case anything changed
-_cache.dsacrm_users  = _cache.dsacrm_users.length  ? _cache.dsacrm_users  : _lsParse('dsacrm_users');
-_cache.crm_borrowers = _cache.crm_borrowers.length ? _cache.crm_borrowers : _lsParse('crm_borrowers');
-_cache.crm_followups = _cache.crm_followups.length ? _cache.crm_followups : _lsParse('crm_followups');
-_cache.crm_contacts  = _cache.crm_contacts.length  ? _cache.crm_contacts  : _lsParse('crm_contacts');
-_cache.crm_policies  = _cache.crm_policies.length  ? _cache.crm_policies  : _lsParse('crm_policies');
+// ══════════════════════════════════════════════════════
+//  DATA LAYER — clean single implementation
+//  _cache is already declared at top of script with
+//  localStorage seeds. This block wires Firebase on top.
+// ══════════════════════════════════════════════════════
+
+// Refresh _cache keys that were still empty after early seed
+['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
+  if(!_cache[k]||!_cache[k].length){
+    try{ var v=localStorage.getItem(k); if(v) _cache[k]=JSON.parse(v); }catch(e){}
+  }
+});
+
 var _fbReady = false;
 var _fbDb    = null;
-var _fbApp   = null;
+
+// ── Single authoritative _fbSet — always writes localStorage + Firebase ──
+function _fbSet(key, val){
+  // 1. Update in-memory cache
+  _cache[key] = val;
+  // 2. Always persist to localStorage (works offline, survives Firebase failure)
+  try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
+  // 3. Write to Firebase if connected
+  if(_fbDb){
+    try{ _fbDb.ref('dsa_crm/'+key).set(val).catch(function(e){ console.warn('FB write:',e); }); }catch(e){}
+  }
+}
+
+// ── Data getters / setters ──
+function getBorrowers(){
+  var all = _cache.crm_borrowers||[];
+  var u   = getCurrentUser();
+  if(!u) return [];
+  return all.filter(function(b){ return b.addedBy === u.mobile; });
+}
+function saveBorrowers(d){ _fbSet('crm_borrowers', d); }
+
+function getFollowUps(){
+  var all = _cache.crm_followups||[];
+  var u   = getCurrentUser();
+  if(!u) return [];
+  return all.filter(function(f){ return f.addedBy === u.mobile; });
+}
+function saveFollowUps(d){ _fbSet('crm_followups', d); }
+
+function getContacts()  { return _cache.crm_contacts||[]; }
+function saveContacts(d){ _fbSet('crm_contacts', d); }
+function getPolicies2() { return _cache.crm_policies||[]; }
+function savePolicies2(d){ _fbSet('crm_policies', d); }
+function _getUsers()    { return _cache.dsacrm_users||[]; }
+function _saveUsers(u)  { _fbSet('dsacrm_users', u); }
+function _getSession()  { return localStorage.getItem('dsacrm_session'); }
+function _setSession(m) { localStorage.setItem('dsacrm_session', m); }
+function _clearSession(){ localStorage.removeItem('dsacrm_session'); }
+
+// ── ID generator ──
+function genId(prefix){
+  return (prefix||'X') + Date.now().toString(36).toUpperCase()
+       + Math.random().toString(36).slice(2,5).toUpperCase();
+}
+
+// ── Firebase badge ──
+function _updateFBBadge(text, color, bg, border){
+  var el=document.getElementById('fb-status-badge');
+  if(!el) return;
+  el.textContent=text; el.style.color=color;
+  el.style.background=bg; el.style.borderColor=border;
+}
 
 // ── Firebase config ──
 var firebaseConfig = {
@@ -3714,160 +3769,66 @@ var firebaseConfig = {
   projectId:         "credit-engine-2ffba",
   storageBucket:     "credit-engine-2ffba.firebasestorage.app",
   messagingSenderId: "432392785380",
-  appId:             "1:432392785380:web:c1919a7affce5a5b954bf1",
-  measurementId:     "G-RR6H44CKDM"
+  appId:             "1:432392785380:web:c1919a7affce5a5b954bf1"
 };
 
-function _updateFBBadge(text, color, bg, border) {
-  var badge = document.getElementById('fb-status-badge');
-  if (!badge) return;
-  badge.textContent = text;
-  badge.style.color = color;
-  badge.style.background = bg;
-  badge.style.borderColor = border;
-}
-
-function _initFirebase() {
-  try {
-    // Prevent double-init
-    if (firebase.apps && firebase.apps.length) {
-      _fbApp = firebase.apps[0];
-    } else {
-      _fbApp = firebase.initializeApp(firebaseConfig);
-    }
+function _initFirebase(){
+  try{
+    var app = (firebase.apps&&firebase.apps.length)
+      ? firebase.apps[0]
+      : firebase.initializeApp(firebaseConfig);
     _fbDb = firebase.database();
-
-    _updateFBBadge('🔥 Firebase Live', '#22c55e', 'rgba(34,197,94,.08)', 'rgba(34,197,94,.3)');
-    console.log('✅ Firebase connected — project: credit-engine-2ffba');
-
-    // Seed from localStorage first for instant display
-    ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'].forEach(function(k) {
-      try {
-        var v = localStorage.getItem(k);
-        if (v) { var parsed = JSON.parse(v); if (Array.isArray(parsed)) _cache[k] = parsed; }
-      } catch(e) {}
-    });
-
-    // Start real-time listeners
+    _updateFBBadge('🔥 Firebase Live','#22c55e','rgba(34,197,94,.08)','rgba(34,197,94,.3)');
+    console.log('✅ Firebase connected');
     _startFirebaseListeners();
     _fbReady = true;
-    if (typeof _appBoot === 'function') _appBoot();
-
-  } catch(err) {
+    if(typeof _appBoot==='function') _appBoot();
+  }catch(err){
     console.warn('Firebase init failed — offline mode:', err.message);
-    _updateFBBadge('💾 Offline Mode', '#f59e0b', 'rgba(245,158,11,.08)', 'rgba(245,158,11,.3)');
-    // Load from localStorage as fallback
-    ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'].forEach(function(k) {
-      try { _cache[k] = JSON.parse(localStorage.getItem(k)||'[]'); } catch(e) {}
-    });
+    _updateFBBadge('💾 Offline Mode','#f59e0b','rgba(245,158,11,.08)','rgba(245,158,11,.3)');
     _fbReady = true;
-    if (typeof _appBoot === 'function') _appBoot();
+    if(typeof _appBoot==='function') _appBoot();
   }
 }
 
-// Patch _fbSet to also mirror to localStorage so offline fallback always has data
-var _origFbSet = window._fbSet;
-window._fbSet = function(key, val) {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
-  if (_fbDb) {
-    _fbDb.ref('dsa_crm/' + key).set(val).catch(function(e){ console.warn('FB write error:', e); });
-  }
-};
-
-// ── Bootstrap: run after all scripts parsed + DOM ready ──
-document.addEventListener('DOMContentLoaded', function() {
-  // Check Firebase SDK loaded
-  if (typeof firebase !== 'undefined' && firebase.initializeApp) {
-    _initFirebase();
-  } else {
-    console.warn('Firebase SDK not loaded — offline mode');
-    _updateFBBadge('💾 Offline Mode', '#f59e0b', 'rgba(245,158,11,.08)', 'rgba(245,158,11,.3)');
-    ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'].forEach(function(k) {
-      try { _cache[k] = JSON.parse(localStorage.getItem(k)||'[]'); } catch(e) {}
-    });
-    _fbReady = true;
-    if (typeof _appBoot === 'function') _appBoot();
-  }
-});
-
-function _fbPath(key){ return 'dsa_crm/' + key; }
-
-// Write to Firebase (and keep local cache in sync)
-function _fbSet(key, val){
-  _cache[key] = val;
-  if(_fbDb){
-    _fbDb.ref(_fbPath(key)).set(val).catch(e=>console.warn('FB write error:',e));
-  } else {
-    // Fallback: also write to localStorage
-    try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){}
-  }
-}
-
-// Synchronous getters return cached value (populated by listeners)
-function getBorrowers(){
-  const all = _cache.crm_borrowers||[];
-  const u = getCurrentUser();
-  if(!u) return [];
-  // STRICT: only show records explicitly tagged with this user's mobile
-  // Records with no addedBy (old data) are hidden from everyone — prevents cross-user leakage
-  return all.filter(function(b){ return b.addedBy === u.mobile; });
-}
-// saveBorrowers always receives the FULL array (not filtered) to preserve all users' data
-function saveBorrowers(d){ _cache.crm_borrowers=d; _fbSet('crm_borrowers', d); }
-function getFollowUps(){
-  const all = _cache.crm_followups||[];
-  const u = getCurrentUser();
-  if(!u) return [];
-  // STRICT: only show follow-ups tagged with this user's mobile
-  return all.filter(function(f){ return f.addedBy === u.mobile; });
-}
-// saveFollowUps always receives the FULL array to preserve all users' data
-function saveFollowUps(d){ _cache.crm_followups=d; _fbSet('crm_followups', d); }
-function getContacts(){ return _cache.crm_contacts||[]; }
-function saveContacts(d){ _cache.crm_contacts=d; _fbSet('crm_contacts', d); }
-function getPolicies2(){ return _cache.crm_policies||[]; }
-function savePolicies2(d){ _cache.crm_policies=d; _fbSet('crm_policies', d); }
-
-// Users (auth layer)
-function _getUsers(){ return _cache.dsacrm_users||[]; }
-function _saveUsers(u){ _cache.dsacrm_users=u; _fbSet('dsacrm_users', u); }
-// Session stays in localStorage (device-specific)
-function _getSession(){ return localStorage.getItem('dsacrm_session'); }
-function _setSession(m){ localStorage.setItem('dsacrm_session', m); }
-function _clearSession(){ localStorage.removeItem('dsacrm_session'); }
-
-// ── Start Firebase listeners — keep _cache in sync with RTDB ──
+// ── Firebase real-time listeners ──
 function _startFirebaseListeners(){
-  const KEYS = ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'];
-  KEYS.forEach(key => {
-    _fbDb.ref(_fbPath(key)).on('value', snap => {
-      const val = snap.val();
-      _cache[key] = Array.isArray(val) ? val : (val ? Object.values(val) : []);
-      // Re-render affected views when data changes from another device
+  var KEYS = ['crm_borrowers','crm_followups','crm_contacts','crm_policies','dsacrm_users'];
+  KEYS.forEach(function(key){
+    _fbDb.ref('dsa_crm/'+key).on('value', function(snap){
+      var val = snap.val();
+      _cache[key] = Array.isArray(val)?val:(val?Object.values(val):[]);
+      try{ localStorage.setItem(key, JSON.stringify(_cache[key])); }catch(e){}
       _onFirebaseSync(key);
-    }, err => {
-      console.warn('Firebase listener error for', key, err);
-      // Fallback to localStorage
-      try{ _cache[key] = JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
+    }, function(err){
+      console.warn('FB listener error:', key, err.message);
+      try{ _cache[key]=JSON.parse(localStorage.getItem(key)||'[]'); }catch(e){}
     });
   });
 }
 
 function _onFirebaseSync(key){
   if(!_fbReady) return;
-  if(key==='crm_borrowers')  { renderAllBorrowers(); renderDashboard(); updateBadges(); }
-  if(key==='crm_followups')  { renderFollowUps(); renderDashboard(); updateBadges(); buildCal(); }
-  if(key==='crm_contacts')   { /* contacts sync */ }
-  if(key==='crm_policies')   { renderSavedPolicies(); }
-  if(key==='dsacrm_users')   { /* users sync */ }
+  if(key==='crm_borrowers') { renderAllBorrowers(); renderDashboard(); updateBadges(); }
+  if(key==='crm_followups') { renderFollowUps(); renderDashboard(); updateBadges(); buildCal(); }
+  if(key==='crm_policies')  { renderSavedPolicies(); }
 }
 
-// Stub for legacy compat
+// ── Legacy stubs ──
 function _getData(key){ return _cache[key]||[]; }
-function _setData(key, val){ _fbSet(key, val); }
+function _setData(key,val){ _fbSet(key,val); }
 
-// ── ID generator ──
-function genId(prefix){ return prefix + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase(); }
+// ── Bootstrap on DOMContentLoaded ──
+document.addEventListener('DOMContentLoaded', function(){
+  if(typeof firebase!=='undefined' && firebase.initializeApp){
+    _initFirebase();
+  } else {
+    console.warn('Firebase SDK not loaded — running offline');
+    _updateFBBadge('💾 Offline Mode','#f59e0b','rgba(245,158,11,.08)','rgba(245,158,11,.3)');
+    _fbReady = true;
+    if(typeof _appBoot==='function') _appBoot();
+  }
+});
 
 // ── Pill helper ──
 function statusPill(s){
@@ -3944,44 +3905,92 @@ const PRODUCT_ICON = {'Business Loan':'🏭','Personal Loan':'💳','Home Loan':
 
 // ══ SAVE LEAD / BORROWER ══
 function _saveLead(){
-  const name = (document.getElementById('ab-name')?.value||'').trim();
-  const phone = (document.getElementById('ab-phone')?.value||'').trim();
-  if(!name){ showToast('⚠️ Please enter customer name'); return; }
-  if(!phone || phone.length < 10){ showToast('⚠️ Please enter valid 10-digit mobile'); return; }
+  // ── Read form values ──
+  var nameEl     = document.getElementById('ab-name');
+  var phoneEl    = document.getElementById('ab-phone');
+  var emailEl    = document.getElementById('ab-email');
+  var productEl  = document.getElementById('ab-product');
+  var amountEl   = document.getElementById('ab-amount');
+  var incomeEl   = document.getElementById('ab-income');
+  var profileEl  = document.getElementById('ab-profile');
+  var locationEl = document.getElementById('ab-location');
+  var statusEl   = document.getElementById('ab-status');
+  var notesEl    = document.getElementById('ab-notes');
+  var dateEl     = document.getElementById('ab-date');
 
-  const product = document.getElementById('ab-product')?.value || 'Business Loan';
-  const amount  = (document.getElementById('ab-amount')?.value||'').trim();
-  const income  = (document.getElementById('ab-income')?.value||'').trim();
-  const profile = document.getElementById('ab-profile')?.value || 'Business';
-  const location= document.getElementById('ab-location')?.value || '';
-  const status  = document.getElementById('ab-status')?.value || 'ACTIVE';
-  const email   = document.getElementById('ab-email')?.value || '';
-  const notes   = document.getElementById('ab-notes')?.value || '';
-  const dt      = document.getElementById('ab-date')?.value || new Date().toISOString();
+  var name     = nameEl     ? nameEl.value.trim()     : '';
+  var phone    = phoneEl    ? phoneEl.value.trim()    : '';
+  var email    = emailEl    ? emailEl.value.trim()    : '';
+  var product  = productEl  ? productEl.value         : 'Business Loan';
+  var amount   = amountEl   ? amountEl.value.trim()   : '';
+  var income   = incomeEl   ? incomeEl.value.trim()   : '';
+  var profile  = profileEl  ? profileEl.value         : 'Salaried';
+  var location = locationEl ? locationEl.value.trim() : '';
+  var status   = statusEl   ? statusEl.value          : 'LEAD';
+  var notes    = notesEl    ? notesEl.value.trim()    : '';
+  var dt       = (dateEl && dateEl.value) ? dateEl.value : new Date().toISOString();
 
-  // Push to FULL cache (not filtered getBorrowers) to preserve other users' data
-  const allBorr = _cache.crm_borrowers||[];
-  // Always get current user — fall back directly to session mobile if _currentUser not set yet
-  var _uid = '';
-  if(_currentUser && _currentUser.mobile){ _uid = _currentUser.mobile; }
-  else { var _sess = _getSession(); if(_sess) _uid = _sess; }
-  if(!_uid){ showToast('⚠️ Please login again — session expired'); return; }
-  const record = { id, name, phone, email, product, amount, income, profile, location, status, notes, dt: dt||new Date().toISOString(), addedOn: Date.now(), addedBy: _uid };
+  // ── Validate required fields ──
+  if(!name){
+    alert('Please enter Customer Name');
+    if(nameEl) nameEl.focus(); return;
+  }
+  if(!phone || phone.replace(/\D/g,'').length < 10){
+    alert('Please enter a valid 10-digit Mobile Number');
+    if(phoneEl) phoneEl.focus(); return;
+  }
+
+  // ── Get logged-in user mobile ──
+  var uid = '';
+  try{
+    if(window._currentUser && window._currentUser.mobile) uid = window._currentUser.mobile;
+    else uid = localStorage.getItem('dsacrm_session') || '';
+  }catch(e){ uid = ''; }
+  if(!uid){ alert('Session expired — please logout and login again.'); return; }
+
+  // ── Generate unique record ID ──
+  var id = 'B' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase();
+
+  // ── Build record ──
+  var record = {
+    id: id, name: name, phone: phone, email: email,
+    product: product, amount: amount, income: income,
+    profile: profile, location: location, status: status,
+    notes: notes, dt: dt, addedOn: Date.now(), addedBy: uid
+  };
+
+  // ── Persist: localStorage first (always reliable) ──
+  var allBorr = [];
+  try{ allBorr = JSON.parse(localStorage.getItem('crm_borrowers') || '[]'); }catch(e){ allBorr = []; }
+  if(!Array.isArray(allBorr)) allBorr = [];
   allBorr.push(record);
-  saveBorrowers(allBorr);
+  try{ localStorage.setItem('crm_borrowers', JSON.stringify(allBorr)); }catch(e){}
 
-  // Render everywhere
-  renderAllBorrowers();
-  renderDashboard();
-  updateBadges();
+  // ── Sync to in-memory cache ──
+  if(window._cache){ window._cache.crm_borrowers = allBorr; }
 
-  // Clear form
-  ['ab-name','ab-phone','ab-email','ab-amount','ab-income','ab-location','ab-notes'].forEach(id=>{ const el=document.getElementById(id); if(el)el.value=''; });
-  const abDate = document.getElementById('ab-date'); if(abDate) abDate.value='';
+  // ── Write to Firebase if connected ──
+  try{
+    if(window._fbDb){ window._fbDb.ref('dsa_crm/crm_borrowers').set(allBorr).catch(function(e){ console.warn('FB write:',e); }); }
+  }catch(e){}
 
-  closeModal('modal-add-borrower');
-  showToast(`✅ "${name}" saved to All Borrowers, Active Files & Queue!`);
+  // ── Refresh UI ──
+  try{ if(typeof renderAllBorrowers==='function') renderAllBorrowers(); }catch(e){}
+  try{ if(typeof renderDashboard   ==='function') renderDashboard();    }catch(e){}
+  try{ if(typeof updateBadges      ==='function') updateBadges();       }catch(e){}
+
+  // ── Clear form ──
+  ['ab-name','ab-phone','ab-email','ab-amount','ab-income','ab-location','ab-notes'].forEach(function(fid){
+    var el=document.getElementById(fid); if(el) el.value='';
+  });
+  if(dateEl) dateEl.value='';
+
+  // ── Notify and close ──
+  try{ if(typeof closeModal==='function') closeModal('modal-add-borrower'); }catch(e){}
+  var toast=document.getElementById('toast');
+  if(toast){ toast.textContent='✅ "'+name+'" saved!'; toast.style.display='block'; setTimeout(function(){toast.style.display='none';},3000); }
 }
+
 
 // ══ RENDER ALL BORROWERS (all tables) ══
 function renderAllBorrowers(){
