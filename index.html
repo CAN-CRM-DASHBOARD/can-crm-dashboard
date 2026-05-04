@@ -2082,7 +2082,7 @@ function _sendSMS(mobile, otp){
   const img=new Image();
   img.src=`https://2factor.in/API/V1/${_2F_KEY}/SMS/${mobile}/${otp}?t=${Date.now()}`;
   img.onerror=img.onload=()=>{};
-  console.log('📱 OTP dispatched to',mobile,'OTP:',otp);
+  console.log('📱 OTP dispatched to',mobile);
 }
 function _pingVerify3(mobile, otp){
   const img=new Image();
@@ -3562,22 +3562,62 @@ function populateQueue(queue, rows, fname) {
     })));
     showToast(`✅ Imported ${count} banker contacts from ${fname}`);
   } else if (queue === 'policies') {
-    const tbody = document.getElementById('pol-tbody');
-    const newRows = rows.map((r,i) => {
-      const bank = r['Bank']||r['Bank Name']||r['BANK']||Object.values(r)[0]||'—';
-      const prod = r['Product']||r['PRODUCT']||r['Loan Type']||'—';
-      const minL = r['Min Loan']||r['MIN LOAN']||r['Min Amount']||'—';
-      const maxL = r['Max Loan']||r['MAX LOAN']||r['Max Amount']||'—';
-      const roi = r['ROI']||r['Interest Rate']||r['Rate']||'—';
-      const cibil = r['CIBIL']||r['Min CIBIL']||r['Credit Score']||'—';
-      const abb = r['ABB']||r['Min ABB']||r['Balance']||'—';
-      return `<tr><td>${i+1}</td><td>${bank}</td><td><span class="pill p-b">${prod}</span></td>
-        <td>${minL}</td><td>${maxL}</td><td>${roi}</td><td>${cibil}</td>
-        <td>${abb}</td><td>—</td><td>${new Date().toLocaleDateString('en-IN')}</td>
-        <td><button class="btn" style="font-size:9px;padding:2px 7px" onclick="this.closest('tr').remove();showToast('Deleted')">✕</button></td></tr>`;
-    }).join('');
-    if (tbody) tbody.innerHTML = newRows;
-    showToast(`✅ Imported ${count} bank policies from ${fname}`);
+    // Map each Excel row → a proper policy object (same schema as Add Bank / Paste Policy)
+    var uid = (typeof getCurrentUser==='function' && getCurrentUser()?.mobile) || (typeof _getSession==='function' && _getSession()) || 'import';
+    var existing = getPolicies2();
+    var newPols = rows.map(function(r){
+      // Detect product types from the Product/Loan Type column
+      var prod = (r['Product']||r['PRODUCT']||r['Loan Type']||r['LOAN TYPE']||r['Type']||'').toLowerCase();
+      var types = [];
+      if(/home\s*loan|hl\b/.test(prod)) types.push('hl');
+      if(/\blap\b|loan\s*against\s*property/.test(prod)) types.push('lap');
+      if(/business\s*loan|bl\b/.test(prod)) types.push('bl');
+      if(/personal\s*loan|pl\b/.test(prod)) types.push('pl');
+      if(!types.length) types.push('hl'); // default fallback
+
+      var plot = /plot/i.test(prod);
+
+      var minAmt = r['Min Loan']||r['MIN LOAN']||r['Min Amount']||r['MIN AMOUNT']||'';
+      var maxAmt = r['Max Loan']||r['MAX LOAN']||r['Max Amount']||r['MAX AMOUNT']||'';
+      var amt = (minAmt && maxAmt) ? (minAmt+' to '+maxAmt) : (maxAmt||minAmt||'');
+
+      // Build highlights from any remark/note/highlight columns
+      var hlRaw = r['Highlights']||r['HIGHLIGHTS']||r['Remarks']||r['REMARKS']||r['Notes']||r['NOTE']||'';
+      var highlights = hlRaw ? hlRaw.split(/[;\n|]/).map(function(s){return s.trim();}).filter(Boolean) : [];
+
+      return {
+        id: 'POL'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,5).toUpperCase(),
+        name:      r['Bank']||r['Bank Name']||r['BANK']||r['BANK NAME']||r['Lender']||Object.values(r)[0]||'—',
+        roi:       r['ROI']||r['Interest Rate']||r['INTEREST RATE']||r['Rate']||'—',
+        amt:       amt,
+        minL:      minAmt||'—',
+        maxL:      maxAmt||'—',
+        cibil:     r['CIBIL']||r['Min CIBIL']||r['MIN CIBIL']||r['Credit Score']||'As per profile',
+        tat:       r['TAT']||r['Turnaround']||'Standard',
+        tenor:     r['Tenor']||r['Tenure']||r['TENURE']||'',
+        payout:    r['Payout']||r['Commission']||r['PAYOUT']||'',
+        pf:        r['PF']||r['Processing Fee']||r['PROCESSING FEE']||'',
+        location:  r['Location']||r['City']||r['LOCATION']||r['Cities']||'',
+        contact:   r['Contact']||r['RM']||r['RM Name']||'',
+        abb:       r['ABB']||r['Min ABB']||'',
+        foir:      r['FOIR']||r['Max FOIR']||'',
+        ltv:       r['LTV']||r['Max LTV']||'',
+        types:     types,
+        plot:      plot,
+        product:   types.map(function(t){return{hl:'Home Loan',lap:'LAP',bl:'Business Loan',pl:'Personal Loan'}[t];}).join(' + ')+(plot?' + Plot':''),
+        highlights: highlights,
+        products:  [],
+        date:      new Date().toLocaleDateString('en-IN'),
+        addedOn:   Date.now(),
+        addedBy:   uid
+      };
+    }).filter(function(p){ return p.name && p.name !== '—'; });
+
+    var merged = existing.concat(newPols);
+    savePolicies2(merged);
+    renderSavedPolicies();
+    updateBadges();
+    showToast('✅ Imported ' + newPols.length + ' bank policies from ' + fname);
   } else if (queue === 'insurance') {
     const tbody = document.getElementById('ins-tbody');
     const newRows = rows.map(r => {
@@ -3814,6 +3854,7 @@ function _onFirebaseSync(key){
   if(key==='crm_borrowers') { renderAllBorrowers(); renderDashboard(); updateBadges(); }
   if(key==='crm_followups') { renderFollowUps(); renderDashboard(); updateBadges(); buildCal(); }
   if(key==='crm_policies')  { renderSavedPolicies(); }
+  if(key==='dsacrm_users')  { /* keep cache fresh — session user re-validated on next getCurrentUser() call */ }
 }
 
 // ── Legacy stubs ──
