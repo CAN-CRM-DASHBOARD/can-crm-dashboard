@@ -1831,7 +1831,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 </div>
 
 <!-- DSA/CONNECTOR DASHBOARD -->
-<div class="sec" id="sec-dsaconn" style="display:none">
+<div class="sec" id="sec-dsaconn">
   <div class="sec-hdr">
     <div class="card-title">🤝 DSA / Connector Dashboard</div>
     <div style="display:flex;gap:8px">
@@ -1853,11 +1853,11 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   <div class="card" style="overflow-x:auto">
     <table style="min-width:900px">
       <thead><tr>
-        <th>#</th><th>DSA / Connector Name</th><th>Mobile</th><th>Status</th>
+        <th>#</th><th>DSA / Connector Name</th><th>DSA Code</th><th>Mobile</th><th>Status</th>
         <th>Follow-Up Date & Time</th><th>Business Target</th><th>Business Vertical</th><th>Actions</th>
       </tr></thead>
       <tbody id="conn-tbody">
-        <tr><td colspan="8"><div class="empty-state"><div class="ei">🤝</div><p>No connectors added yet. Click + Add DSA/Connector to get started.</p></div></td></tr>
+        <tr><td colspan="9"><div class="empty-state"><div class="ei">🤝</div><p>No connectors added yet. Click + Add DSA/Connector to get started.</p></div></td></tr>
       </tbody>
     </table>
   </div>
@@ -1865,14 +1865,32 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 
 <!-- ADD / EDIT DSA CONNECTOR MODAL -->
 <div class="modal-overlay" id="modal-add-connector">
-  <div class="modal-box" style="max-width:540px">
+  <div class="modal-box" style="max-width:560px">
     <div class="modal-head"><h3 id="conn-modal-title">+ Add DSA / Connector</h3><button class="modal-close" onclick="closeModal('modal-add-connector')">✕</button></div>
     <div class="modal-body">
       <div class="form-grid">
-        <div class="fg"><div class="fl">Name *</div><input placeholder="Full name" id="cn-name"></div>
-        <div class="fg"><div class="fl">Mobile *</div><input placeholder="10-digit mobile" id="cn-phone" type="tel"></div>
-        <div class="fg"><div class="fl">Company / Agency</div><input placeholder="DSA company name" id="cn-company"></div>
-        <div class="fg"><div class="fl">Location / City</div><input placeholder="City" id="cn-location"></div>
+        <!-- Name + DSA Code auto-generated -->
+        <div class="fg"><div class="fl">DSA / Connector Name *</div>
+          <input placeholder="Full name" id="cn-name" oninput="autoGenDSACode()">
+        </div>
+        <div class="fg"><div class="fl">DSA Code <span style="font-size:9px;color:#7a8aaa;font-weight:400">(auto-generated)</span></div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="cn-dsa-code" placeholder="e.g. MOH7748" style="font-weight:700;letter-spacing:1px;background:#f0f4ff;color:#1a5fb4;font-size:13px" readonly>
+            <button type="button" onclick="autoGenDSACode(true)" style="padding:6px 10px;border:1px solid #c7d2e8;border-radius:6px;background:#e8f0fe;color:#1a5fb4;cursor:pointer;font-size:11px;white-space:nowrap" title="Regenerate">↻ Regen</button>
+          </div>
+        </div>
+        <!-- Contact + Location -->
+        <div class="fg"><div class="fl">Mobile / Contact *</div>
+          <input placeholder="10-digit mobile" id="cn-phone" type="tel" oninput="autoGenDSACode()">
+        </div>
+        <div class="fg"><div class="fl">Location / City</div>
+          <input placeholder="City / District" id="cn-location">
+        </div>
+        <!-- Company -->
+        <div class="fg" style="grid-column:span 2"><div class="fl">Company / Agency Name</div>
+          <input placeholder="DSA company or agency name" id="cn-company">
+        </div>
+        <!-- Status -->
         <div class="fg" style="grid-column:span 2"><div class="fl">Status *</div>
           <select id="cn-status" onchange="onConnStatusChange(this.value)">
             <option value="">— Select Status —</option>
@@ -1885,22 +1903,35 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
             <option value="CALL ME LATER">🕐 Call Me Later and Will Discuss</option>
           </select>
         </div>
-        <div class="fg" id="cn-target-wrap" style="display:none"><div class="fl">🎯 Business Target (Lakhs/month)</div><input type="number" placeholder="e.g. 50" id="cn-target" min="0"></div>
-        <div class="fg" id="cn-vertical-wrap" style="display:none"><div class="fl">📊 Business Vertical (multi-select)</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-bl" style="accent-color:#1b5e20"> 🏭 Business Loans</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-pl" style="accent-color:#0891b2"> 💳 Personal Loans</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-hl" style="accent-color:#1a5fb4"> 🏠 HL/LAP</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-ins" style="accent-color:#6d28d9"> 🛡 Insurance</label>
+        <!-- Shown only when INTERESTED -->
+        <div class="fg" id="cn-target-wrap" style="display:none">
+          <div class="fl">🎯 Business Target (₹ Lakhs / month)</div>
+          <input type="number" placeholder="e.g. 50" id="cn-target" min="0">
+        </div>
+        <div class="fg" id="cn-vertical-wrap" style="display:none">
+          <div class="fl">📊 Business Vertical</div>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-bl" style="accent-color:#1b5e20;width:14px;height:14px"> 🏭 Business Loans</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-pl" style="accent-color:#0891b2;width:14px;height:14px"> 💳 Personal Loans</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-hl" style="accent-color:#1a5fb4;width:14px;height:14px"> 🏠 HL / LAP</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-ins" style="accent-color:#6d28d9;width:14px;height:14px"> 🛡 Insurance</label>
           </div>
         </div>
+        <!-- Follow-up Date & Time -->
         <div class="fg" style="grid-column:span 2"><div class="fl">Follow-Up Date & Time</div>
           <div style="display:flex;gap:6px;align-items:center">
             <input type="datetime-local" id="cn-datetime" style="flex:1">
             <button type="button" onclick="document.getElementById('cn-datetime').showPicker?document.getElementById('cn-datetime').showPicker():document.getElementById('cn-datetime').focus()" style="padding:6px 10px;border:1px solid #d0d5dd;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px">✏️</button>
           </div>
         </div>
-        <div class="fg" style="grid-column:span 2"><div class="fl">Notes</div><textarea rows="2" placeholder="Any remarks…" id="cn-notes"></textarea></div>
+        <!-- Notes -->
+        <div class="fg" style="grid-column:span 2"><div class="fl">Notes / Remarks</div>
+          <textarea rows="2" placeholder="Any remarks…" id="cn-notes"></textarea>
+        </div>
+      </div>
+      <!-- DSA Code preview -->
+      <div id="cn-code-preview" style="display:none;margin-top:8px;background:#e8f0fe;border:1px solid #c7d2e8;border-radius:8px;padding:8px 12px;font-size:11px;color:#1a5fb4">
+        🆔 DSA Code: <b id="cn-code-display"></b> — automatically assigned to this connector
       </div>
     </div>
     <div class="modal-footer">
@@ -4367,12 +4398,19 @@ function updateBorrowerStatus(id, newStatus){
 // ══ Follow-up inline status edit ══
 function fuStatusEditSelect(id, current){
   const statuses = [
-    {v:'PENDING',l:'📌 Pending'},{v:'HIGH',l:'🔴 High Priority'},
-    {v:'NOT INTERESTED',l:'❌ Not Interested'},{v:'BUSY',l:'📵 Busy'},
-    {v:'WILL UPDATE',l:'🕐 Will Update'},{v:'SWITCHED OFF',l:'📴 Switched Off'},
-    {v:'REFERENCE',l:'👥 Reference'},{v:'CALL U LATER',l:'📞 Call U Later'},
-    {v:'SEND DOCUMENTS',l:'📂 Send Documents'},{v:'NEED',l:'✅ Need'},
-    {v:'DONE',l:'✅ Done'}
+    {v:'PENDING',        l:'📌 Pending'},
+    {v:'HIGH',           l:'🔴 High Priority'},
+    {v:'NOT INTERESTED', l:'❌ Not Interested'},
+    {v:'NOT ANSWERING',  l:'📵 Not Answering'},
+    {v:'BOUNCES',        l:'🔁 Bounces'},
+    {v:'BUSY',           l:'📵 Busy'},
+    {v:'WILL UPDATE',    l:'🕐 Will Update'},
+    {v:'SWITCHED OFF',   l:'📴 Switched Off'},
+    {v:'REFERENCE',      l:'👥 Reference'},
+    {v:'CALL U LATER',   l:'📞 Call U Later'},
+    {v:'SEND DOCUMENTS', l:'📂 Send Documents'},
+    {v:'NEED',           l:'✅ Need'},
+    {v:'DONE',           l:'✅ Done'}
   ];
   const opts = statuses.map(s=>`<option value="${s.v}"${s.v===current?' selected':''}>${s.l}</option>`).join('');
   return `<select class="status-edit-sel" onchange="changeFUOutcome('${id}',this.value)" style="font-size:10px;border:1px solid #cdd5e8;border-radius:5px;padding:2px 5px;background:#fff;cursor:pointer;max-width:130px">${opts}</select>`;
@@ -5504,7 +5542,7 @@ var _connFilter = 'ALL';
 function openAddConnectorModal(){
   _connEditId = null;
   document.getElementById('conn-modal-title').textContent = '+ Add DSA / Connector';
-  ['cn-name','cn-phone','cn-company','cn-location','cn-notes'].forEach(id=>{
+  ['cn-name','cn-phone','cn-company','cn-location','cn-notes','cn-dsa-code'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.value='';
   });
   const dt = document.getElementById('cn-datetime'); if(dt) dt.value='';
@@ -5512,9 +5550,26 @@ function openAddConnectorModal(){
   ['cnv-bl','cnv-pl','cnv-hl','cnv-ins'].forEach(id=>{
     const el=document.getElementById(id); if(el) el.checked=false;
   });
-  document.getElementById('cn-target-wrap').style.display='none';
-  document.getElementById('cn-vertical-wrap').style.display='none';
+  const twrap=document.getElementById('cn-target-wrap'); if(twrap) twrap.style.display='none';
+  const vwrap=document.getElementById('cn-vertical-wrap'); if(vwrap) vwrap.style.display='none';
+  const prev=document.getElementById('cn-code-preview'); if(prev) prev.style.display='none';
   openModal('modal-add-connector');
+}
+
+// ── Auto-generate DSA Code: First 3 letters of name + last 4 digits of phone ──
+function autoGenDSACode(force){
+  const name  = (document.getElementById('cn-name')?.value||'').trim().replace(/[^a-zA-Z]/g,'');
+  const phone = (document.getElementById('cn-phone')?.value||'').replace(/\D/g,'');
+  const existingCode = document.getElementById('cn-dsa-code')?.value||'';
+  if(existingCode && !force) return; // don't overwrite if manually set
+  if(!name && !phone) return;
+  const prefix = name.slice(0,3).toUpperCase().padEnd(3,'X');
+  const suffix = phone.slice(-4).padStart(4,'0');
+  const code = prefix+suffix;
+  const codeEl=document.getElementById('cn-dsa-code'); if(codeEl) codeEl.value=code;
+  const preview=document.getElementById('cn-code-preview');
+  const display=document.getElementById('cn-code-display');
+  if(preview && code.replace(/X/g,'').length>1){ preview.style.display='block'; if(display) display.textContent=code; }
 }
 
 function onConnStatusChange(val){
@@ -5534,6 +5589,7 @@ function saveConnector(){
   const obj = {
     id: _connEditId || ('CN'+Date.now().toString(36).toUpperCase()),
     name, phone,
+    dsaCode:  (document.getElementById('cn-dsa-code')?.value||'').trim() || (name.slice(0,3).toUpperCase()+(phone.replace(/\D/g,'').slice(-4))),
     company:  (document.getElementById('cn-company')?.value||'').trim(),
     location: (document.getElementById('cn-location')?.value||'').trim(),
     status, hold: false,
@@ -5569,7 +5625,14 @@ function editConnector(id){
   const sv=(eid,val)=>{const el=document.getElementById(eid);if(el)el.value=val||'';};
   sv('cn-name',c.name); sv('cn-phone',c.phone); sv('cn-company',c.company);
   sv('cn-location',c.location); sv('cn-notes',c.notes); sv('cn-status',c.status);
-  sv('cn-target',c.target);
+  sv('cn-target',c.target); sv('cn-dsa-code',c.dsaCode||'');
+  // Show code preview if code exists
+  if(c.dsaCode){
+    const prev=document.getElementById('cn-code-preview');
+    const disp=document.getElementById('cn-code-display');
+    if(prev) prev.style.display='block';
+    if(disp) disp.textContent=c.dsaCode;
+  }
   if(c.dt){
     const d=new Date(c.dt), pad=n=>String(n).padStart(2,'0');
     sv('cn-datetime',`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
@@ -5631,9 +5694,11 @@ function renderConnectors(){
     const dtStr=c.dt?new Date(c.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
     const pill=c.hold?CONN_STATUS_PILL['HOLD']:(CONN_STATUS_PILL[c.status]||`<span class="pill" style="font-size:9px">${c.status}</span>`);
     const verts=(c.verticals||[]).join(', ')||'—';
+    const code = c.dsaCode || (c.name?c.name.slice(0,3).toUpperCase():'???')+(c.phone?c.phone.slice(-4):'0000');
     return `<tr style="${c.hold?'opacity:.55;background:#f8f9fa':''}">
       <td style="color:#7a8aaa;font-size:11px">${i+1}</td>
-      <td><b>${c.name}</b><div style="font-size:9px;color:#7a8aaa">${c.company||''}</div></td>
+      <td><b>${c.name}</b><div style="font-size:9px;color:#7a8aaa">${c.company||''} ${c.location?'📍'+c.location:''}</div></td>
+      <td><span style="font-weight:700;color:#1a5fb4;font-size:11px;letter-spacing:.5px;background:#e8f0fe;padding:2px 8px;border-radius:12px">${code}</span></td>
       <td><a href="tel:${c.phone}" style="color:#1a5fb4;font-size:11px">📞 ${c.phone||'—'}</a></td>
       <td>${pill}</td>
       <td style="font-size:10px;white-space:nowrap">${dtStr}</td>
