@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DSA CRM — Cheyutha Multiway Services</title>
+<title>DSA CRM — Cat-Eye Consultancy Services</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:system-ui,sans-serif;background:#eef0f5;color:#1a1a2e;font-size:13px;height:100vh;overflow:hidden}
@@ -319,6 +319,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   </optgroup>
   <optgroup label="── Follow-up Outcome ──">
     <option value="NOT INTERESTED">❌ Not Interested</option>
+    <option value="NOT ANSWERING">📵 Not Answering</option>
+    <option value="BOUNCES">🔁 Bounces</option>
     <option value="BUSY">📵 Busy</option>
     <option value="WILL UPDATE">🕐 Will Update</option>
     <option value="SWITCHED OFF">📴 Switched Off</option>
@@ -335,7 +337,17 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   </optgroup>
 </select></div>
         <div class="fg" id="ab-bank-wrap" style="display:none"><div class="fl">🏦 Loan Bank Name</div><input placeholder="Enter bank / lender name manually" id="ab-bank"></div>
-        <div class="fg"><div class="fl">Date & Time</div><input type="datetime-local" id="ab-date"></div>
+        <div class="fg"><div class="fl">Follow-up Date & Time</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="datetime-local" id="ab-date" style="flex:1">
+            <button type="button" onclick="document.getElementById('ab-date').showPicker?document.getElementById('ab-date').showPicker():document.getElementById('ab-date').focus()" style="padding:6px 10px;border:1px solid #d0d5dd;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px" title="Edit date/time">✏️</button>
+          </div>
+        </div>
+        <div class="fg"><div class="fl">Source</div><select id="ab-source" onchange="onSourceChange('ab')">
+          <option value="Individual">👤 Individual</option>
+          <option value="DSA/Connector">🤝 DSA / Connector</option>
+        </select></div>
+        <div class="fg" id="ab-connector-wrap" style="display:none"><div class="fl">DSA / Connector Name</div><select id="ab-connector"><option value="">— Select Connector —</option></select></div>
       </div>
       <div class="fg"><div class="fl">Notes / Remarks</div><textarea rows="3" placeholder="Enter remarks…" id="ab-notes"></textarea></div>
     </div>
@@ -372,6 +384,8 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
           <option value="">— Select Outcome —</option>
           <option value="APPLIED">📋 Applied</option>
           <option value="NOT INTERESTED">❌ Not Interested</option>
+          <option value="NOT ANSWERING">📵 Not Answering</option>
+          <option value="BOUNCES">🔁 Bounces</option>
           <option value="BUSY">📵 Busy</option>
           <option value="WILL UPDATE">🕐 Will Update</option>
           <option value="SWITCHED OFF">📴 Switched Off</option>
@@ -382,6 +396,14 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
         </select></div>
         <div class="fg" id="fu-bank-wrap" style="display:none"><div class="fl">🏦 Loan Bank Name</div><input placeholder="Enter bank / lender name manually" id="fu-bank"></div>
       </div>
+      <!-- Feature 5: Source field -->
+      <div class="form-grid">
+        <div class="fg"><div class="fl">Source</div><select id="fu-source" onchange="onSourceChange('fu')">
+          <option value="Individual">👤 Individual</option>
+          <option value="DSA/Connector">🤝 DSA / Connector</option>
+        </select></div>
+        <div class="fg" id="fu-connector-wrap" style="display:none"><div class="fl">DSA / Connector Name</div><select id="fu-connector"><option value="">— Select Connector —</option></select></div>
+      </div>
       <div class="fg"><div class="fl">Notes</div><textarea rows="2" placeholder="Follow-up notes…" id="fu-notes"></textarea></div>
     </div>
     <div class="modal-footer">
@@ -391,7 +413,103 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   </div>
 </div>
 
-<!-- ADD CONTACT MODAL -->
+<!-- DSA/CONNECTOR DASHBOARD -->
+<div class="sec" id="sec-dsaconn">
+  <div class="sec-hdr">
+    <div class="card-title">🤝 DSA / Connector Dashboard</div>
+    <div style="display:flex;gap:8px">
+      <input class="search" id="conn-search" placeholder="Search connector…" style="width:160px" oninput="renderConnectors()">
+      <button class="btn btn-p" onclick="openAddConnectorModal()">+ Add DSA/Connector</button>
+    </div>
+  </div>
+  <div class="ftabs" style="flex-wrap:wrap">
+    <span class="ftab active" onclick="filterConnectors('ALL',this)">All</span>
+    <span class="ftab" onclick="filterConnectors('INTERESTED',this)">✅ Interested</span>
+    <span class="ftab" onclick="filterConnectors('NOT INTERESTED',this)">❌ Not Interested</span>
+    <span class="ftab" onclick="filterConnectors('BUSY',this)">📵 Busy</span>
+    <span class="ftab" onclick="filterConnectors('CALL WAITING',this)">⏳ Call Waiting</span>
+    <span class="ftab" onclick="filterConnectors('WILL CALL YOU',this)">📞 Will Call You</span>
+    <span class="ftab" onclick="filterConnectors('LESS PAYOUT',this)">💰 Less Payout</span>
+    <span class="ftab" onclick="filterConnectors('CALL ME LATER',this)">🕐 Call Me Later</span>
+    <span class="ftab" onclick="filterConnectors('HOLD',this)">⏸ On Hold</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table style="min-width:900px">
+      <thead><tr>
+        <th>#</th><th>DSA / Connector Name</th><th>Mobile</th><th>Status</th>
+        <th>Follow-Up Date & Time</th><th>Business Target</th><th>Business Vertical</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="conn-tbody">
+        <tr><td colspan="8"><div class="empty-state"><div class="ei">🤝</div><p>No connectors added yet. Click + Add DSA/Connector to get started.</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD / EDIT DSA CONNECTOR MODAL -->
+<div class="modal-overlay" id="modal-add-connector">
+  <div class="modal-box" style="max-width:540px">
+    <div class="modal-head"><h3 id="conn-modal-title">+ Add DSA / Connector</h3><button class="modal-close" onclick="closeModal('modal-add-connector')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg"><div class="fl">Name *</div><input placeholder="Full name" id="cn-name"></div>
+        <div class="fg"><div class="fl">Mobile *</div><input placeholder="10-digit mobile" id="cn-phone" type="tel"></div>
+        <div class="fg"><div class="fl">Company / Agency</div><input placeholder="DSA company name" id="cn-company"></div>
+        <div class="fg"><div class="fl">Location / City</div><input placeholder="City" id="cn-location"></div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Status *</div>
+          <select id="cn-status" onchange="onConnStatusChange(this.value)">
+            <option value="">— Select Status —</option>
+            <option value="INTERESTED">✅ Interested</option>
+            <option value="NOT INTERESTED">❌ Not Interested</option>
+            <option value="WILL CALL YOU">📞 Will Call You</option>
+            <option value="BUSY">📵 Busy</option>
+            <option value="CALL WAITING">⏳ Call Waiting</option>
+            <option value="LESS PAYOUT">💰 Less Payout</option>
+            <option value="CALL ME LATER">🕐 Call Me Later and Will Discuss</option>
+          </select>
+        </div>
+        <!-- Shown only when INTERESTED -->
+        <div class="fg" id="cn-target-wrap" style="display:none"><div class="fl">🎯 Business Target (Lakhs/month)</div><input type="number" placeholder="e.g. 50" id="cn-target" min="0"></div>
+        <div class="fg" id="cn-vertical-wrap" style="display:none"><div class="fl">📊 Business Vertical (multi-select)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-bl" style="accent-color:#1b5e20"> 🏭 Business Loans</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-pl" style="accent-color:#0891b2"> 💳 Personal Loans</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-hl" style="accent-color:#1a5fb4"> 🏠 HL/LAP</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-ins" style="accent-color:#6d28d9"> 🛡 Insurance</label>
+          </div>
+        </div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Follow-Up Date & Time</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="datetime-local" id="cn-datetime" style="flex:1">
+            <button type="button" onclick="document.getElementById('cn-datetime').showPicker?document.getElementById('cn-datetime').showPicker():document.getElementById('cn-datetime').focus()" style="padding:6px 10px;border:1px solid #d0d5dd;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px" title="Edit date/time">✏️</button>
+          </div>
+        </div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Notes</div><textarea rows="2" placeholder="Any remarks…" id="cn-notes"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-add-connector')">Cancel</button>
+      <button class="btn btn-p" onclick="saveConnector()">💾 Save Connector</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT DATE/TIME MODAL (Feature 2) -->
+<div class="modal-overlay" id="modal-edit-fudt">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-head"><h3>📅 Edit Follow-up Date & Time</h3><button class="modal-close" onclick="closeModal('modal-edit-fudt')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><div class="fl">Follow-up Date & Time</div><input type="datetime-local" id="edit-fudt-input"></div>
+      <div style="font-size:11px;color:#7a8aaa;margin-top:6px" id="edit-fudt-name"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-edit-fudt')">Cancel</button>
+      <button class="btn btn-p" onclick="applyFUDateTime()">✅ Update</button>
+    </div>
+  </div>
+</div>
+
+
 <div class="modal-overlay" id="modal-add-contact">
   <div class="modal-box" style="max-width:520px">
     <div class="modal-head"><h3>+ Add Banker Contact</h3><button class="modal-close" onclick="closeModal('modal-add-contact')">✕</button></div>
@@ -890,6 +1008,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
     <div class="sb-label">Network</div>
     <div class="ni" onclick="nav(this,'bankerdir')"><div class="ni-l"><span class="nico">☏</span>Banker Directory</div></div>
     <div class="ni" onclick="nav(this,'policies')"><div class="ni-l"><span class="nico">⌘</span>Bank Policies</div><span class="nbadge">0</span></div>
+    <div class="ni" onclick="nav(this,'dsaconn')"><div class="ni-l"><span class="nico">🤝</span>DSA/Connector</div><span class="nbadge" id="badge-dsaconn">0</span></div>
   </div>
   <div class="sb-section">
     <div class="sb-label">Tools</div>
@@ -2037,14 +2156,14 @@ function _lsParse(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v)
 var _cache = {
   dsacrm_users:  _lsParse('dsacrm_users'),
   crm_borrowers: _lsParse('crm_borrowers'),
-  crm_followups: _lsParse('crm_followups'),
+  crm_connectors: _lsParse('crm_connectors'),
   crm_contacts:  _lsParse('crm_contacts'),
   crm_policies:  _lsParse('crm_policies'),
 };
 // ═══════════════════════════════════════════════════════
 
 // ══ NAVIGATION ══
-const TITLES={dashboard:'Dashboard',followups:"Today's Follow-ups",borrowers:'All Borrowers',activefiles:'Active Files',calendar:'Follow-up Calendar',pipeline:'Pipeline Board',applications:'Applications Register',eligibility:'Loan Eligibility Platform',admin:'Admin Dashboard',instantloan:'Instant Loan',insurance:'Insurance Queue',bizloan:'Business Loan Queue',perloan:'Personal Loan Queue',homeloan:'Home Loan Queue',lap:'LAP Queue',womenfl:'Women Freelancer',bizfl:'Business Freelancer',bankerdir:'Banker Directory',policies:'Bank Policies',emi:'EMI Calculator',payout:'Payout Calculator',filesdump:'Files Dump',whatsapp:'WhatsApp CRM'};
+const TITLES={dashboard:'Dashboard',followups:"Today's Follow-ups",borrowers:'All Borrowers',activefiles:'Active Files',calendar:'Follow-up Calendar',pipeline:'Pipeline Board',applications:'Applications Register',eligibility:'Loan Eligibility Platform',admin:'Admin Dashboard',instantloan:'Instant Loan',insurance:'Insurance Queue',bizloan:'Business Loan Queue',perloan:'Personal Loan Queue',homeloan:'Home Loan Queue',lap:'LAP Queue',womenfl:'Women Freelancer',bizfl:'Business Freelancer',bankerdir:'Banker Directory',policies:'Bank Policies',dsaconn:'DSA/Connector Dashboard',emi:'EMI Calculator',payout:'Payout Calculator',filesdump:'Files Dump',whatsapp:'WhatsApp CRM'};
 function nav(el,id){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   el.classList.add('active');
@@ -4054,7 +4173,7 @@ window.addEventListener('load', () => {
 // ══════════════════════════════════════════════════════
 
 // Refresh _cache keys that were still empty after early seed
-['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
+['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_connectors'].forEach(function(k){
   if(!_cache[k]||!_cache[k].length){
     try{ var v=localStorage.getItem(k); if(v) _cache[k]=JSON.parse(v); }catch(e){}
   }
@@ -4169,6 +4288,7 @@ function _onFirebaseSync(key){
   if(!_fbReady) return;
   if(key==='crm_borrowers') { renderAllBorrowers(); renderDashboard(); updateBadges(); }
   if(key==='crm_followups') { renderFollowUps(); renderDashboard(); updateBadges(); buildCal(); }
+  if(key==='crm_connectors'){ renderConnectors(); updateBadges(); populateConnectorDropdowns(); }
   if(key==='crm_policies')  { renderSavedPolicies(); }
   if(key==='dsacrm_users')  { /* keep cache fresh — session user re-validated on next getCurrentUser() call */ }
 }
@@ -4368,6 +4488,8 @@ function _saveLead(){
     product: product, amount: amount, income: income,
     profile: profile, location: location, status: status,
     bank: bank,
+    source:    (document.getElementById('ab-source')?.value||'Individual'),
+    connector: (document.getElementById('ab-connector')?.value||''),
     notes: notes, dt: dt, addedOn: Date.now(), addedBy: uid
   };
 
@@ -4548,7 +4670,10 @@ function saveFollowUp(){
   if(_currentUser && _currentUser.mobile){ _fuUid = _currentUser.mobile; }
   else { const _fsSess = _getSession(); if(_fsSess) _fuUid = _fsSess; }
   if(!_fuUid){ showToast('⚠️ Session expired — please login again'); return; }
-  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, location, bank, outcome: outcome||priority, status: outcome||priority, addedOn: Date.now(), addedBy: _fuUid });
+  fus.push({ id, name, phone, dt, loan, priority, type, purpose, notes, location, bank,
+    source:    document.getElementById('fu-source')?.value||'Individual',
+    connector: document.getElementById('fu-connector')?.value||'',
+    outcome: outcome||priority, status: outcome||priority, addedOn: Date.now(), addedBy: _fuUid });
   saveFollowUps(fus);
 
   renderFollowUps();
@@ -4566,11 +4691,18 @@ function saveFollowUp(){
 
 // ══ RENDER FOLLOW-UPS ══
 function renderFollowUps(){
-  const fus = getFollowUps();
+  const allFus = getFollowUps();
+  // ── Show ONLY today's follow-ups ──
+  const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const fus = allFus.filter(f => {
+    if(!f.dt) return false;
+    const d = new Date(f.dt);
+    return d.toLocaleDateString('en-CA') === todayStr;
+  });
   const tbody = document.getElementById('fu-tbody');
   if(!tbody) return;
   if(!fus.length){
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="ei">☑️</div><p>No follow-ups scheduled yet.</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="ei">☑️</div><p>No follow-ups scheduled for today.</p><p style="font-size:11px;color:#7a8aaa">Use the Follow-up Calendar to see all scheduled dates.</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = fus.map(f=>{
@@ -4591,6 +4723,7 @@ function renderFollowUps(){
       <td style="font-size:10px;color:#7a8aaa;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.notes||''}">${f.notes||'—'}</td>
       <td style="white-space:nowrap">
         ${fuStatusEditSelect(f.id, outcome)}
+        <button class="btn" style="font-size:9px;padding:2px 6px;margin-top:3px;background:#e3f2fd;color:#1565c0;border:1px solid #90caf9" onclick="editFUDateTime('${f.id}')">📅 Edit</button>
         <button class="btn btn-r" style="font-size:9px;padding:2px 6px;margin-top:3px" onclick="deleteFU('${f.id}')">✕</button>
       </td>
     </tr>`;
@@ -5055,6 +5188,7 @@ function updateBadges(){
   const fus  = getFollowUps();
   const today = new Date().toDateString();
   const todayFUs = fus.filter(f=>f.dt&&new Date(f.dt).toDateString()===today&&f.status!=='DONE').length;
+  const conns = getConnectors();
 
   const COUNTS = {
     followups:   todayFUs,
@@ -5069,6 +5203,7 @@ function updateBadges(){
     lap:         borr.filter(b=>b.product==='LAP').length,
     insurance:   borr.filter(b=>b.product==='Insurance').length,
     policies:    getPolicies2().length,
+    dsaconn:     conns.length,
     filesdump:   0,
   };
 
@@ -5079,6 +5214,8 @@ function updateBadges(){
     const m = onclick.match(/nav\(this,'(\w+)'\)/);
     if(m && COUNTS[m[1]] !== undefined) badge.textContent = COUNTS[m[1]];
   });
+  // Named badge for dsaconn
+  const cb=document.getElementById('badge-dsaconn'); if(cb) cb.textContent=conns.length;
 }
 
 function _appBoot() {
@@ -5314,12 +5451,229 @@ function _onNavRender(id){
   if(id==='bankerdir'){   if(typeof renderBankerDirectory==='function') renderBankerDirectory(typeof _currentCity!=='undefined'?_currentCity:''); }
   if(id==='calendar'){    buildCal(); }
   if(id==='followups'){   renderFollowUps(); }
+  if(id==='dsaconn'){     renderConnectors(); }
   if(id==='womenfl'||id==='bizfl'){ renderFreelancers(); }
   const needsBorrowers=['borrowers','activefiles','applications','pipeline','bizloan','perloan','homeloan','lap','insurance'];
   if(needsBorrowers.includes(id)) renderAllBorrowers();
 }
 
-// ── Feature stubs — WA & BL features (coming soon) ──
+// ══════════════════════════════════════════════
+// FEATURE 2: Edit Follow-up Date & Time
+// ══════════════════════════════════════════════
+var _editFUId = null;
+function editFUDateTime(id){
+  const all = _cache.crm_followups||[];
+  const f = all.find(x=>x.id===id);
+  if(!f){ showToast('Follow-up not found'); return; }
+  _editFUId = id;
+  const inp = document.getElementById('edit-fudt-input');
+  if(inp && f.dt){
+    // datetime-local needs "YYYY-MM-DDTHH:MM" format
+    const d = new Date(f.dt);
+    const pad = n=>String(n).padStart(2,'0');
+    inp.value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  const lbl = document.getElementById('edit-fudt-name');
+  if(lbl) lbl.textContent = `Customer: ${f.name||''} — ${f.loan||''}`;
+  openModal('modal-edit-fudt');
+}
+function applyFUDateTime(){
+  if(!_editFUId){ closeModal('modal-edit-fudt'); return; }
+  const val = document.getElementById('edit-fudt-input')?.value;
+  if(!val){ showToast('⚠️ Select a date and time'); return; }
+  const all = _cache.crm_followups||[];
+  const i = all.findIndex(x=>x.id===_editFUId);
+  if(i>=0){
+    all[i].dt = new Date(val).toISOString();
+    saveFollowUps(all);
+    renderFollowUps(); buildCal(); updateBadges();
+    showToast('📅 Follow-up date updated!');
+  }
+  _editFUId = null;
+  closeModal('modal-edit-fudt');
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 4 + 5: DSA/CONNECTOR DASHBOARD
+// ══════════════════════════════════════════════
+function getConnectors(){ return _cache.crm_connectors||[]; }
+function saveConnectors(d){ _fbSet('crm_connectors',d); _cache.crm_connectors=d; }
+
+var _connEditId = null;
+var _connFilter = 'ALL';
+
+function openAddConnectorModal(){
+  _connEditId = null;
+  document.getElementById('conn-modal-title').textContent = '+ Add DSA / Connector';
+  ['cn-name','cn-phone','cn-company','cn-location','cn-notes'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const dt = document.getElementById('cn-datetime'); if(dt) dt.value='';
+  const st = document.getElementById('cn-status'); if(st) st.value='';
+  ['cnv-bl','cnv-pl','cnv-hl','cnv-ins'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.checked=false;
+  });
+  document.getElementById('cn-target-wrap').style.display='none';
+  document.getElementById('cn-vertical-wrap').style.display='none';
+  openModal('modal-add-connector');
+}
+
+function onConnStatusChange(val){
+  const show = val==='INTERESTED';
+  document.getElementById('cn-target-wrap').style.display  = show?'block':'none';
+  document.getElementById('cn-vertical-wrap').style.display= show?'block':'none';
+}
+
+function saveConnector(){
+  const name  = (document.getElementById('cn-name')?.value||'').trim();
+  const phone = (document.getElementById('cn-phone')?.value||'').trim();
+  const status= document.getElementById('cn-status')?.value||'';
+  if(!name){ showToast('⚠️ Connector name is required'); return; }
+  if(!status){ showToast('⚠️ Select a status'); return; }
+  const verticals = ['bl','pl','hl','ins'].filter(v=>document.getElementById('cnv-'+v)?.checked)
+    .map(v=>({bl:'Business Loans',pl:'Personal Loans',hl:'HL/LAP',ins:'Insurance'}[v]));
+  const obj = {
+    id: _connEditId || ('CN'+Date.now().toString(36).toUpperCase()),
+    name, phone,
+    company:  (document.getElementById('cn-company')?.value||'').trim(),
+    location: (document.getElementById('cn-location')?.value||'').trim(),
+    status, hold: false,
+    target:   status==='INTERESTED'?(document.getElementById('cn-target')?.value||''):'',
+    verticals:status==='INTERESTED'?verticals:[],
+    dt:       document.getElementById('cn-datetime')?.value?new Date(document.getElementById('cn-datetime').value).toISOString():'',
+    notes:    (document.getElementById('cn-notes')?.value||'').trim(),
+    addedOn:  _connEditId?undefined:Date.now(),
+    updatedOn:Date.now(),
+    addedBy:  (getCurrentUser()&&getCurrentUser().mobile)||''
+  };
+  const all = getConnectors();
+  if(_connEditId){
+    const i=all.findIndex(c=>c.id===_connEditId);
+    if(i>=0){ obj.addedOn=all[i].addedOn; all[i]=obj; } else all.push(obj);
+    showToast('✅ Connector updated!');
+  } else {
+    all.push(obj);
+    showToast('✅ "'+name+'" added to DSA/Connector Dashboard!');
+  }
+  saveConnectors(all);
+  closeModal('modal-add-connector');
+  renderConnectors();
+  updateBadges();
+  populateConnectorDropdowns(); // refresh source dropdowns
+}
+
+function editConnector(id){
+  const all=getConnectors();
+  const c=all.find(x=>x.id===id); if(!c) return;
+  _connEditId=id;
+  document.getElementById('conn-modal-title').textContent='✏ Edit DSA / Connector';
+  const sv=(eid,val)=>{const el=document.getElementById(eid);if(el)el.value=val||'';};
+  sv('cn-name',c.name); sv('cn-phone',c.phone); sv('cn-company',c.company);
+  sv('cn-location',c.location); sv('cn-notes',c.notes); sv('cn-status',c.status);
+  sv('cn-target',c.target);
+  if(c.dt){
+    const d=new Date(c.dt), pad=n=>String(n).padStart(2,'0');
+    sv('cn-datetime',`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`);
+  }
+  const verts=c.verticals||[];
+  document.getElementById('cnv-bl').checked  = verts.includes('Business Loans');
+  document.getElementById('cnv-pl').checked  = verts.includes('Personal Loans');
+  document.getElementById('cnv-hl').checked  = verts.includes('HL/LAP');
+  document.getElementById('cnv-ins').checked = verts.includes('Insurance');
+  onConnStatusChange(c.status);
+  openModal('modal-add-connector');
+}
+
+function holdConnector(id){
+  const all=getConnectors();
+  const i=all.findIndex(c=>c.id===id); if(i<0) return;
+  all[i].hold=!all[i].hold;
+  saveConnectors(all); renderConnectors();
+  showToast(all[i].hold?'⏸ Connector put on hold':'▶ Connector reactivated');
+}
+
+function deleteConnector(id){
+  if(!confirm('Delete this connector? This cannot be undone.')) return;
+  const all=getConnectors().filter(c=>c.id!==id);
+  saveConnectors(all); renderConnectors(); updateBadges(); populateConnectorDropdowns();
+  showToast('🗑 Connector deleted');
+}
+
+var _connFilter='ALL';
+function filterConnectors(type,el){
+  _connFilter=type;
+  if(el){ el.closest('.ftabs').querySelectorAll('.ftab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); }
+  renderConnectors();
+}
+
+const CONN_STATUS_PILL = {
+  'INTERESTED':'<span class="pill" style="background:#d1fae5;color:#065f46;font-size:9px">✅ Interested</span>',
+  'NOT INTERESTED':'<span class="pill" style="background:#fee2e2;color:#991b1b;font-size:9px">❌ Not Interested</span>',
+  'BUSY':'<span class="pill" style="background:#fef3c7;color:#92400e;font-size:9px">📵 Busy</span>',
+  'CALL WAITING':'<span class="pill" style="background:#ede9fe;color:#4c1d95;font-size:9px">⏳ Call Waiting</span>',
+  'WILL CALL YOU':'<span class="pill" style="background:#dbeafe;color:#1e3a8a;font-size:9px">📞 Will Call You</span>',
+  'LESS PAYOUT':'<span class="pill" style="background:#fef9c3;color:#713f12;font-size:9px">💰 Less Payout</span>',
+  'CALL ME LATER':'<span class="pill" style="background:#f0fdf4;color:#14532d;font-size:9px">🕐 Call Me Later</span>',
+  'HOLD':'<span class="pill" style="background:#f1f5f9;color:#475569;font-size:9px">⏸ On Hold</span>',
+};
+
+function renderConnectors(){
+  const search=(document.getElementById('conn-search')?.value||'').toLowerCase();
+  let all=getConnectors();
+  if(_connFilter==='HOLD') all=all.filter(c=>c.hold);
+  else if(_connFilter!=='ALL') all=all.filter(c=>c.status===_connFilter&&!c.hold);
+  if(search) all=all.filter(c=>(c.name||'').toLowerCase().includes(search)||(c.company||'').toLowerCase().includes(search)||(c.phone||'').includes(search));
+  const tbody=document.getElementById('conn-tbody'); if(!tbody) return;
+  if(!all.length){
+    tbody.innerHTML='<tr><td colspan="8"><div class="empty-state"><div class="ei">🤝</div><p>No connectors match the selected filter.</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML=all.map((c,i)=>{
+    const dtStr=c.dt?new Date(c.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'—';
+    const pill=c.hold?CONN_STATUS_PILL['HOLD']:(CONN_STATUS_PILL[c.status]||`<span class="pill" style="font-size:9px">${c.status}</span>`);
+    const verts=(c.verticals||[]).join(', ')||'—';
+    return `<tr style="${c.hold?'opacity:.55;background:#f8f9fa':''}">
+      <td style="color:#7a8aaa;font-size:11px">${i+1}</td>
+      <td><b>${c.name}</b><div style="font-size:9px;color:#7a8aaa">${c.company||''}</div></td>
+      <td><a href="tel:${c.phone}" style="color:#1a5fb4;font-size:11px">📞 ${c.phone||'—'}</a></td>
+      <td>${pill}</td>
+      <td style="font-size:10px;white-space:nowrap">${dtStr}</td>
+      <td style="font-size:11px;font-weight:600;color:#1a5fb4">${c.target?'₹'+c.target+' L/mo':'—'}</td>
+      <td style="font-size:10px;max-width:140px">${verts}</td>
+      <td style="white-space:nowrap">
+        <button class="btn" style="font-size:9px;padding:2px 7px;background:#e3f2fd;color:#1565c0" onclick="editConnector('${c.id}')">✏ Edit</button>
+        <button class="btn" style="font-size:9px;padding:2px 7px;background:${c.hold?'#e8f5e9':'#fff3e0'};color:${c.hold?'#2e7d32':'#e65100'}" onclick="holdConnector('${c.id}')">${c.hold?'▶ Unhold':'⏸ Hold'}</button>
+        <button class="btn btn-r" style="font-size:9px;padding:2px 6px" onclick="deleteConnector('${c.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Feature 5: Source dropdowns in modals ──
+function onSourceChange(prefix){
+  const val=document.getElementById(prefix+'-source')?.value;
+  const wrap=document.getElementById(prefix+'-connector-wrap');
+  if(wrap) wrap.style.display=val==='DSA/Connector'?'block':'none';
+  if(val==='DSA/Connector') populateConnectorDropdowns();
+}
+
+function populateConnectorDropdowns(){
+  const connectors=getConnectors().filter(c=>!c.hold);
+  const opts=connectors.map(c=>`<option value="${c.name}">${c.name}${c.company?' — '+c.company:''}</option>`).join('');
+  ['ab-connector','fu-connector'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML='<option value="">— Select Connector —</option>'+opts;
+  });
+}
+
+// ── Feature 3: update Today's Follow-ups badge count (only today) ──
+// Patch updateBadges to count only today for the followups badge
+const _origUpdateBadges = typeof updateBadges==='function'?updateBadges:null;
+
+// ── Feature 4: wire nav + cache init ──
+// ── Feature 4: TITLES + nav init ──
+
+// ── Feature 4: Feature stubs — WA & BL features (coming soon) ──
 // These prevent "X is not defined" errors when buttons are clicked.
 function saveBLProfile(){
   showToast('💾 Business loan profile saved');
