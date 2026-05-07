@@ -413,102 +413,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   </div>
 </div>
 
-<!-- DSA/CONNECTOR DASHBOARD -->
-<div class="sec" id="sec-dsaconn">
-  <div class="sec-hdr">
-    <div class="card-title">🤝 DSA / Connector Dashboard</div>
-    <div style="display:flex;gap:8px">
-      <input class="search" id="conn-search" placeholder="Search connector…" style="width:160px" oninput="renderConnectors()">
-      <button class="btn btn-p" onclick="openAddConnectorModal()">+ Add DSA/Connector</button>
-    </div>
-  </div>
-  <div class="ftabs" style="flex-wrap:wrap">
-    <span class="ftab active" onclick="filterConnectors('ALL',this)">All</span>
-    <span class="ftab" onclick="filterConnectors('INTERESTED',this)">✅ Interested</span>
-    <span class="ftab" onclick="filterConnectors('NOT INTERESTED',this)">❌ Not Interested</span>
-    <span class="ftab" onclick="filterConnectors('BUSY',this)">📵 Busy</span>
-    <span class="ftab" onclick="filterConnectors('CALL WAITING',this)">⏳ Call Waiting</span>
-    <span class="ftab" onclick="filterConnectors('WILL CALL YOU',this)">📞 Will Call You</span>
-    <span class="ftab" onclick="filterConnectors('LESS PAYOUT',this)">💰 Less Payout</span>
-    <span class="ftab" onclick="filterConnectors('CALL ME LATER',this)">🕐 Call Me Later</span>
-    <span class="ftab" onclick="filterConnectors('HOLD',this)">⏸ On Hold</span>
-  </div>
-  <div class="card" style="overflow-x:auto">
-    <table style="min-width:900px">
-      <thead><tr>
-        <th>#</th><th>DSA / Connector Name</th><th>Mobile</th><th>Status</th>
-        <th>Follow-Up Date & Time</th><th>Business Target</th><th>Business Vertical</th><th>Actions</th>
-      </tr></thead>
-      <tbody id="conn-tbody">
-        <tr><td colspan="8"><div class="empty-state"><div class="ei">🤝</div><p>No connectors added yet. Click + Add DSA/Connector to get started.</p></div></td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ADD / EDIT DSA CONNECTOR MODAL -->
-<div class="modal-overlay" id="modal-add-connector">
-  <div class="modal-box" style="max-width:540px">
-    <div class="modal-head"><h3 id="conn-modal-title">+ Add DSA / Connector</h3><button class="modal-close" onclick="closeModal('modal-add-connector')">✕</button></div>
-    <div class="modal-body">
-      <div class="form-grid">
-        <div class="fg"><div class="fl">Name *</div><input placeholder="Full name" id="cn-name"></div>
-        <div class="fg"><div class="fl">Mobile *</div><input placeholder="10-digit mobile" id="cn-phone" type="tel"></div>
-        <div class="fg"><div class="fl">Company / Agency</div><input placeholder="DSA company name" id="cn-company"></div>
-        <div class="fg"><div class="fl">Location / City</div><input placeholder="City" id="cn-location"></div>
-        <div class="fg" style="grid-column:span 2"><div class="fl">Status *</div>
-          <select id="cn-status" onchange="onConnStatusChange(this.value)">
-            <option value="">— Select Status —</option>
-            <option value="INTERESTED">✅ Interested</option>
-            <option value="NOT INTERESTED">❌ Not Interested</option>
-            <option value="WILL CALL YOU">📞 Will Call You</option>
-            <option value="BUSY">📵 Busy</option>
-            <option value="CALL WAITING">⏳ Call Waiting</option>
-            <option value="LESS PAYOUT">💰 Less Payout</option>
-            <option value="CALL ME LATER">🕐 Call Me Later and Will Discuss</option>
-          </select>
-        </div>
-        <!-- Shown only when INTERESTED -->
-        <div class="fg" id="cn-target-wrap" style="display:none"><div class="fl">🎯 Business Target (Lakhs/month)</div><input type="number" placeholder="e.g. 50" id="cn-target" min="0"></div>
-        <div class="fg" id="cn-vertical-wrap" style="display:none"><div class="fl">📊 Business Vertical (multi-select)</div>
-          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-bl" style="accent-color:#1b5e20"> 🏭 Business Loans</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-pl" style="accent-color:#0891b2"> 💳 Personal Loans</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-hl" style="accent-color:#1a5fb4"> 🏠 HL/LAP</label>
-            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-ins" style="accent-color:#6d28d9"> 🛡 Insurance</label>
-          </div>
-        </div>
-        <div class="fg" style="grid-column:span 2"><div class="fl">Follow-Up Date & Time</div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <input type="datetime-local" id="cn-datetime" style="flex:1">
-            <button type="button" onclick="document.getElementById('cn-datetime').showPicker?document.getElementById('cn-datetime').showPicker():document.getElementById('cn-datetime').focus()" style="padding:6px 10px;border:1px solid #d0d5dd;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px" title="Edit date/time">✏️</button>
-          </div>
-        </div>
-        <div class="fg" style="grid-column:span 2"><div class="fl">Notes</div><textarea rows="2" placeholder="Any remarks…" id="cn-notes"></textarea></div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-add-connector')">Cancel</button>
-      <button class="btn btn-p" onclick="saveConnector()">💾 Save Connector</button>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT DATE/TIME MODAL (Feature 2) -->
-<div class="modal-overlay" id="modal-edit-fudt">
-  <div class="modal-box" style="max-width:380px">
-    <div class="modal-head"><h3>📅 Edit Follow-up Date & Time</h3><button class="modal-close" onclick="closeModal('modal-edit-fudt')">✕</button></div>
-    <div class="modal-body">
-      <div class="fg"><div class="fl">Follow-up Date & Time</div><input type="datetime-local" id="edit-fudt-input"></div>
-      <div style="font-size:11px;color:#7a8aaa;margin-top:6px" id="edit-fudt-name"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal('modal-edit-fudt')">Cancel</button>
-      <button class="btn btn-p" onclick="applyFUDateTime()">✅ Update</button>
-    </div>
-  </div>
-</div>
-
 
 <div class="modal-overlay" id="modal-add-contact">
   <div class="modal-box" style="max-width:520px">
@@ -1924,6 +1828,101 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
   </div>
   <div class="card"><table><thead><tr><th></th><th>File Name</th><th>Category</th><th>Borrower</th><th>Size</th><th>Date</th><th>Action</th></tr></thead>
   <tbody id="fd-tbody"><tr><td colspan="7"><div class="empty-state"><div class="ei">▤</div><p>No files uploaded yet.</p></div></td></tr></tbody></table></div>
+</div>
+
+<!-- DSA/CONNECTOR DASHBOARD -->
+<div class="sec" id="sec-dsaconn" style="display:none">
+  <div class="sec-hdr">
+    <div class="card-title">🤝 DSA / Connector Dashboard</div>
+    <div style="display:flex;gap:8px">
+      <input class="search" id="conn-search" placeholder="Search connector…" style="width:160px" oninput="renderConnectors()">
+      <button class="btn btn-p" onclick="openAddConnectorModal()">+ Add DSA/Connector</button>
+    </div>
+  </div>
+  <div class="ftabs" style="flex-wrap:wrap">
+    <span class="ftab active" onclick="filterConnectors('ALL',this)">All</span>
+    <span class="ftab" onclick="filterConnectors('INTERESTED',this)">✅ Interested</span>
+    <span class="ftab" onclick="filterConnectors('NOT INTERESTED',this)">❌ Not Interested</span>
+    <span class="ftab" onclick="filterConnectors('BUSY',this)">📵 Busy</span>
+    <span class="ftab" onclick="filterConnectors('CALL WAITING',this)">⏳ Call Waiting</span>
+    <span class="ftab" onclick="filterConnectors('WILL CALL YOU',this)">📞 Will Call You</span>
+    <span class="ftab" onclick="filterConnectors('LESS PAYOUT',this)">💰 Less Payout</span>
+    <span class="ftab" onclick="filterConnectors('CALL ME LATER',this)">🕐 Call Me Later</span>
+    <span class="ftab" onclick="filterConnectors('HOLD',this)">⏸ On Hold</span>
+  </div>
+  <div class="card" style="overflow-x:auto">
+    <table style="min-width:900px">
+      <thead><tr>
+        <th>#</th><th>DSA / Connector Name</th><th>Mobile</th><th>Status</th>
+        <th>Follow-Up Date & Time</th><th>Business Target</th><th>Business Vertical</th><th>Actions</th>
+      </tr></thead>
+      <tbody id="conn-tbody">
+        <tr><td colspan="8"><div class="empty-state"><div class="ei">🤝</div><p>No connectors added yet. Click + Add DSA/Connector to get started.</p></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ADD / EDIT DSA CONNECTOR MODAL -->
+<div class="modal-overlay" id="modal-add-connector">
+  <div class="modal-box" style="max-width:540px">
+    <div class="modal-head"><h3 id="conn-modal-title">+ Add DSA / Connector</h3><button class="modal-close" onclick="closeModal('modal-add-connector')">✕</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="fg"><div class="fl">Name *</div><input placeholder="Full name" id="cn-name"></div>
+        <div class="fg"><div class="fl">Mobile *</div><input placeholder="10-digit mobile" id="cn-phone" type="tel"></div>
+        <div class="fg"><div class="fl">Company / Agency</div><input placeholder="DSA company name" id="cn-company"></div>
+        <div class="fg"><div class="fl">Location / City</div><input placeholder="City" id="cn-location"></div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Status *</div>
+          <select id="cn-status" onchange="onConnStatusChange(this.value)">
+            <option value="">— Select Status —</option>
+            <option value="INTERESTED">✅ Interested</option>
+            <option value="NOT INTERESTED">❌ Not Interested</option>
+            <option value="WILL CALL YOU">📞 Will Call You</option>
+            <option value="BUSY">📵 Busy</option>
+            <option value="CALL WAITING">⏳ Call Waiting</option>
+            <option value="LESS PAYOUT">💰 Less Payout</option>
+            <option value="CALL ME LATER">🕐 Call Me Later and Will Discuss</option>
+          </select>
+        </div>
+        <div class="fg" id="cn-target-wrap" style="display:none"><div class="fl">🎯 Business Target (Lakhs/month)</div><input type="number" placeholder="e.g. 50" id="cn-target" min="0"></div>
+        <div class="fg" id="cn-vertical-wrap" style="display:none"><div class="fl">📊 Business Vertical (multi-select)</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-bl" style="accent-color:#1b5e20"> 🏭 Business Loans</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-pl" style="accent-color:#0891b2"> 💳 Personal Loans</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-hl" style="accent-color:#1a5fb4"> 🏠 HL/LAP</label>
+            <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer"><input type="checkbox" id="cnv-ins" style="accent-color:#6d28d9"> 🛡 Insurance</label>
+          </div>
+        </div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Follow-Up Date & Time</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="datetime-local" id="cn-datetime" style="flex:1">
+            <button type="button" onclick="document.getElementById('cn-datetime').showPicker?document.getElementById('cn-datetime').showPicker():document.getElementById('cn-datetime').focus()" style="padding:6px 10px;border:1px solid #d0d5dd;border-radius:6px;background:#f9fafb;cursor:pointer;font-size:12px">✏️</button>
+          </div>
+        </div>
+        <div class="fg" style="grid-column:span 2"><div class="fl">Notes</div><textarea rows="2" placeholder="Any remarks…" id="cn-notes"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-add-connector')">Cancel</button>
+      <button class="btn btn-p" onclick="saveConnector()">💾 Save Connector</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT DATE/TIME MODAL -->
+<div class="modal-overlay" id="modal-edit-fudt">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-head"><h3>📅 Edit Follow-up Date & Time</h3><button class="modal-close" onclick="closeModal('modal-edit-fudt')">✕</button></div>
+    <div class="modal-body">
+      <div class="fg"><div class="fl">Date & Time</div><input type="datetime-local" id="edit-fudt-input"></div>
+      <div style="font-size:11px;color:#7a8aaa;margin-top:6px" id="edit-fudt-name"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('modal-edit-fudt')">Cancel</button>
+      <button class="btn btn-p" onclick="applyFUDateTime()">✅ Update</button>
+    </div>
+  </div>
 </div>
 
 <!-- WHATSAPP CRM -->
