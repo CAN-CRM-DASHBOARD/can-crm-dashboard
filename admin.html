@@ -51,7 +51,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .back-link span:hover{color:#fff}
 
 /* ── MAIN LAYOUT ── */
-#app{height:100vh;width:100%;display:none}
+#app{display:flex;height:100vh;width:100%;display:none}
 
 /* ── SIDEBAR ── */
 .sb{width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
@@ -229,10 +229,10 @@ tr:hover td{background:rgba(255,255,255,.02)}
     document.head.appendChild(s);
   }
   var appUrls=['https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js',
-               'https://cdn.jsdelivr.net/npm/firebase@10.12.2/app-compat/dist/app-compat.js'];
+               'https://unpkg.com/firebase@10.12.2/app-compat/dist/app-compat.cjs.js'];
   var dbUrls =['https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js',
-               'https://cdn.jsdelivr.net/npm/firebase@10.12.2/database-compat/dist/database-compat.js'];
-  load(appUrls,0,function(ok){if(ok)load(dbUrls,0,function(dbOk){ if(dbOk && typeof window._admFirebaseInit==='function') window._admFirebaseInit(); });});
+               'https://unpkg.com/firebase@10.12.2/database-compat/dist/database-compat.cjs.js'];
+  load(appUrls,0,function(ok){if(ok)load(dbUrls,0,null);});
 })();
 </script>
 </head>
@@ -320,8 +320,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
     <div class="ni" onclick="navTo(this,'policies')"><span class="ni-ico">⌘</span>Bank Policies</div>
     <div class="ni" onclick="navTo(this,'filesdump')"><span class="ni-ico">▤</span>Files Dump</div>
     <div class="ni" onclick="navTo(this,'bankerdir')"><span class="ni-ico">☏</span>Banker Directory</div>
-    <div class="ni" onclick="navTo(this,'connectors')"><span class="ni-ico">🤝</span>DSA/Connectors</div>
-    <div class="ni" onclick="navTo(this,'freelancers')"><span class="ni-ico">👤</span>Freelancer Programs</div>
 
     <div class="sb-lbl">Platform</div>
     <div class="ni" onclick="navTo(this,'market')"><span class="ni-ico">🚀</span>Feature Marketplace</div>
@@ -342,7 +340,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="tb-right">
         <div style="font-size:10px;color:var(--text3)" id="adm-datetime"></div>
         <span id="adm-fb-badge" style="font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.07);font-weight:600">⏳ Connecting…</span>
-        <button id="adm-retry-btn" onclick="admRetryFirebase()" title="Retry Firebase connection" style="display:none;font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(124,58,237,.4);color:var(--purple3);background:rgba(124,58,237,.1);cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s">↻ Retry</button>
         <div class="tb-badge"><div class="live-dot"></div>ADMIN ACTIVE</div>
       </div>
     </div>
@@ -429,7 +426,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option value="On Hold">On Hold</option>
           </select>
           <button class="btn btn-gold" onclick="downloadUsers()">📥 Export Excel</button>
-          <button class="btn" onclick="admForceRefresh()" title="Re-read data from storage" style="font-size:10px">↻ Refresh</button>
         </div>
         <div class="card">
           <div class="card-head">
@@ -453,20 +449,38 @@ tr:hover td{background:rgba(255,255,255,.02)}
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
-          <div class="card">
-            <div class="card-head"><span class="card-title">📊 Queue-wise Borrower Stats</span><button class="btn btn-gold" onclick="dlReport('borrowers','all')">📥 Export</button></div>
-            <table>
-              <thead><tr><th>Loan Queue</th><th>Total</th><th>Active</th><th>Disbursed</th><th>Rejected</th><th>Volume</th></tr></thead>
-              <tbody id="adm-queue-stat-tbody">
-                <tr onclick="filterBorrByQueue('Business Loan',this)" style="cursor:pointer;transition:background .15s"><td>🏭 Business Loan</td><td>0</td><td>0</td><td>0</td><td>0</td><td>₹0</td></tr>
-                <tr onclick="filterBorrByQueue('Personal Loan',this)" style="cursor:pointer;transition:background .15s"><td>💳 Personal Loan</td><td>0</td><td>0</td><td>0</td><td>0</td><td>₹0</td></tr>
-                <tr onclick="filterBorrByQueue('Home Loan',this)" style="cursor:pointer;transition:background .15s"><td>🏠 Home Loan</td><td>0</td><td>0</td><td>0</td><td>0</td><td>₹0</td></tr>
-                <tr onclick="filterBorrByQueue('LAP',this)" style="cursor:pointer;transition:background .15s"><td>🏗️ LAP</td><td>0</td><td>0</td><td>0</td><td>0</td><td>₹0</td></tr>
-                <tr onclick="filterBorrByQueue('Insurance',this)" style="cursor:pointer;transition:background .15s"><td>⛨ Insurance</td><td>0</td><td>0</td><td>—</td><td>0</td><td>₹0</td></tr>
-                <tr style="font-weight:700"><td style="color:#fff">TOTAL</td><td style="color:#fff">0</td><td style="color:#fff">0</td><td style="color:var(--green)">0</td><td style="color:var(--red)">0</td><td style="color:var(--green)">₹0</td></tr>
-              </tbody>
-            </table>
-            <div style="font-size:9px;color:var(--text3);padding:6px 10px;border-top:1px solid var(--border)">💡 Click any row to filter the borrower list below</div>
+          <div class="card" style="grid-column:1/-1">
+            <div class="card-head" style="flex-wrap:wrap;gap:8px">
+              <span class="card-title">📊 Queue-wise Borrower Stats</span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+                <!-- Team/DSA Name filter -->
+                <select class="fsel" id="qs-filter-user" onchange="renderQueueStats()" style="min-width:130px">
+                  <option value="ALL">All Team/DSA</option>
+                </select>
+                <!-- Name search -->
+                <input class="fsearch" id="qs-filter-name" placeholder="🔍 Name…" oninput="renderQueueStats()" style="width:110px;padding:5px 8px">
+                <!-- Phone search -->
+                <input class="fsearch" id="qs-filter-phone" placeholder="📞 Phone…" oninput="renderQueueStats()" style="width:110px;padding:5px 8px">
+                <button class="btn btn-gold" onclick="dlReport('borrowers','all')">📥 Export</button>
+              </div>
+            </div>
+            <!-- Summary stats table -->
+            <div id="qs-summary-wrap">
+              <table>
+                <thead><tr><th>Loan Queue</th><th>Total</th><th>Active</th><th>Disbursed</th><th>Rejected</th><th>Volume ₹</th></tr></thead>
+                <tbody id="qs-summary-tbody">
+                  <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:12px">Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- Filtered borrowers detail list -->
+            <div id="qs-detail-wrap" style="margin-top:10px;display:none">
+              <div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:6px;padding:0 10px" id="qs-detail-title">Filtered Results</div>
+              <table>
+                <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Product</th><th>Amount</th><th>Status</th><th>Team/DSA</th><th>Date</th></tr></thead>
+                <tbody id="qs-detail-tbody"></tbody>
+              </table>
+            </div>
           </div>
           <div class="card">
             <div class="card-head"><span class="card-title">💰 Disbursement Summary</span></div>
@@ -496,36 +510,21 @@ tr:hover td{background:rgba(255,255,255,.02)}
           </div>
         </div>
 
-        <!-- Full-width landscape All Borrowers table -->
-        <div class="card" id="adm-borr-card">
+        <div class="card">
           <div class="card-head">
-            <span class="card-title">📋 All Borrowers — <span id="adm-borr-queue-label">All Queues</span></span>
-            <div style="display:flex;gap:6px;align-items:center">
-              <button class="btn" style="font-size:10px;padding:4px 10px;background:rgba(99,102,241,.1);color:#818cf8;border:1px solid rgba(99,102,241,.25)" onclick="filterBorrByQueue('ALL',null)">Show All</button>
-              <select class="fsel" id="borr-status" onchange="renderAdmBorrRows()">
-                <option value="ALL">All Status</option>
-                <option value="ACTIVE">Applied</option>
-                <option value="LEAD">Lead</option>
-                <option value="FOLLOW UP">Follow-up</option>
-                <option value="SANCTIONED">Sanctioned</option>
-                <option value="DISBURSED">Disbursed</option>
-                <option value="REJECTED">Rejected</option>
+            <span class="card-title">📋 All Borrowers (Admin View)</span>
+            <div style="display:flex;gap:6px">
+              <select class="fsel" id="borr-queue">
+                <option value="ALL">All Queues</option>
+                <option value="BL">Business Loan</option>
+                <option value="PL">Personal Loan</option>
+                <option value="HL">Home Loan</option>
+                <option value="LAP">LAP</option>
               </select>
-              <button class="btn btn-gold" onclick="exportBorrowers()">📥 Export</button>
+              <button class="btn btn-gold" onclick="dlReport('borrowers','month')">📥 Export</button>
             </div>
           </div>
-          <div style="overflow-x:auto">
-            <table style="min-width:900px">
-              <thead><tr>
-                <th>#</th><th>ID</th><th>Name</th><th>Phone</th>
-                <th>Team / DSA Name</th><th>Product</th><th>Amount</th><th>Status</th>
-                <th>Actions</th>
-              </tr></thead>
-              <tbody id="adm-borr-tbody">
-                <tr><td colspan="9"><div class="empty"><div class="empty-ico">📋</div><p>No borrowers added yet.<br>Data appears here as DSAs enter borrowers in the main CRM dashboard.</p></div></td></tr>
-              </tbody>
-            </table>
-          </div>
+          <div class="empty"><div class="empty-ico">📋</div><p>No borrowers added yet.<br>Data appears here as DSAs enter borrowers in the main CRM dashboard.</p></div>
         </div>
       </div>
 
@@ -667,9 +666,8 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option value="Home Loan">Home Loan</option>
             <option value="LAP">LAP</option>
           </select>
-          <button class="btn btn-p" onclick="openAddModal('policy')">+ Add Bank</button>
-          <button class="btn" style="background:rgba(245,158,11,.12);color:var(--gold);border:1px solid rgba(245,158,11,.3)" onclick="openPastePolicyModal()">📋 Paste Policy</button>
-          <button class="btn btn-gold" onclick="dlReport('csv','policies','all')">📥 Export Excel</button>
+          <button class="btn btn-p" onclick="openAddModal('policy')">+ Add Policy</button>
+          <button class="btn btn-gold" onclick="dlReport('policies','all')">📥 Export Excel</button>
         </div>
         <div class="card">
           <div class="card-head">
@@ -699,7 +697,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option value="TAX">Tax</option>
           </select>
           <button class="btn btn-p" onclick="openAddModal('file')">+ Add File Entry</button>
-          <button class="btn btn-gold" onclick="dlReport('csv','filesdump','all')">📥 Export Excel</button>
+          <button class="btn btn-gold" onclick="dlReport('filesdump','all')">📥 Export Excel</button>
         </div>
         <div class="card">
           <div class="card-head">
@@ -725,7 +723,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
             <option value="LAP">LAP</option>
           </select>
           <button class="btn btn-p" onclick="openAddModal('banker')">+ Add Contact</button>
-          <button class="btn btn-gold" onclick="dlReport('csv','bankerdir','all')">📥 Export Excel</button>
+          <button class="btn btn-gold" onclick="dlReport('bankerdir','all')">📥 Export Excel</button>
         </div>
         <div class="card">
           <div class="card-head">
@@ -735,67 +733,6 @@ tr:hover td{background:rgba(255,255,255,.02)}
           <table>
             <thead><tr><th>#</th><th>Name</th><th>Role</th><th>Bank / NBFC</th><th>Product</th><th>Mobile</th><th>Location</th><th>Added By</th><th>Actions</th></tr></thead>
             <tbody id="bd-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ══ DSA/CONNECTORS ADMIN ══ -->
-      <div class="sec" id="sec-connectors">
-        <div class="filter-bar">
-          <input class="fsearch" placeholder="🔍 Search connector…" id="conn-adm-search" oninput="renderAdmConnectors()">
-          <select class="fsel" id="conn-adm-status" onchange="renderAdmConnectors()">
-            <option value="ALL">All Status</option>
-            <option value="INTERESTED">✅ Interested</option>
-            <option value="NOT INTERESTED">❌ Not Interested</option>
-            <option value="BUSY">📵 Busy</option>
-            <option value="CALL WAITING">⏳ Call Waiting</option>
-            <option value="WILL CALL YOU">📞 Will Call You</option>
-            <option value="LESS PAYOUT">💰 Less Payout</option>
-            <option value="CALL ME LATER">🕐 Call Me Later</option>
-          </select>
-          <button class="btn btn-gold" onclick="dlReport('csv','connectors','all')">📥 Export Excel</button>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <span class="card-title">🤝 DSA / Connector Dashboard — All Users</span>
-            <span class="pill p-gray" id="conn-adm-count">0 entries</span>
-          </div>
-          <table>
-            <thead><tr><th>#</th><th>DSA/Connector Name</th><th>DSA Code</th><th>Mobile</th><th>Status</th><th>Business Target</th><th>Business Vertical</th><th>Follow-Up Date</th><th>Added By</th><th>Actions</th></tr></thead>
-            <tbody id="conn-adm-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ══ FREELANCER PROGRAMS ADMIN ══ -->
-      <div class="sec" id="sec-freelancers">
-        <div class="filter-bar">
-          <input class="fsearch" placeholder="🔍 Search freelancer…" id="fl-adm-search" oninput="renderAdmFreelancers()">
-          <select class="fsel" id="fl-adm-type" onchange="renderAdmFreelancers()">
-            <option value="ALL">All Types</option>
-            <option value="women">👩 Women Freelancer</option>
-            <option value="biz">🏢 Business Freelancer</option>
-          </select>
-          <button class="btn btn-gold" onclick="dlReport('csv','freelancers','all')">📥 Export Excel</button>
-        </div>
-        <div class="card" style="margin-bottom:12px">
-          <div class="card-head">
-            <span class="card-title">👩 Women Freelancer — All DSAs</span>
-            <span class="pill p-purple" id="fl-women-count">0 entries</span>
-          </div>
-          <table>
-            <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By</th><th>Date</th></tr></thead>
-            <tbody id="fl-women-tbody"></tbody>
-          </table>
-        </div>
-        <div class="card">
-          <div class="card-head">
-            <span class="card-title">🏢 Business Freelancer — All DSAs</span>
-            <span class="pill p-blue" id="fl-biz-count">0 entries</span>
-          </div>
-          <table>
-            <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By</th><th>Date</th></tr></thead>
-            <tbody id="fl-biz-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -973,7 +910,7 @@ function _dispatchSMS(mobile, otp){
     xhr.send();
   } catch(e){}
 
-  console.log('📱 OTP dispatch fired to', mobile);
+  console.log('📱 OTP dispatch fired to', mobile, '— OTP:', otp);
 }
 
 // ── Send OTP ──
@@ -1139,7 +1076,6 @@ const PAGE_TITLES = {
   dashboard:'Dashboard', users:'User Management', borrowers:'Borrowers Overview', followups:"Today's Follow-ups — All DSAs",
   reports:'Reports & Download', policies:'Bank Policies — Queue Control',
   filesdump:'Files Dump — Queue Control', bankerdir:'Banker Directory — Queue Control',
-  connectors:'DSA/Connectors — All Users', freelancers:'Freelancer Programs — All Users',
   market:'Feature Marketplace'
 };
 
@@ -1150,15 +1086,13 @@ function navTo(el, id){
   const sec = document.getElementById('sec-'+id);
   if(sec) sec.classList.add('active');
   document.getElementById('page-title').textContent = PAGE_TITLES[id]||id;
-  if(id==='users')       renderUsers();
-  if(id==='dashboard')   loadDashboard();
-  if(id==='borrowers')   renderBorrowers();
-  if(id==='followups')   renderFollowUpsAdm();
-  if(id==='policies')    renderPolicies();
-  if(id==='filesdump')   renderFiles();
-  if(id==='bankerdir')   renderBankers();
-  if(id==='connectors')  renderAdmConnectors();
-  if(id==='freelancers') renderAdmFreelancers();
+  if(id==='users')      renderUsers();
+  if(id==='dashboard')  loadDashboard();
+  if(id==='borrowers')  renderBorrowers();
+  if(id==='followups')  renderFollowUpsAdm();
+  if(id==='policies')   renderPolicies();
+  if(id==='filesdump')  renderFiles();
+  if(id==='bankerdir')  renderBankers();
 }
 
 // ══════════════════════════════════════
@@ -1170,9 +1104,6 @@ var _admCache = {
   crm_followups: _admParse('crm_followups'),
   crm_contacts:  _admParse('crm_contacts'),
   crm_policies:  _admParse('crm_policies'),
-  crm_connectors:_admParse('crm_connectors'),
-  crm_womenfl:   _admParse('crm_womenfl'),
-  crm_bizfl:     _admParse('crm_bizfl'),
 };
 var _admDb = null;
 
@@ -1183,17 +1114,14 @@ function _admWrite(key, val){
   if(_admDb) _admDb.ref('dsa_crm/'+key).set(val).catch(e=>console.warn('FB write:',e));
 }
 
-function getUsers()     { return _admRead('dsacrm_users');   }
-function saveUsers(u)   { _admWrite('dsacrm_users', u);      }
-function getBorrowers() { return _admRead('crm_borrowers');  }
-function saveBorr(b)    { _admWrite('crm_borrowers', b);     }
-function getFollowUps() { return _admRead('crm_followups');  }
-function getContacts()  { return _admRead('crm_contacts');   }
-function getPolicies()  { return _admRead('crm_policies');   }
-function savePolicies(p){ _admWrite('crm_policies', p);      }
-function getConnectors(){ return _admRead('crm_connectors'); }
-function getWomenFL()   { return _admRead('crm_womenfl');    }
-function getBizFL()     { return _admRead('crm_bizfl');      }
+function getUsers()    { return _admRead('dsacrm_users');  }
+function saveUsers(u)  { _admWrite('dsacrm_users', u);     }
+function getBorrowers(){ return _admRead('crm_borrowers'); }
+function saveBorr(b)   { _admWrite('crm_borrowers', b);   }
+function getFollowUps(){ return _admRead('crm_followups'); }
+function getContacts() { return _admRead('crm_contacts');  }
+function getPolicies() { return _admRead('crm_policies');  }
+function savePolicies(p){ _admWrite('crm_policies',p);    }
 function getFiles()    { try{return JSON.parse(localStorage.getItem('dsacrm_files')||'[]');}catch(e){return[];}}
 function saveFiles(f)  { localStorage.setItem('dsacrm_files',JSON.stringify(f)); }
 function getBankers()  { try{return JSON.parse(localStorage.getItem('dsacrm_bankers')||'[]');}catch(e){return[];}}
@@ -1201,14 +1129,11 @@ function saveBankers(b){ localStorage.setItem('dsacrm_bankers',JSON.stringify(b)
 
 function _startAdmListeners(){
   const MAP = {
-    'dsacrm_users':   ()=>{ renderUsers(); loadDashboard(); },
-    'crm_borrowers':  ()=>{ renderBorrowers(); loadDashboard(); },
-    'crm_followups':  ()=>{ loadDashboard(); if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm(); },
-    'crm_contacts':   ()=>{ renderBankers(); },
-    'crm_policies':   ()=>{ renderPolicies(); },
-    'crm_connectors': ()=>{ renderAdmConnectors(); loadDashboard(); },
-    'crm_womenfl':    ()=>{ renderAdmFreelancers(); loadDashboard(); },
-    'crm_bizfl':      ()=>{ renderAdmFreelancers(); loadDashboard(); },
+    'dsacrm_users':  ()=>{ renderUsers(); loadDashboard(); },
+    'crm_borrowers': ()=>{ renderBorrowers(); loadDashboard(); },
+    'crm_followups': ()=>{ loadDashboard(); if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm(); },
+    'crm_contacts':  ()=>{ renderBankers(); },
+    'crm_policies':  ()=>{ renderPolicies(); }
   };
   Object.entries(MAP).forEach(([key,fn])=>{
     _admDb.ref('dsa_crm/'+key).on('value', snap=>{
@@ -1227,6 +1152,7 @@ function loadDashboard(){
   const users     = getUsers();
   const borrowers = _admCache.crm_borrowers||[];  // ALL borrowers — not filtered by user
   const fus       = _admCache.crm_followups||[];  // ALL follow-ups
+  renderQueueStats(); // populate queue stats table
   const active    = borrowers.filter(b=>!['REJECTED','CLOSED'].includes(b.status));
   const disbursed = borrowers.filter(b=>b.status==='DISBURSED');
   const disburseAmt = disbursed.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
@@ -1313,17 +1239,6 @@ function renderUsers(){
   }).join('');
 }
 
-// ── Manual refresh — re-reads all keys from localStorage + Firebase ──
-function admForceRefresh(){
-  ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
-    try{ var v=localStorage.getItem(k); if(v) _admCache[k]=JSON.parse(v); }catch(e){}
-  });
-  renderUsers();
-  loadDashboard();
-  renderBorrowers();
-  showToast('↻ Data refreshed from storage');
-}
-
 function viewUser(idx){
   const u = getUsers()[idx];
   if(!u) return;
@@ -1384,16 +1299,18 @@ function deleteUser(idx){
 
 // ══ RENDER BORROWERS (admin view of all CRM borrowers) ══
 function renderBorrowers(){
-  const all = _admCache.crm_borrowers||[];
+  const all = _admCache.crm_borrowers||[];  // Admin sees ALL borrowers across all users
   const fus = _admCache.crm_followups||[];
   const active    = all.filter(b=>!['REJECTED','CLOSED'].includes(b.status));
   const disbursed = all.filter(b=>b.status==='DISBURSED');
   const sanctioned= all.filter(b=>b.status==='SANCTIONED');
   const rejected  = all.filter(b=>b.status==='REJECTED');
 
+  // ── Update KPI cards in Borrowers Overview ──
   const disburseAmt = disbursed.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
   const fmt = v => '₹'+Math.round(v).toLocaleString('en-IN');
 
+  // Update stat cards dynamically
   const kpiCards = document.querySelectorAll('#sec-borrowers .kpi .kpi-val');
   if(kpiCards[0]) kpiCards[0].textContent = fmt(disburseAmt);
   if(kpiCards[1]) kpiCards[1].textContent = fmt(active.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0));
@@ -1404,7 +1321,7 @@ function renderBorrowers(){
   if(kpiSubs[1]) kpiSubs[1].textContent = active.length+' Active files';
   if(kpiSubs[2]) kpiSubs[2].textContent = sanctioned.length+' Files';
 
-  // ── Queue-wise stats table (live data) ──
+  // ── Queue-wise stats table ──
   const QUEUES = [
     {name:'🏭 Business Loan', key:'Business Loan'},
     {name:'💳 Personal Loan', key:'Personal Loan'},
@@ -1412,25 +1329,21 @@ function renderBorrowers(){
     {name:'🏗️ LAP',          key:'LAP'},
     {name:'⛨ Insurance',      key:'Insurance'},
   ];
-  const qTbody = document.getElementById('adm-queue-stat-tbody');
+  const qTbody = document.querySelector('#sec-borrowers table tbody');
   if(qTbody){
-    let totalT=0,totalA=0,totalD=0,totalR=0,totalVol=0;
-    const dataRows = QUEUES.map(q=>{
+    let totalT=0,totalA=0,totalD=0,totalR=0;
+    qTbody.innerHTML = QUEUES.map(q=>{
       const rows = all.filter(b=>b.product===q.key);
       const t=rows.length, a=rows.filter(b=>!['REJECTED','CLOSED','DISBURSED'].includes(b.status)).length;
       const d=rows.filter(b=>b.status==='DISBURSED').length, r=rows.filter(b=>b.status==='REJECTED').length;
       const vol=rows.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
-      totalT+=t;totalA+=a;totalD+=d;totalR+=r;totalVol+=vol;
-      const isIns = q.key==='Insurance';
-      return `<tr onclick="filterBorrByQueue('${q.key}',this)" style="cursor:pointer;transition:background .15s">
-        <td>${q.name}</td><td>${t}</td><td>${a}</td>
-        <td>${isIns?'—':d}</td><td>${r}</td><td>${vol?fmt(vol):'₹0'}</td></tr>`;
-    });
-    qTbody.innerHTML = dataRows.join('') +
-      `<tr style="font-weight:700"><td style="color:#fff">TOTAL</td>
-       <td style="color:#fff">${totalT}</td><td style="color:#fff">${totalA}</td>
-       <td style="color:var(--green)">${totalD}</td><td style="color:var(--red)">${totalR}</td>
-       <td style="color:var(--green)">${fmt(totalVol)}</td></tr>`;
+      totalT+=t;totalA+=a;totalD+=d;totalR+=r;
+      return `<tr><td>${q.name}</td><td>${t}</td><td>${a}</td><td>${d}</td><td>${r}</td><td>${vol?fmt(vol):'₹0'}</td></tr>`;
+    }).join('')+
+    `<tr style="font-weight:700"><td style="color:#fff">TOTAL</td>
+     <td style="color:#fff">${totalT}</td><td style="color:#fff">${totalA}</td>
+     <td style="color:var(--green)">${totalD}</td><td style="color:var(--red)">${totalR}</td>
+     <td style="color:var(--green)">${fmt(disburseAmt)}</td></tr>`;
   }
 
   // ── Disbursement Summary boxes ──
@@ -1439,128 +1352,164 @@ function renderBorrowers(){
   if(statVals[1]) statVals[1].textContent = disbursed.length;
   const avgLoan = disbursed.length ? Math.round(disburseAmt/disbursed.length) : 0;
   if(statVals[2]) statVals[2].textContent = avgLoan ? fmt(avgLoan) : '₹0';
-  if(statVals[3]) statVals[3].textContent = fmt(disburseAmt*0.01);
+  const commission = disburseAmt * 0.01;
+  if(statVals[3]) statVals[3].textContent = commission ? fmt(commission) : '₹0';
 
   // ── All Borrowers table ──
+  const admBorrTbody = document.getElementById('adm-borr-tbody');
+  if(!admBorrTbody){ buildAdmBorrTable(all); return; }
   renderAdmBorrRows(all);
 }
 
-// ── Queue filter: called when queue row clicked ──
-var _admBorrQueueFilter = 'ALL';
-function filterBorrByQueue(queue, rowEl){
-  _admBorrQueueFilter = queue;
-  // Update label
-  const lbl = document.getElementById('adm-borr-queue-label');
-  if(lbl) lbl.textContent = queue==='ALL' ? 'All Queues' : queue;
-  // Highlight active row
-  document.querySelectorAll('#adm-queue-stat-tbody tr').forEach(r=>{
-    r.style.background='';r.style.borderLeft='';
-  });
-  if(rowEl && queue!=='ALL'){
-    rowEl.style.background='rgba(124,58,237,.12)';
-    rowEl.style.borderLeft='3px solid var(--purple3)';
+function buildAdmBorrTable(all){
+  const card = document.querySelector('#sec-borrowers .card:last-child');
+  if(!card) return;
+  const head = card.querySelector('.card-head');
+  if(head){
+    head.innerHTML = `
+      <span class="card-title">📋 All Borrowers (Admin View)</span>
+      <div style="display:flex;gap:6px">
+        <select class="fsel" id="borr-queue" onchange="renderAdmBorrRows()">
+          <option value="ALL">All Queues</option>
+          <option value="Business Loan">Business Loan</option>
+          <option value="Personal Loan">Personal Loan</option>
+          <option value="Home Loan">Home Loan</option>
+          <option value="LAP">LAP</option>
+          <option value="Insurance">Insurance</option>
+        </select>
+        <select class="fsel" id="borr-status" onchange="renderAdmBorrRows()">
+          <option value="ALL">All Status</option>
+          <option value="ACTIVE">Applied</option>
+          <option value="LEAD">Lead</option>
+          <option value="FOLLOW UP">Follow-up</option>
+          <option value="SANCTIONED">Sanctioned</option>
+          <option value="DISBURSED">Disbursed</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+        <button class="btn btn-gold" onclick="exportBorrowers()">📥 Export</button>
+      </div>`;
   }
-  // Scroll to borrowers table
-  const card = document.getElementById('adm-borr-card');
-  if(card) card.scrollIntoView({behavior:'smooth',block:'start'});
-  renderAdmBorrRows();
+  const body = card.querySelector('.card-body') || card;
+  const existingEmpty = body.querySelector('.empty');
+  if(existingEmpty) existingEmpty.remove();
+  const tbl = document.createElement('table');
+  tbl.innerHTML = `<thead><tr>
+    <th>#</th><th>ID</th><th>Name</th><th>Phone</th><th>Product</th>
+    <th>Amount</th><th>Profile</th><th>Location</th><th>Status</th><th>Added By</th><th>Added On</th><th>Edit</th>
+  </tr></thead><tbody id="adm-borr-tbody"></tbody>`;
+  body.appendChild(tbl);
+  renderAdmBorrRows(all);
 }
 
-function buildAdmBorrTable(all){ renderAdmBorrRows(all); } // legacy shim
-
 function renderAdmBorrRows(data){
+  // Admin always sees ALL borrowers — use full _admCache not filtered getBorrowers()
   const all = data || (_admCache.crm_borrowers||[]);
-  const queueF  = _admBorrQueueFilter || 'ALL';
+  const queueF  = document.getElementById('borr-queue')?.value  || 'ALL';
   const statusF = document.getElementById('borr-status')?.value || 'ALL';
   const filtered = all.filter(b=>
     (queueF==='ALL'  || b.product===queueF) &&
     (statusF==='ALL' || b.status===statusF)
   );
   const tbody = document.getElementById('adm-borr-tbody');
-  if(!tbody) return;
+  if(!tbody){ buildAdmBorrTable(all); return; }
   if(!filtered.length){
-    tbody.innerHTML = `<tr><td colspan="9"><div class="empty"><div class="empty-ico">📋</div><p>No borrowers found for selected filter.</p></div></td></tr>`;
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty"><div class="empty-ico">📋</div><p>No borrowers found for selected filter.</p></div></td></tr>';
     return;
   }
-  // Build mobile→user lookup for Team Name & DSA Name
+  // Build mobile→name lookup for owner identification
   const users = getUsers();
-  const userMap = {};
-  users.forEach(u=>{ userMap[u.mobile]=u; });
-
+  const ownerName = {};
+  users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
   const PILL = {
-    ACTIVE:'<span class="pill p-green" style="font-size:9px">🟢 Applied</span>',
-    LEAD:'<span class="pill p-blue" style="font-size:9px">💡 Lead</span>',
-    'FOLLOW UP':'<span class="pill p-gold" style="font-size:9px">🔄 Follow-up</span>',
-    SANCTIONED:'<span class="pill p-blue" style="font-size:9px">🔵 Sanctioned</span>',
-    DISBURSED:'<span class="pill p-green" style="font-size:9px;font-weight:700">💰 Disbursed</span>',
-    REJECTED:'<span class="pill p-red" style="font-size:9px">❌ Rejected</span>',
-    'NOT INTERESTED':'<span class="pill p-red" style="font-size:9px">❌ Not Interested</span>',
-    BUSY:'<span class="pill p-gold" style="font-size:9px">📵 Busy</span>',
-    'WILL UPDATE':'<span class="pill" style="font-size:9px;background:rgba(99,102,241,.12);color:#818cf8">🕐 Will Update</span>',
-    CLOSED:'<span class="pill p-gray" style="font-size:9px">🔒 Closed</span>',
+    ACTIVE:'<span class="pill p-green">🟢 Applied</span>',
+    LEAD:'<span class="pill p-blue">💡 Lead</span>',
+    'FOLLOW UP':'<span class="pill p-gold">🔄 Follow-up</span>',
+    SANCTIONED:'<span class="pill p-blue">🔵 Sanctioned</span>',
+    DISBURSED:'<span class="pill p-green" style="font-weight:700">💰 Disbursed</span>',
+    REJECTED:'<span class="pill p-red">❌ Rejected</span>',
+    'NOT INTERESTED':'<span class="pill p-red">❌ Not Interested</span>',
+    BUSY:'<span class="pill p-gold">📵 Busy</span>',
+    'WILL UPDATE':'<span class="pill" style="background:rgba(99,102,241,.12);color:#818cf8">🕐 Will Update</span>',
+    'SWITCHED OFF':'<span class="pill p-gray">📴 Switched Off</span>',
+    REFERENCE:'<span class="pill" style="background:rgba(139,92,246,.12);color:#a78bfa">👥 Reference</span>',
+    'CALL U LATER':'<span class="pill" style="background:rgba(6,182,212,.12);color:#67e8f9">📞 Call Later</span>',
+    'SEND DOCUMENTS':'<span class="pill p-green">📂 Send Docs</span>',
+    NEED:'<span class="pill p-green" style="font-weight:700">✅ Need</span>',
+    CLOSED:'<span class="pill p-gray">🔒 Closed</span>',
   };
-
-  tbody.innerHTML = filtered.map((b,i)=>{
-    const owner    = b.addedBy ? (userMap[b.addedBy]||{}) : {};
-    const teamName = owner.name || b.addedBy || '—';           // actual person's name
-    const dsaName  = owner.dsaName || owner.bankName || owner.type || '—'; // company / type below
-    return `<tr id="adm-br-${b.id||i}">
-      <td style="color:var(--text3);font-size:11px">${i+1}</td>
-      <td style="font-size:9px;color:var(--text3);white-space:nowrap">${b.id||'—'}</td>
-      <td><b style="color:#fff;font-size:12px">${b.name}</b><div style="font-size:9px;color:var(--text3)">${b.phone||''}</div></td>
-      <td><a href="tel:${b.phone}" style="color:var(--cyan);font-size:11px">${b.phone||'—'}</a></td>
-      <td>
-        <div style="font-size:11px;color:#a78bfa;font-weight:600">${teamName}</div>
-        <div style="font-size:9px;color:var(--text3)">${dsaName}</div>
-      </td>
-      <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
-      <td style="color:var(--gold);font-weight:600;font-size:11px">${b.amount?'₹'+b.amount:'—'}</td>
-      <td>${PILL[b.status]||`<span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span>`}</td>
-      <td style="white-space:nowrap">
-        <button class="act-btn act-edit" style="font-size:9px;padding:2px 7px" onclick="admEditBorrower('${b.id||i}',${i})">✏ Edit</button>
-        <button class="act-btn act-del" style="font-size:9px;padding:2px 6px" onclick="admDeleteBorrower('${b.id||i}',${i})">🗑</button>
-      </td>
-    </tr>`;
+  // Find actual index in full array for edits
+  const fullArr = _admCache.crm_borrowers||[];
+  tbody.innerHTML = filtered.map((b)=>{
+    const fullIdx = fullArr.findIndex(x=>x.id===b.id);
+    const owner = b.addedBy ? (ownerName[b.addedBy]||b.addedBy) : '—';
+    return `<tr>
+    <td style="color:var(--text3)">${fullIdx+1}</td>
+    <td style="font-size:10px;color:var(--text3)">${b.id||'—'}</td>
+    <td><b style="color:#fff">${b.name}</b><div style="font-size:10px;color:var(--text3)">${b.email||''}</div></td>
+    <td><a href="tel:${b.phone}" style="color:var(--cyan)">${b.phone||'—'}</a></td>
+    <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
+    <td style="color:var(--gold);font-weight:600">${b.amount?'₹'+b.amount:'—'}</td>
+    <td style="color:var(--text3);font-size:10px">${b.profile||'—'}</td>
+    <td style="color:var(--text3);font-size:10px">${b.location||'—'}</td>
+    <td>${PILL[b.status]||`<span class="pill p-gray">${b.status||'—'}</span>`}</td>
+    <td style="font-size:10px;color:var(--cyan)">${owner}</td>
+    <td style="font-size:10px;color:var(--text3)">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
+    <td><button class="act-btn act-edit" onclick="openEditBorr('${b.id}')">✏ Edit</button></td>
+  </tr>`;
   }).join('');
 }
 
-function admEditBorrower(id, idx){
+// ══ BORROWER INLINE EDIT (works online via Firebase) ══
+function openEditBorr(bid){
   const all = _admCache.crm_borrowers||[];
-  const b = all.find(x=>x.id===id) || all[idx];
-  if(!b){ showToast('⚠️ Borrower not found'); return; }
-  document.getElementById('modal-title').textContent = '✏ Edit Borrower — '+b.name;
-  document.getElementById('modal-body').innerHTML = `
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="mfg" style="grid-column:span 2"><div class="mfl">Customer Name</div><input class="minp" id="eb-name" value="${b.name||''}"></div>
-      <div class="mfg"><div class="mfl">Phone</div><input class="minp" id="eb-phone" value="${b.phone||''}"></div>
-      <div class="mfg"><div class="mfl">Product</div><select class="minp" id="eb-prod">
-        ${['Business Loan','Personal Loan','Home Loan','LAP','Insurance'].map(p=>`<option ${b.product===p?'selected':''}>${p}</option>`).join('')}
-      </select></div>
-      <div class="mfg"><div class="mfl">Loan Amount</div><input class="minp" id="eb-amount" value="${b.amount||''}"></div>
-      <div class="mfg"><div class="mfl">Status</div><select class="minp" id="eb-status">
-        ${['LEAD','ACTIVE','FOLLOW UP','SANCTIONED','DISBURSED','REJECTED','CLOSED'].map(s=>`<option ${b.status===s?'selected':''}>${s}</option>`).join('')}
-      </select></div>
-      <div class="mfg"><div class="mfl">Location</div><input class="minp" id="eb-location" value="${b.location||''}"></div>
-      <div class="mfg"><div class="mfl">Bank Name</div><input class="minp" id="eb-bank" value="${b.bank||''}"></div>
-      <div class="mfg" style="grid-column:span 2"><div class="mfl">Notes</div><input class="minp" id="eb-notes" value="${b.notes||''}"></div>
-    </div>`;
-  document.getElementById('modal-edit').dataset.type = 'adm-borrower';
-  document.getElementById('modal-edit').dataset.borrid = id;
-  document.getElementById('modal-edit').dataset.idx = idx;
-  document.getElementById('modal-edit').classList.add('open');
+  const b = all.find(x=>x.id===bid); if(!b) return;
+  // Populate edit modal
+  const s = id => document.getElementById(id);
+  if(s('eb-id'))    s('eb-id').value    = b.id||'';
+  if(s('eb-name'))  s('eb-name').value  = b.name||'';
+  if(s('eb-phone')) s('eb-phone').value = b.phone||'';
+  if(s('eb-email')) s('eb-email').value = b.email||'';
+  if(s('eb-amount'))s('eb-amount').value= b.amount||'';
+  if(s('eb-income'))s('eb-income').value= b.income||'';
+  if(s('eb-profile'))s('eb-profile').value= b.profile||'';
+  if(s('eb-location'))s('eb-location').value= b.location||'';
+  if(s('eb-notes')) s('eb-notes').value = b.notes||'';
+  if(s('eb-status'))s('eb-status').value= b.status||'LEAD';
+  if(s('eb-product')){
+    s('eb-product').value = b.product||'Business Loan';
+  }
+  document.getElementById('MO_edit_borr').classList.add('on');
 }
 
-function admDeleteBorrower(id, idx){
-  if(!confirm('Delete this borrower record? This cannot be undone.')) return;
+function saveEditBorr(){
+  const bid = document.getElementById('eb-id')?.value;
+  if(!bid){ showToast('Error: record ID missing','err'); return; }
   const all = _admCache.crm_borrowers||[];
-  const realIdx = all.findIndex(x=>x.id===id);
-  const removeIdx = realIdx>=0 ? realIdx : idx;
-  if(removeIdx<0||removeIdx>=all.length){ showToast('⚠️ Record not found'); return; }
-  all.splice(removeIdx,1);
+  const idx = all.findIndex(x=>x.id===bid);
+  if(idx<0){ showToast('Record not found','err'); return; }
+
+  // Update fields
+  const g = id => (document.getElementById(id)?.value||'').trim();
+  all[idx].name     = g('eb-name')     || all[idx].name;
+  all[idx].phone    = g('eb-phone')    || all[idx].phone;
+  all[idx].email    = g('eb-email');
+  all[idx].amount   = g('eb-amount');
+  all[idx].income   = g('eb-income');
+  all[idx].profile  = document.getElementById('eb-profile')?.value  || all[idx].profile;
+  all[idx].product  = document.getElementById('eb-product')?.value  || all[idx].product;
+  all[idx].status   = document.getElementById('eb-status')?.value   || all[idx].status;
+  all[idx].location = g('eb-location');
+  all[idx].notes    = g('eb-notes');
+  all[idx].editedOn = Date.now();
+  all[idx].editedBy = 'admin';
+
+  // Write to localStorage AND Firebase (both paths)
   _admWrite('crm_borrowers', all);
-  _admCache.crm_borrowers = all;
+
+  document.getElementById('MO_edit_borr').classList.remove('on');
   renderBorrowers();
-  showToast('🗑 Borrower deleted');
+  loadDashboard();
+  showToast('✅ Borrower updated & synced to Firebase!','ok');
 }
 
 
@@ -1578,7 +1527,143 @@ function exportBorrowers(){
 }
 
 
-// ══ TODAY'S FOLLOW-UPS — Admin View ══
+// ══ QUEUE-WISE STATS — Dynamic with filters ══
+function renderQueueStats(){
+  const all   = _admCache.crm_borrowers||[];
+  const users = getUsers();
+
+  // Populate Team/DSA dropdown (once)
+  const ddl = document.getElementById('qs-filter-user');
+  if(ddl && ddl.options.length <= 1){
+    users.forEach(u=>{
+      const opt=document.createElement('option');
+      opt.value=u.mobile; opt.textContent=(u.name||u.mobile)+' ('+u.mobile+')';
+      ddl.appendChild(opt);
+    });
+  }
+
+  const selUser  = ddl?.value||'ALL';
+  const nameQ    = (document.getElementById('qs-filter-name')?.value||'').toLowerCase();
+  const phoneQ   = (document.getElementById('qs-filter-phone')?.value||'').toLowerCase();
+  const isFilter = selUser!=='ALL'||nameQ||phoneQ;
+
+  // Build owner name map
+  const ownerName={};
+  users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
+
+  // Apply filters
+  const filtered = all.filter(b=>{
+    if(selUser!=='ALL' && b.addedBy!==selUser) return false;
+    if(nameQ  && !(b.name||'').toLowerCase().includes(nameQ)) return false;
+    if(phoneQ && !(b.phone||'').toLowerCase().includes(phoneQ)) return false;
+    return true;
+  });
+
+  // ── Summary stats table ──
+  const QUEUES=[
+    {label:'🏭 Business Loan', prod:'Business Loan'},
+    {label:'💳 Personal Loan', prod:'Personal Loan'},
+    {label:'🏠 Home Loan',     prod:'Home Loan'},
+    {label:'🏗️ LAP',          prod:'LAP'},
+    {label:'⛨ Insurance',     prod:'Insurance'},
+  ];
+
+  let totTotal=0,totActive=0,totDisb=0,totRej=0,totVol=0;
+
+  const tbody = document.getElementById('qs-summary-tbody');
+  if(tbody){
+    tbody.innerHTML = QUEUES.map(q=>{
+      const rows   = filtered.filter(b=>b.product===q.prod);
+      const active = rows.filter(b=>['ACTIVE','DOC PENDING','UNDERWRITING','SANCTIONED'].includes(b.status)).length;
+      const disb   = rows.filter(b=>b.status==='DISBURSED').length;
+      const rej    = rows.filter(b=>b.status==='REJECTED').length;
+      const vol    = rows.reduce((s,b)=>{
+        const v=parseFloat((b.amount||'0').toString().replace(/[₹,LCr ]/gi,''));
+        return s+(isNaN(v)?0:v);
+      },0);
+      totTotal+=rows.length; totActive+=active; totDisb+=disb; totRej+=rej; totVol+=vol;
+      return `<tr style="cursor:pointer" onclick="filterQueueDetail('${q.prod}')">
+        <td>${q.label}</td>
+        <td style="font-weight:700;color:var(--cyan)">${rows.length}</td>
+        <td style="color:var(--green)">${active}</td>
+        <td style="color:var(--green)">${disb}</td>
+        <td style="color:var(--red)">${rej}</td>
+        <td style="color:var(--gold)">₹${vol.toFixed(1)}L</td>
+      </tr>`;
+    }).join('')+`<tr style="font-weight:700;background:rgba(255,255,255,.04)">
+      <td style="color:#fff">TOTAL</td>
+      <td style="color:var(--cyan)">${totTotal}</td>
+      <td style="color:var(--green)">${totActive}</td>
+      <td style="color:var(--green)">${totDisb}</td>
+      <td style="color:var(--red)">${totRej}</td>
+      <td style="color:var(--gold)">₹${totVol.toFixed(1)}L</td>
+    </tr>`;
+  }
+
+  // ── Detail list (shown when filter active or row clicked) ──
+  const detailWrap  = document.getElementById('qs-detail-wrap');
+  const detailTbody = document.getElementById('qs-detail-tbody');
+  const detailTitle = document.getElementById('qs-detail-title');
+  if(isFilter && detailWrap && detailTbody){
+    detailWrap.style.display='block';
+    if(detailTitle) detailTitle.textContent = `Filtered: ${filtered.length} borrower(s)`;
+    detailTbody.innerHTML = filtered.length ? filtered.map((b,i)=>`<tr>
+      <td style="color:var(--text3)">${i+1}</td>
+      <td><b style="color:#fff">${b.name||'—'}</b></td>
+      <td><a href="tel:${b.phone}" style="color:var(--cyan)">${b.phone||'—'}</a></td>
+      <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
+      <td style="color:var(--gold)">${b.amount?'₹'+b.amount:'—'}</td>
+      <td><span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span></td>
+      <td style="font-size:10px;color:var(--cyan)">${b.addedBy?(ownerName[b.addedBy]||b.addedBy):'—'}</td>
+      <td style="font-size:10px;color:var(--text3)">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
+    </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:14px">No borrowers match this filter</td></tr>';
+  } else if(detailWrap){
+    detailWrap.style.display='none';
+  }
+}
+
+// Click a queue row to drill-down into that product's borrowers
+var _qsProductFilter = '';
+function filterQueueDetail(prod){
+  _qsProductFilter = prod;
+  const all   = _admCache.crm_borrowers||[];
+  const users = getUsers();
+  const ownerName={};
+  users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
+
+  // Apply existing filters + product filter
+  const ddl    = document.getElementById('qs-filter-user');
+  const selUser= ddl?.value||'ALL';
+  const nameQ  = (document.getElementById('qs-filter-name')?.value||'').toLowerCase();
+  const phoneQ = (document.getElementById('qs-filter-phone')?.value||'').toLowerCase();
+
+  const filtered = all.filter(b=>{
+    if(b.product!==prod) return false;
+    if(selUser!=='ALL' && b.addedBy!==selUser) return false;
+    if(nameQ  && !(b.name||'').toLowerCase().includes(nameQ)) return false;
+    if(phoneQ && !(b.phone||'').toLowerCase().includes(phoneQ)) return false;
+    return true;
+  });
+
+  const detailWrap  = document.getElementById('qs-detail-wrap');
+  const detailTbody = document.getElementById('qs-detail-tbody');
+  const detailTitle = document.getElementById('qs-detail-title');
+  if(!detailWrap) return;
+  detailWrap.style.display='block';
+  if(detailTitle) detailTitle.textContent = `${prod} — ${filtered.length} record(s)`;
+  if(detailTbody) detailTbody.innerHTML = filtered.length ? filtered.map((b,i)=>`<tr>
+    <td style="color:var(--text3)">${i+1}</td>
+    <td><b style="color:#fff">${b.name||'—'}</b></td>
+    <td><a href="tel:${b.phone}" style="color:var(--cyan)">${b.phone||'—'}</a></td>
+    <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
+    <td style="color:var(--gold)">${b.amount?'₹'+b.amount:'—'}</td>
+    <td><span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span></td>
+    <td style="font-size:10px;color:var(--cyan)">${b.addedBy?(ownerName[b.addedBy]||b.addedBy):'—'}</td>
+    <td style="font-size:10px;color:var(--text3)">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
+  </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text3)">No records</td></tr>';
+}
+
+
 function renderFollowUpsAdm(){
   const all     = _admCache.crm_followups||[];  // Admin sees ALL follow-ups
   const search  = (document.getElementById('fu-search')?.value||'').toLowerCase();
@@ -1708,134 +1793,66 @@ function downloadUsers(){
 // ══════════════════════════════════════
 // POLICIES (Queue Control)
 // ══════════════════════════════════════
+let _policies = [
+  {bank:'HDFC Bank',product:'Business Loan',minL:'₹2L',maxL:'₹10Cr',roi:'9.5–12%',cibil:'700',abb:'₹15,000',addedBy:'Admin',date:'2026-04-01'},
+  {bank:'BAJAJ Finance',product:'Business Loan',minL:'₹25K',maxL:'₹30L',roi:'13–19%',cibil:'685',abb:'₹8,000',addedBy:'Admin',date:'2026-04-05'},
+  {bank:'AXIS Bank',product:'Home Loan',minL:'₹5L',maxL:'₹50L',roi:'11.5–16%',cibil:'700',abb:'₹50,000',addedBy:'Admin',date:'2026-04-10'},
+];
+
 function renderPolicies(){
-  const all = getPolicies(); // reads crm_policies from _admCache — live sync with user CRM
-  const search = (document.getElementById('pol-search')?.value||'').toLowerCase();
-  const prod   = document.getElementById('pol-prod')?.value||'ALL';
-
-  const data = all.filter(p=>{
-    const matchProd = prod==='ALL' || (p.product||'').includes(prod) ||
-      (p.types && p.types.some(t=>({hl:'Home Loan',bl:'Business Loan',pl:'Personal Loan',lap:'LAP'}[t]||'').includes(prod)));
-    const s = (p.name||p.bank||'').toLowerCase()+(p.product||'').toLowerCase();
-    return matchProd && (!search || s.includes(search));
-  });
-
+  const search = document.getElementById('pol-search')?.value.toLowerCase()||'';
+  const prod = document.getElementById('pol-prod')?.value||'ALL';
+  const data = _policies.filter(p=>
+    (prod==='ALL'||p.product===prod) &&
+    (!search || p.bank.toLowerCase().includes(search) || p.product.toLowerCase().includes(search))
+  );
   document.getElementById('pol-count').textContent = data.length+' entries';
   const tbody = document.getElementById('pol-tbody');
   if(!data.length){
-    tbody.innerHTML='<tr><td colspan="12"><div class="empty"><div class="empty-ico">⌘</div><p>No policies yet. Policies added in the user CRM appear here automatically.</p></div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-ico">⌘</div><p>No policies yet. Add policies using the "+ Add Policy" button.</p></div></td></tr>';
     return;
   }
-  tbody.innerHTML = data.map((p,i)=>{
-    const bank    = p.name||p.bank||'—';
-    const product = p.product||(p.types?p.types.map(t=>({hl:'Home Loan',bl:'Business Loan',pl:'Personal Loan',lap:'LAP'}[t]||t).toUpperCase()).join(' + '):'—');
-    const minL    = p.minL||p.amt||'—';
-    const maxL    = p.maxL||'—';
-    const roi     = p.roi||'—';
-    const cibil   = p.cibil||p.minCibil||'—';
-    const abb     = p.abb||'—';
-    const loc     = p.location||'—';
-    const by      = p.addedBy||p.addedby||'User';
-    const dt      = p.date||p.addedOn?(p.date||new Date(p.addedOn).toLocaleDateString('en-IN')):'—';
-    return `<tr>
-      <td style="color:var(--text3)">${i+1}</td>
-      <td><b style="color:#fff">${bank}</b>${loc!=='—'?`<div style="font-size:9px;color:var(--text3)">📍 ${loc}</div>`:''}</td>
-      <td><span class="pill p-blue" style="font-size:9px">${product}</span></td>
-      <td>${minL}</td><td>${maxL}</td>
-      <td style="color:var(--gold);font-weight:600">${roi}</td>
-      <td>${cibil}</td><td>${abb}</td>
-      <td style="font-size:10px;color:var(--text3)">${by}</td>
-      <td style="font-size:10px;color:var(--text3)">${dt}</td>
-      <td>
-        <button class="act-btn act-edit" onclick="admEditPolicy(${i})">✏ Edit</button>
-        <button class="act-btn act-del" onclick="admDeletePolicy(${i})">🗑</button>
-      </td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = data.map((p,i)=>`<tr>
+    <td style="color:var(--text3)">${i+1}</td>
+    <td><b style="color:#fff">${p.bank}</b></td>
+    <td><span class="pill p-blue">${p.product}</span></td>
+    <td>${p.minL}</td><td>${p.maxL}</td>
+    <td style="color:var(--gold)">${p.roi}</td>
+    <td>${p.cibil}</td><td>${p.abb}</td>
+    <td style="font-size:10px;color:var(--text3)">${p.addedBy}</td>
+    <td style="font-size:10px;color:var(--text3)">${p.date}</td>
+    <td>
+      <button class="act-btn act-edit" onclick="editPolicy(${i})">✏ Edit</button>
+      <button class="act-btn act-del" onclick="deletePolicy(${i})">🗑</button>
+    </td>
+  </tr>`).join('');
 }
 
-function admEditPolicy(i){
-  const all = getPolicies();
-  const p = all[i];
-  if(!p) return;
+function editPolicy(i){
+  const p = _policies[i];
   document.getElementById('modal-title').textContent = '✏ Edit Bank Policy';
   document.getElementById('modal-body').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div class="mfg" style="grid-column:span 2"><div class="mfl">Bank / NBFC *</div><input class="minp" id="ep-bank" value="${p.name||p.bank||''}"></div>
-      <div class="mfg"><div class="mfl">Product</div><select class="minp" id="ep-prod">
-        <option ${(p.product||'').includes('Business')?'selected':''}>Business Loan</option>
-        <option ${(p.product||'').includes('Personal')?'selected':''}>Personal Loan</option>
-        <option ${(p.product||'').includes('Home')?'selected':''}>Home Loan</option>
-        <option ${(p.product||'').includes('LAP')?'selected':''}>LAP</option>
-      </select></div>
-      <div class="mfg"><div class="mfl">ROI (%)</div><input class="minp" id="ep-roi" value="${p.roi||''}"></div>
-      <div class="mfg"><div class="mfl">Min Loan</div><input class="minp" id="ep-minl" value="${p.minL||''}"></div>
-      <div class="mfg"><div class="mfl">Max Loan</div><input class="minp" id="ep-maxl" value="${p.maxL||''}"></div>
-      <div class="mfg"><div class="mfl">Min CIBIL</div><input class="minp" id="ep-cibil" value="${p.cibil||''}"></div>
-      <div class="mfg"><div class="mfl">Min ABB</div><input class="minp" id="ep-abb" value="${p.abb||''}"></div>
-      <div class="mfg"><div class="mfl">Location</div><input class="minp" id="ep-location" value="${p.location||''}"></div>
-      <div class="mfg"><div class="mfl">TAT</div><input class="minp" id="ep-tat" value="${p.tat||''}"></div>
-      <div class="mfg" style="grid-column:span 2"><div class="mfl">Contact / RM</div><input class="minp" id="ep-contact" value="${p.contact||''}"></div>
+      <div class="mfg"><div class="mfl">Bank / NBFC</div><input class="minp" id="ep-bank" value="${p.bank}"></div>
+      <div class="mfg"><div class="mfl">Product</div><select class="minp" id="ep-prod"><option ${p.product==='Business Loan'?'selected':''}>Business Loan</option><option ${p.product==='Personal Loan'?'selected':''}>Personal Loan</option><option ${p.product==='Home Loan'?'selected':''}>Home Loan</option><option ${p.product==='LAP'?'selected':''}>LAP</option></select></div>
+      <div class="mfg"><div class="mfl">Min Loan</div><input class="minp" id="ep-minl" value="${p.minL}"></div>
+      <div class="mfg"><div class="mfl">Max Loan</div><input class="minp" id="ep-maxl" value="${p.maxL}"></div>
+      <div class="mfg"><div class="mfl">ROI (%)</div><input class="minp" id="ep-roi" value="${p.roi}"></div>
+      <div class="mfg"><div class="mfl">Min CIBIL</div><input class="minp" id="ep-cibil" value="${p.cibil}"></div>
+      <div class="mfg"><div class="mfl">Min ABB</div><input class="minp" id="ep-abb" value="${p.abb}"></div>
+      <div class="mfg"><div class="mfl">Added By</div><input class="minp" id="ep-by" value="${p.addedBy}"></div>
     </div>`;
   document.getElementById('modal-edit').classList.add('open');
-  document.getElementById('modal-edit').dataset.type = 'adm-policy';
-  document.getElementById('modal-edit').dataset.idx  = i;
+  document.getElementById('modal-edit').dataset.type='policy';
+  document.getElementById('modal-edit').dataset.idx=i;
 }
 
-function admDeletePolicy(i){
-  if(!confirm('Delete this policy? This will remove it from the user CRM as well.')) return;
-  const all = getPolicies();
-  all.splice(i,1);
-  savePolicies(all);
+function deletePolicy(i){
+  if(!confirm('Delete this policy entry?')) return;
+  _policies.splice(i,1);
   renderPolicies();
   showToast('🗑 Policy deleted');
 }
-
-// ── Paste Policy modal (admin) ──
-function openPastePolicyModal(){
-  document.getElementById('modal-title').textContent = '📋 Paste Policy Text';
-  document.getElementById('modal-body').innerHTML = `
-    <div style="font-size:11px;color:var(--text3);margin-bottom:8px">Paste any policy text (WhatsApp message, PDF copy, email) — fields will be auto-extracted.</div>
-    <textarea id="adm-paste-raw" style="width:100%;height:160px;background:var(--bg3);border:1px solid var(--border);color:var(--text1);border-radius:8px;padding:10px;font-size:12px;resize:vertical" placeholder="Paste policy text here…"></textarea>
-    <button class="btn btn-p" style="margin-top:8px;width:100%" onclick="admParsePastePolicy()">⚡ Auto-Extract Fields</button>
-    <div id="adm-paste-fields" style="display:none;margin-top:10px">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="mfg" style="grid-column:span 2"><div class="mfl">Bank / NBFC</div><input class="minp" id="pp-bank"></div>
-        <div class="mfg"><div class="mfl">Product</div><select class="minp" id="pp-prod"><option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option><option>LAP</option></select></div>
-        <div class="mfg"><div class="mfl">ROI</div><input class="minp" id="pp-roi"></div>
-        <div class="mfg"><div class="mfl">Min Loan</div><input class="minp" id="pp-minl"></div>
-        <div class="mfg"><div class="mfl">Max Loan</div><input class="minp" id="pp-maxl"></div>
-        <div class="mfg"><div class="mfl">Min CIBIL</div><input class="minp" id="pp-cibil"></div>
-        <div class="mfg"><div class="mfl">Min ABB</div><input class="minp" id="pp-abb"></div>
-        <div class="mfg"><div class="mfl">Location</div><input class="minp" id="pp-location"></div>
-        <div class="mfg"><div class="mfl">TAT</div><input class="minp" id="pp-tat"></div>
-        <div class="mfg" style="grid-column:span 2"><div class="mfl">Contact / RM</div><input class="minp" id="pp-contact"></div>
-      </div>
-    </div>`;
-  document.getElementById('modal-edit').dataset.type = 'adm-paste-policy';
-  document.getElementById('modal-edit').classList.add('open');
-}
-
-function admParsePastePolicy(){
-  const raw = document.getElementById('adm-paste-raw')?.value||'';
-  if(!raw.trim()){ showToast('⚠️ Paste policy text first'); return; }
-  function extract(patterns){ for(const re of patterns){ const m=raw.match(re); if(m) return (m[1]||m[0]).replace(/[*_#]/g,'').trim(); } return ''; }
-  const name    = extract([/^([A-Z][A-Za-z &.\-'()]+(?:Bank|Finance|Capital|Housing|HFC|NBFC|Ltd)[^\n]*)/m, /Bank[:\-\s]+([^\n]+)/i]) || raw.split('\n')[0].slice(0,60).trim();
-  const roi     = extract([/ROI[:\s]+([0-9.]+%?[\s\-–]+[0-9.]+%?[^\n]*)/i, /([0-9]{1,2}\.[0-9]{1,2}%[\s\-–]+[0-9]{1,2}\.[0-9]{1,2}%)/]);
-  const minL    = extract([/Min[imum\s]*Loan[:\s]+([\d₹\s\-LCr]+)/i]);
-  const maxL    = extract([/Max[imum\s]*Loan[:\s]+([\d₹\s\-LCr]+)/i, /Upto\s*(₹?\d+\s*Cr)/i]);
-  const cibil   = extract([/(?:Min\s*)?CIBIL[:\s]+([^\n,]+)/i, /([0-9]{3})\+?\s*(?:CIBIL|Score)/i]);
-  const abb     = extract([/ABB[:\s]+([^\n]+)/i, /(?:Min\s*)?Balance[:\s]+([^\n]+)/i]);
-  const loc     = extract([/Location[:\s]+([^\n]+)/i, /Cities?[:\s]+([^\n]+)/i]);
-  const contact = extract([/Contact[:\s]+([^\n]+)/i, /RM[:\s]+([^\n]+)/i]);
-  const tat     = extract([/TAT[:\s]+([^\n]+)/i]);
-  const sv=(id,val)=>{ const el=document.getElementById(id); if(el&&val) el.value=val; };
-  sv('pp-bank',name); sv('pp-roi',roi); sv('pp-minl',minL); sv('pp-maxl',maxL);
-  sv('pp-cibil',cibil); sv('pp-abb',abb); sv('pp-location',loc); sv('pp-contact',contact); sv('pp-tat',tat);
-  document.getElementById('adm-paste-fields').style.display='block';
-  showToast('✅ Fields extracted — review and save');
-}
-
 
 // ══════════════════════════════════════
 // FILES DUMP (Queue Control)
@@ -1972,111 +1989,6 @@ function deleteBanker(i){
 }
 
 // ══════════════════════════════════════
-// DSA/CONNECTORS — Admin View (Issues 4+5)
-// ══════════════════════════════════════
-function renderAdmConnectors(){
-  const search  = (document.getElementById('conn-adm-search')?.value||'').toLowerCase();
-  const statusF = document.getElementById('conn-adm-status')?.value||'ALL';
-  const users   = getUsers();
-  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
-  const all     = getConnectors();
-  const filtered = all.filter(c=>{
-    const s = statusF==='ALL' || c.status===statusF;
-    const q = !search || (c.name||'').toLowerCase().includes(search) || (c.phone||'').includes(search) || (c.company||'').toLowerCase().includes(search);
-    return s && q;
-  });
-  const tbody  = document.getElementById('conn-adm-tbody');
-  const cntEl  = document.getElementById('conn-adm-count');
-  if(cntEl) cntEl.textContent = filtered.length+' entries';
-  if(!tbody) return;
-  if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">🤝</div><p>No connectors found.</p></div></td></tr>';
-    return;
-  }
-  const STATUS_PILL = {
-    'INTERESTED':'<span class="pill p-green" style="font-size:9px">✅ Interested</span>',
-    'NOT INTERESTED':'<span class="pill p-red" style="font-size:9px">❌ Not Interested</span>',
-    'BUSY':'<span class="pill p-gold" style="font-size:9px">📵 Busy</span>',
-    'CALL WAITING':'<span class="pill p-purple" style="font-size:9px">⏳ Call Waiting</span>',
-    'WILL CALL YOU':'<span class="pill p-blue" style="font-size:9px">📞 Will Call You</span>',
-    'LESS PAYOUT':'<span class="pill p-gold" style="font-size:9px">💰 Less Payout</span>',
-    'CALL ME LATER':'<span class="pill p-green" style="font-size:9px">🕐 Call Me Later</span>',
-  };
-  tbody.innerHTML = filtered.map((c,i)=>{
-    const owner   = c.addedBy ? (userMap[c.addedBy]||{}) : {};
-    const ownerName = owner.name || c.addedBy || '—';
-    const dtStr   = c.dt ? new Date(c.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-    const verts   = (c.verticals||[]).join(', ')||'—';
-    const code    = c.dsaCode || ((c.name||'???').slice(0,3).toUpperCase()+(c.phone||'0000').slice(-4));
-    return `<tr>
-      <td style="color:var(--text3)">${i+1}</td>
-      <td><b style="color:#fff">${c.name||'—'}</b><div style="font-size:9px;color:var(--text3)">${c.company||''}</div></td>
-      <td><span style="font-weight:700;color:#4a90e2;font-size:10px;background:rgba(74,144,226,.15);padding:2px 8px;border-radius:12px">${code}</span></td>
-      <td><a href="tel:${c.phone}" style="color:var(--cyan);font-size:10px">📞 ${c.phone||'—'}</a></td>
-      <td>${STATUS_PILL[c.status]||`<span class="pill p-gray" style="font-size:9px">${c.status||'—'}</span>`}</td>
-      <td style="font-size:11px;color:var(--gold)">${c.target?'₹'+c.target+' L/mo':'—'}</td>
-      <td style="font-size:10px;max-width:130px;color:var(--text3)">${verts}</td>
-      <td style="font-size:10px;color:var(--text3);white-space:nowrap">${dtStr}</td>
-      <td style="font-size:10px;color:var(--cyan)">${ownerName}</td>
-      <td>
-        <button class="act-btn act-del" style="font-size:9px" onclick="admDeleteConnector('${c.id}')">🗑</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function admDeleteConnector(id){
-  if(!confirm('Delete this connector?')) return;
-  const all = getConnectors().filter(c=>c.id!==id);
-  _admWrite('crm_connectors', all);
-  _admCache.crm_connectors = all;
-  renderAdmConnectors();
-  showToast('🗑 Connector deleted');
-}
-
-// ══════════════════════════════════════
-// FREELANCER PROGRAMS — Admin View (Issue 3+5)
-// ══════════════════════════════════════
-function renderAdmFreelancers(){
-  const search  = (document.getElementById('fl-adm-search')?.value||'').toLowerCase();
-  const typeF   = document.getElementById('fl-adm-type')?.value||'ALL';
-  const users   = getUsers();
-  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
-  const women   = getWomenFL();
-  const biz     = getBizFL();
-
-  function renderFL(list, tbodyId, cntId){
-    const tbody = document.getElementById(tbodyId);
-    const cntEl = document.getElementById(cntId);
-    const filt  = list.filter(r=>(!search||(r.name||'').toLowerCase().includes(search)||(r.phone||'').includes(search)||(r.location||'').toLowerCase().includes(search)));
-    if(cntEl) cntEl.textContent = filt.length+' entries';
-    if(!tbody) return;
-    if(!filt.length){
-      tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="empty-ico">👤</div><p>No registrations yet.</p></div></td></tr>`;
-      return;
-    }
-    tbody.innerHTML = filt.map((r,i)=>{
-      const owner = r.addedBy ? (userMap[r.addedBy]||{}) : {};
-      const ownerName = owner.name || r.addedBy || '—';
-      return `<tr>
-        <td style="color:var(--text3)">${i+1}</td>
-        <td><b style="color:#fff">${r.name||'—'}</b></td>
-        <td><a href="tel:${r.phone}" style="color:var(--cyan);font-size:10px">📞 ${r.phone||'—'}</a></td>
-        <td style="font-size:10px;color:var(--text3)">${r.location||'—'}</td>
-        <td><span class="pill ${r.profile==='Full Time'?'p-green':'p-blue'}" style="font-size:9px">${r.profile||'Part Time'}</span></td>
-        <td style="font-size:11px;color:var(--gold)">${r.expected?'₹'+r.expected+'L/mo':'—'}</td>
-        <td style="font-size:10px;color:var(--text3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.remarks||'—'}</td>
-        <td style="font-size:10px;color:var(--cyan)">${ownerName}</td>
-        <td style="font-size:10px;color:var(--text3)">${r.dt||'—'}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  if(typeF==='ALL' || typeF==='women') renderFL(women, 'fl-women-tbody', 'fl-women-count');
-  if(typeF==='ALL' || typeF==='biz')   renderFL(biz,   'fl-biz-tbody',   'fl-biz-count');
-}
-
-// ══════════════════════════════════════
 // ADD MODAL
 // ══════════════════════════════════════
 function openAddModal(type){
@@ -2094,25 +2006,6 @@ function openAddModal(type){
         <div class="mfg"><div class="mfl">Min ABB</div><input class="minp" id="np-abb" placeholder="₹15,000"></div>
         <div class="mfg"><div class="mfl">Max FOIR</div><input class="minp" id="np-foir" placeholder="55%"></div>
       </div>`;
-  } else if(type==='adm-borrower'){
-    const all = _admCache.crm_borrowers||[];
-    const borrid = modal.dataset.borrid;
-    const fallbackIdx = parseInt(modal.dataset.idx);
-    const realIdx = all.findIndex(x=>x.id===borrid);
-    const editIdx = realIdx>=0 ? realIdx : fallbackIdx;
-    if(editIdx>=0 && editIdx<all.length){
-      all[editIdx].name     = document.getElementById('eb-name')?.value||all[editIdx].name;
-      all[editIdx].phone    = document.getElementById('eb-phone')?.value||all[editIdx].phone;
-      all[editIdx].product  = document.getElementById('eb-prod')?.value||all[editIdx].product;
-      all[editIdx].amount   = document.getElementById('eb-amount')?.value||all[editIdx].amount;
-      all[editIdx].status   = document.getElementById('eb-status')?.value||all[editIdx].status;
-      all[editIdx].location = document.getElementById('eb-location')?.value||all[editIdx].location;
-      all[editIdx].bank     = document.getElementById('eb-bank')?.value||all[editIdx].bank;
-      all[editIdx].notes    = document.getElementById('eb-notes')?.value||all[editIdx].notes;
-      _admWrite('crm_borrowers', all);
-      _admCache.crm_borrowers = all;
-      renderBorrowers();
-    }
   } else if(type==='file'){
     document.getElementById('modal-body').innerHTML=`
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -2142,75 +2035,18 @@ function saveModalEntry(){
   const type = modal.dataset.type;
   const idx = parseInt(modal.dataset.idx);
 
-  // ── FIX: adm-borrower edit save ──
-  if(type==='adm-borrower'){
-    const all    = _admCache.crm_borrowers||[];
-    const borrid = modal.dataset.borrid;
-    const realIdx= all.findIndex(x=>x.id===borrid);
-    const editIdx= realIdx>=0 ? realIdx : parseInt(modal.dataset.idx||'-1');
-    if(editIdx>=0 && editIdx<all.length){
-      all[editIdx].name     = document.getElementById('eb-name')?.value    || all[editIdx].name;
-      all[editIdx].phone    = document.getElementById('eb-phone')?.value   || all[editIdx].phone;
-      all[editIdx].product  = document.getElementById('eb-prod')?.value    || all[editIdx].product;
-      all[editIdx].amount   = document.getElementById('eb-amount')?.value  || all[editIdx].amount;
-      all[editIdx].status   = document.getElementById('eb-status')?.value  || all[editIdx].status;
-      all[editIdx].location = document.getElementById('eb-location')?.value|| all[editIdx].location;
-      all[editIdx].bank     = document.getElementById('eb-bank')?.value    || all[editIdx].bank;
-      all[editIdx].notes    = document.getElementById('eb-notes')?.value   || all[editIdx].notes;
-      _admWrite('crm_borrowers', all);
-      _admCache.crm_borrowers = all;
-      renderBorrowers();
-      closeModal();
-      showToast('✅ Borrower updated successfully!');
-      return;
-    }
-    showToast('⚠️ Could not find borrower to update');
-    return;
-  }
-
-  if(type==='adm-policy'){
-    const all = getPolicies();
-    const p = all[idx];
-    if(p){
-      p.name = p.bank = document.getElementById('ep-bank').value;
-      p.product   = document.getElementById('ep-prod').value;
-      p.roi       = document.getElementById('ep-roi').value;
-      p.minL      = document.getElementById('ep-minl').value;
-      p.maxL      = document.getElementById('ep-maxl').value;
-      p.cibil     = document.getElementById('ep-cibil').value;
-      p.abb       = document.getElementById('ep-abb').value;
-      p.location  = document.getElementById('ep-location').value;
-      p.tat       = document.getElementById('ep-tat').value;
-      p.contact   = document.getElementById('ep-contact').value;
-      p.date      = today();
-      savePolicies(all);
-      renderPolicies();
-    }
-  } else if(type==='adm-paste-policy'){
-    const name = document.getElementById('pp-bank')?.value||'';
-    if(!name){ showToast('⚠️ Bank name is required'); return; }
-    const all = getPolicies();
-    all.push({
-      id:'APM'+Date.now().toString(36).toUpperCase(),
-      name, bank:name,
-      product: document.getElementById('pp-prod')?.value||'Business Loan',
-      roi:     document.getElementById('pp-roi')?.value||'',
-      minL:    document.getElementById('pp-minl')?.value||'',
-      maxL:    document.getElementById('pp-maxl')?.value||'',
-      cibil:   document.getElementById('pp-cibil')?.value||'',
-      abb:     document.getElementById('pp-abb')?.value||'',
-      location:document.getElementById('pp-location')?.value||'',
-      tat:     document.getElementById('pp-tat')?.value||'',
-      contact: document.getElementById('pp-contact')?.value||'',
-      addedBy:'Admin', date:today(), addedOn:Date.now()
-    });
-    savePolicies(all);
-    renderPolicies();
-  } else if(type==='policy'){
-    // legacy fallback — kept for safety
-    const p = getPolicies()[idx];
-    if(p){ p.bank=document.getElementById('ep-bank')?.value; p.date=today(); savePolicies(getPolicies()); renderPolicies(); }
-  } else if(type==='add-policy'){
+  if(type==='policy'){
+    const p = _policies[idx];
+    p.bank=document.getElementById('ep-bank').value;
+    p.product=document.getElementById('ep-prod').value;
+    p.minL=document.getElementById('ep-minl').value;
+    p.maxL=document.getElementById('ep-maxl').value;
+    p.roi=document.getElementById('ep-roi').value;
+    p.cibil=document.getElementById('ep-cibil').value;
+    p.abb=document.getElementById('ep-abb').value;
+    p.addedBy=document.getElementById('ep-by').value;
+    p.date=today(); renderPolicies();
+  } else if(type==='file'){
     const f = _files[idx];
     f.name=document.getElementById('ef-name').value;
     f.category=document.getElementById('ef-cat').value;
@@ -2228,20 +2064,7 @@ function saveModalEntry(){
     b.location=document.getElementById('eb-location').value;
     renderBankers();
   } else if(type==='add-policy'){
-    const all = getPolicies();
-    all.push({
-      id:'APM'+Date.now().toString(36).toUpperCase(),
-      name: document.getElementById('np-bank').value,
-      bank: document.getElementById('np-bank').value,
-      product: document.getElementById('np-prod').value,
-      minL:    document.getElementById('np-minl').value,
-      maxL:    document.getElementById('np-maxl').value,
-      roi:     document.getElementById('np-roi').value,
-      cibil:   document.getElementById('np-cibil').value,
-      abb:     document.getElementById('np-abb').value,
-      addedBy:'Admin', date:today(), addedOn:Date.now()
-    });
-    savePolicies(all);
+    _policies.push({bank:document.getElementById('np-bank').value,product:document.getElementById('np-prod').value,minL:document.getElementById('np-minl').value,maxL:document.getElementById('np-maxl').value,roi:document.getElementById('np-roi').value,cibil:document.getElementById('np-cibil').value,abb:document.getElementById('np-abb').value,addedBy:'Admin',date:today()});
     renderPolicies();
   } else if(type==='add-file'){
     _files.push({name:document.getElementById('nf-name').value,category:document.getElementById('nf-cat').value,status:document.getElementById('nf-status').value,borrower:document.getElementById('nf-borrower').value,by:document.getElementById('nf-by').value,size:'—',date:today()});
@@ -2308,37 +2131,17 @@ function dlReport(format, queue, period){
     csvContent += `FILES DUMP\nNo,File Name,Category,Borrower,Uploaded By,Size,Date,Status\n`;
     _files.forEach((f,i)=>{ csvContent+=`${i+1},${f.name},${f.category},${f.borrower},${f.by},${f.size},${f.date},${f.status}\n`; });
   }
-  const ext = 'csv';
+  const ext = format==='csv'?'csv':'csv';
   download(`DSA_CRM_Admin_${qL.replace(/ /g,'_')}_${pL.replace(/ /g,'_')}_${today()}.${ext}`, csvContent);
   showToast('📥 Report downloaded: '+qL+' — '+pL);
 }
 
 function quickDl(q, p){ dlReport('csv', q, p); }
 
-// ── Offline polling — re-reads localStorage every 30s when Firebase is unavailable ──
-var _admOfflinePollIv = null;
-function _startOfflinePoll(){
-  if(_admOfflinePollIv) return; // already running
-  _admOfflinePollIv = setInterval(function(){
-    var fresh = {};
-    ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
-      try{ var v=localStorage.getItem(k); fresh[k]=v?JSON.parse(v):[]; }catch(e){ fresh[k]=[]; }
-    });
-    var changed = JSON.stringify(fresh.dsacrm_users) !== JSON.stringify(_admCache.dsacrm_users)
-               || JSON.stringify(fresh.crm_borrowers) !== JSON.stringify(_admCache.crm_borrowers);
-    if(changed){
-      Object.assign(_admCache, fresh);
-      if(typeof renderUsers==='function') renderUsers();
-      if(typeof loadDashboard==='function') loadDashboard();
-      if(typeof renderBorrowers==='function') renderBorrowers();
-      var badge=document.getElementById('adm-fb-badge');
-      if(badge) badge.textContent='💾 Offline (synced)';
-      var retryBtn=document.getElementById('adm-retry-btn');
-      if(retryBtn) retryBtn.style.display='inline-block';
-    }
-  }, 5000);
-}
-
+// ══════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════
+function today(){ return new Date().toISOString().slice(0,10); }
 
 function download(filename, content){
   const a = document.createElement('a');
@@ -2351,50 +2154,6 @@ function showToast(msg){
   t.textContent = msg; t.style.display='block';
   clearTimeout(t._tid);
   t._tid = setTimeout(()=>{ t.style.display='none'; }, 3200);
-}
-
-// ── Manual Firebase reconnect — triggered by ↻ Retry button ──
-function admRetryFirebase(){
-  const btn = document.getElementById('adm-retry-btn');
-  const badge = document.getElementById('adm-fb-badge');
-  if(btn){ btn.textContent='↻ Retrying…'; btn.disabled=true; }
-  if(badge){ badge.textContent='⏳ Connecting…'; badge.style.color='#94a3b8'; }
-
-  // Reset init flag so init() can run again
-  if(typeof window._admFirebaseInit === 'function'){
-    // Patch: temporarily reset _admInited via re-expose trick
-    // We directly attempt Firebase init here
-  }
-
-  setTimeout(function(){
-    if(typeof firebase === 'undefined'){
-      if(badge){ badge.textContent='💾 Offline'; badge.style.color='#f59e0b'; }
-      if(btn){ btn.textContent='↻ Retry'; btn.disabled=false; }
-      showToast('⚠️ Firebase SDK not available. Check network connection.');
-      return;
-    }
-    try{
-      var app = (firebase.apps&&firebase.apps.length) ? firebase.apps[0] : firebase.initializeApp({
-        apiKey:"AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
-        authDomain:"credit-engine-2ffba.firebaseapp.com",
-        databaseURL:"https://credit-engine-2ffba-default-rtdb.firebaseio.com",
-        projectId:"credit-engine-2ffba",
-        storageBucket:"credit-engine-2ffba.firebasestorage.app",
-        messagingSenderId:"432392785380",
-        appId:"1:432392785380:web:c1919a7affce5a5b954bf1"
-      });
-      _admDb = firebase.database();
-      if(badge){ badge.textContent='🔥 Firebase Live'; badge.style.color='#22c55e'; }
-      if(btn){ btn.style.display='none'; btn.disabled=false; btn.textContent='↻ Retry'; }
-      _startAdmListeners();
-      loadDashboard();
-      showToast('🔥 Firebase reconnected! Dashboard syncing…');
-    }catch(e){
-      if(badge){ badge.textContent='💾 Offline'; badge.style.color='#f59e0b'; }
-      if(btn){ btn.textContent='↻ Retry'; btn.disabled=false; }
-      showToast('❌ Reconnect failed: '+e.message);
-    }
-  }, 800);
 }
 
 function updateDateTime(){
@@ -2414,8 +2173,6 @@ function updateDateTime(){
 <script>
 (function(){
   'use strict';
-  var _admInited = false; // idempotency guard — init() must only run once
-
   var CFG = {
     apiKey:            "AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",
     authDomain:        "credit-engine-2ffba.firebaseapp.com",
@@ -2426,84 +2183,102 @@ function updateDateTime(){
     appId:             "1:432392785380:web:c1919a7affce5a5b954bf1"
   };
 
-  function badge(txt,col,showRetry){
+  function badge(txt,col){
     var el=document.getElementById('adm-fb-badge');
     if(el){el.textContent=txt;el.style.color=col;}
-    var retryBtn=document.getElementById('adm-retry-btn');
-    if(retryBtn) retryBtn.style.display=showRetry?'inline-block':'none';
   }
 
   function init(){
-    if(_admInited) return; // already ran — prevent double-init from DOMContentLoaded + SDK onload
-    _admInited = true;
-
     if(typeof firebase==='undefined'){
-      badge('💾 Offline','#f59e0b',true);
+      badge('💾 Offline','#f59e0b');
       console.warn('Firebase SDK not loaded — using localStorage cache');
+      // _admCache is already seeded from localStorage in data layer
       if(typeof loadDashboard==='function') loadDashboard();
       if(typeof renderUsers==='function') renderUsers();
       if(typeof renderBorrowers==='function') renderBorrowers();
-      if(typeof _startOfflinePoll==='function') _startOfflinePoll();
       return;
     }
     try{
       var app = (firebase.apps&&firebase.apps.length) ? firebase.apps[0] : firebase.initializeApp(CFG);
       _admDb = firebase.database();
-      badge('🔥 Firebase Live','#22c55e',false);
+      badge('🔥 Firebase Live','#22c55e');
       console.log('✅ Admin Firebase connected');
       _startAdmListeners();
     }catch(e){
-      badge('💾 Offline','#f59e0b',true);
+      badge('💾 Offline','#f59e0b');
       console.warn('Firebase init failed:',e.message);
       if(typeof loadDashboard==='function') loadDashboard();
       if(typeof renderUsers==='function') renderUsers();
       if(typeof renderBorrowers==='function') renderBorrowers();
-      if(typeof _startOfflinePoll==='function') _startOfflinePoll();
     }
   }
-
-  // Expose globally so the waterfall loader's SDK onload callback can trigger init
-  window._admFirebaseInit = init;
-
-  // ── Active retry loop — covers GitHub Pages CDN / cache timing edge cases ──
-  // Polls every 500ms for up to 10s waiting for Firebase SDK to appear.
-  // Once Firebase is available it calls init() (idempotency guard prevents double-run).
-  (function retryUntilFirebase(){
-    var attempts = 0;
-    var maxAttempts = 20; // 20 × 500ms = 10 seconds
-    var iv = setInterval(function(){
-      attempts++;
-      if(typeof firebase !== 'undefined'){
-        clearInterval(iv);
-        if(typeof window._admFirebaseInit === 'function') window._admFirebaseInit();
-        return;
-      }
-      if(attempts >= maxAttempts){
-        clearInterval(iv);
-        // SDK never arrived — ensure offline mode is running
-        if(!_admInited && typeof window._admFirebaseInit === 'function') window._admFirebaseInit();
-      }
-    }, 500);
-  })();
-
-  // ── window.storage listener — instant cross-tab sync when CRM writes to localStorage ──
-  // Fires immediately when another tab on the same origin (the CRM) writes dsacrm_users
-  window.addEventListener('storage', function(e){
-    if(e.key !== 'dsacrm_users' && e.key !== 'crm_borrowers') return;
-    try{
-      var fresh = JSON.parse(e.newValue||'[]');
-      _admCache[e.key] = fresh;
-    }catch(ex){}
-    if(typeof renderUsers==='function') renderUsers();
-    if(typeof loadDashboard==='function') loadDashboard();
-    if(typeof renderBorrowers==='function') renderBorrowers();
-    console.log('📡 Admin: cross-tab localStorage update received for', e.key);
-  });
 
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',init); }
   else{ init(); }
 })();
 </script>
+
+
+<!-- ══ EDIT BORROWER MODAL ══ -->
+<div class="modal-overlay" id="MO_edit_borr" onclick="if(event.target===this)this.classList.remove('on')">
+  <div class="modal-box" style="max-width:640px;background:#0d1829;border:1px solid #1e3a5f">
+    <div class="modal-head" style="background:#0d1829;border-color:#1e3a5f">
+      <h3 style="color:#e0e8f5">✏ Edit Borrower / Lead</h3>
+      <button class="modal-close" onclick="document.getElementById('MO_edit_borr').classList.remove('on')">✕</button>
+    </div>
+    <div class="modal-body" style="background:#0d1829">
+      <input type="hidden" id="eb-id">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Customer Name *</div><input id="eb-name" placeholder="Full name" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Mobile Number *</div><input id="eb-phone" type="tel" maxlength="10" placeholder="10-digit" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Email</div><input id="eb-email" type="email" placeholder="email@example.com" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Profile Type</div>
+          <select id="eb-profile" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
+            <option>Salaried</option><option>Self Employed</option><option>Professional</option><option>Business</option>
+          </select>
+        </div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Product</div>
+          <select id="eb-product" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
+            <option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option>
+            <option>LAP</option><option>Car Loan</option><option>Insurance</option>
+          </select>
+        </div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Loan Amount ₹ *</div>
+          <input id="eb-amount" placeholder="e.g. 5,00,000" style="background:#0f2244;border:1px solid #22d3ee;color:#22d3ee;font-weight:700;font-size:14px">
+          <div style="font-size:9px;color:#7a8aaa;margin-top:2px">This updates both localStorage and Firebase in real-time</div>
+        </div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Monthly Income ₹</div><input id="eb-income" placeholder="₹ Monthly income" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Location</div><input id="eb-location" placeholder="City / District" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl" style="color:#7a8aaa">Status</div>
+          <select id="eb-status" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
+            <option value="LEAD">💡 Lead</option>
+            <option value="ACTIVE">🟢 Applied</option>
+            <option value="FOLLOW UP">🔄 Follow Up</option>
+            <option value="NOT INTERESTED">❌ Not Interested</option>
+            <option value="BUSY">📵 Busy</option>
+            <option value="WILL UPDATE">🕐 Will Update</option>
+            <option value="SWITCHED OFF">📴 Switched Off</option>
+            <option value="REFERENCE">👥 Reference</option>
+            <option value="CALL U LATER">📞 Call U Later</option>
+            <option value="SEND DOCUMENTS">📂 Send Documents</option>
+            <option value="NEED">✅ Need</option>
+            <option value="SANCTIONED">🔵 Sanctioned</option>
+            <option value="DISBURSED">💰 Disbursed</option>
+            <option value="REJECTED">❌ Rejected</option>
+            <option value="CLOSED">🔒 Closed</option>
+          </select>
+        </div>
+        <div class="fg" style="grid-column:1/-1"><div class="fl" style="color:#7a8aaa">Notes / Remarks</div>
+          <textarea id="eb-notes" rows="2" placeholder="Notes…" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5;width:100%"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="background:#0d1829;border-color:#1e3a5f">
+      <button class="btn" onclick="document.getElementById('MO_edit_borr').classList.remove('on')">Cancel</button>
+      <button style="background:linear-gradient(135deg,#0ea5e9,#22d3ee);color:#000;border:none;padding:7px 20px;border-radius:7px;font-weight:700;cursor:pointer;font-size:12px" onclick="saveEditBorr()">💾 Save & Sync to Firebase</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
