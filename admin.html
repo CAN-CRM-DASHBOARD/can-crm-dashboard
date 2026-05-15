@@ -341,6 +341,9 @@ tr:hover td{background:rgba(255,255,255,.02)}
       <div class="tb-right">
         <div style="font-size:10px;color:var(--text3)" id="adm-datetime"></div>
         <span id="adm-fb-badge" style="font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(245,158,11,.3);color:#f59e0b;background:rgba(245,158,11,.07);font-weight:600">⏳ Connecting…</span>
+        <button onclick="refreshFirebase()" title="Reconnect Firebase & refresh all data" style="background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.35);color:var(--purple3);padding:4px 11px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all .15s" onmouseover="this.style.background='rgba(124,58,237,.3)'" onmouseout="this.style.background='rgba(124,58,237,.15)'">
+          <span id="fb-refresh-ico">🔄</span> Refresh
+        </button>
         <div class="tb-badge"><div class="live-dot"></div>ADMIN ACTIVE</div>
       </div>
     </div>
@@ -2170,6 +2173,83 @@ function showToast(msg){
   t.textContent = msg; t.style.display='block';
   clearTimeout(t._tid);
   t._tid = setTimeout(()=>{ t.style.display='none'; }, 3200);
+}
+
+// ══ FIREBASE MANUAL REFRESH ══
+function refreshFirebase(){
+  const ico = document.getElementById('fb-refresh-ico');
+  // Spinning animation
+  if(ico){ ico.style.display='inline-block'; ico.style.animation='spin 1s linear infinite'; }
+
+  // Add spin keyframe if not present
+  if(!document.getElementById('spin-style')){
+    const st=document.createElement('style');
+    st.id='spin-style';
+    st.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+    document.head.appendChild(st);
+  }
+
+  // Update badge to Refreshing…
+  const badge = document.getElementById('adm-fb-badge');
+  if(badge){ badge.textContent='🔄 Refreshing…'; badge.style.color='#a78bfa'; badge.style.borderColor='rgba(167,139,250,.3)'; badge.style.background='rgba(124,58,237,.07)'; }
+
+  if(_admDb){
+    // Firebase is connected — force re-read all keys
+    const KEYS = ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'];
+    let done = 0;
+    KEYS.forEach(function(key){
+      _admDb.ref('dsa_crm/'+key).once('value', function(snap){
+        var v = snap.val();
+        _admCache[key] = Array.isArray(v)?v:(v?Object.values(v):[]);
+        try{ localStorage.setItem(key, JSON.stringify(_admCache[key])); }catch(e){}
+        done++;
+        if(done === KEYS.length){
+          // All keys loaded — re-render everything
+          loadDashboard();
+          renderUsers();
+          renderBorrowers();
+          renderQueueStats();
+          if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm();
+          // Stop spinner
+          if(ico){ ico.style.animation='none'; }
+          if(badge){ badge.textContent='🔥 Firebase Live'; badge.style.color='#22c55e'; badge.style.borderColor='rgba(34,197,94,.3)'; badge.style.background='rgba(34,197,94,.07)'; }
+          showToast('✅ Firebase refreshed — all data updated!');
+        }
+      }, function(err){
+        done++;
+        console.warn('FB refresh error:', key, err);
+        if(done === KEYS.length){
+          if(ico){ ico.style.animation='none'; }
+          showToast('⚠️ Firebase refresh partial — check connection');
+        }
+      });
+    });
+  } else {
+    // Offline — try re-initialising Firebase
+    setTimeout(function(){
+      try{
+        if(typeof firebase !== 'undefined'){
+          var CFG={apiKey:"AIzaSyAqc4OiR26dNzop2pUWvx_eLzNhHsaEBRE",authDomain:"credit-engine-2ffba.firebaseapp.com",databaseURL:"https://credit-engine-2ffba-default-rtdb.firebaseio.com",projectId:"credit-engine-2ffba",storageBucket:"credit-engine-2ffba.firebasestorage.app",messagingSenderId:"432392785380",appId:"1:432392785380:web:c1919a7affce5a5b954bf1"};
+          var app=(firebase.apps&&firebase.apps.length)?firebase.apps[0]:firebase.initializeApp(CFG);
+          _admDb = firebase.database();
+          _startAdmListeners();
+          if(badge){ badge.textContent='🔥 Firebase Live'; badge.style.color='#22c55e'; badge.style.borderColor='rgba(34,197,94,.3)'; badge.style.background='rgba(34,197,94,.07)'; }
+          showToast('✅ Firebase reconnected!');
+        } else {
+          // Still offline — reload from localStorage
+          ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'].forEach(function(k){
+            try{ var v=localStorage.getItem(k); if(v) _admCache[k]=JSON.parse(v); }catch(e){}
+          });
+          loadDashboard(); renderUsers(); renderBorrowers();
+          if(badge){ badge.textContent='💾 Offline'; badge.style.color='#f59e0b'; badge.style.borderColor='rgba(245,158,11,.3)'; badge.style.background='rgba(245,158,11,.07)'; }
+          showToast('💾 Loaded from local cache (Firebase SDK offline)');
+        }
+      }catch(e){
+        showToast('⚠️ Could not reconnect: '+e.message);
+      }
+      if(ico){ ico.style.animation='none'; }
+    }, 1200);
+  }
 }
 
 function updateDateTime(){
