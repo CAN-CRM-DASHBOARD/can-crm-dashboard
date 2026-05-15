@@ -600,18 +600,20 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <span class="card-title">☑ Follow-up Queue (Admin View)</span>
             <span class="pill p-gray" id="fu-count-badge">0 entries</span>
           </div>
-          <table>
+          <div style="overflow-x:auto;width:100%">
+          <table style="min-width:1180px;white-space:nowrap">
             <thead><tr>
               <th>#</th><th>Date / Time</th><th>Customer</th><th>Phone</th>
               <th>Loan Type</th><th>Type</th><th>Outcome / Status</th>
-              <th>Priority</th><th>Purpose</th><th>Notes</th>
+              <th>Priority</th><th>Purpose</th><th>Notes</th><th>Action</th>
             </tr></thead>
             <tbody id="fu-adm-tbody">
-              <tr><td colspan="10"><div class="empty"><div class="empty-ico">☑</div>
+              <tr><td colspan="11"><div class="empty"><div class="empty-ico">☑</div>
                 <p>No follow-ups yet.<br>Follow-ups added by DSAs will appear here.</p>
               </div></td></tr>
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -1410,10 +1412,9 @@ function buildAdmBorrTable(all){
   const wrap = document.createElement('div');
   wrap.style.cssText = 'overflow-x:auto;width:100%';
   const tbl = document.createElement('table');
-  tbl.style.cssText = 'min-width:1050px;white-space:nowrap';
+  tbl.style.cssText = 'min-width:1100px;white-space:nowrap;table-layout:auto';
   tbl.innerHTML = `<thead><tr>
     <th style="width:32px">#</th>
-    <th>ID</th>
     <th style="min-width:140px">Name</th>
     <th>Phone</th>
     <th>Product</th>
@@ -1423,7 +1424,7 @@ function buildAdmBorrTable(all){
     <th>Status</th>
     <th>Added By</th>
     <th>Added On</th>
-    <th>Edit</th>
+    <th>Action</th>
   </tr></thead><tbody id="adm-borr-tbody"></tbody>`;
   wrap.appendChild(tbl);
   body.appendChild(wrap);
@@ -1444,7 +1445,7 @@ function renderAdmBorrRows(data){
   const tbody = document.getElementById('adm-borr-tbody');
   if(!tbody){ buildAdmBorrTable(all); return; }
   if(!filtered.length){
-    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text3)">No borrowers found for selected filter.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--text3)">No borrowers found for selected filter.</td></tr>';
     return;
   }
   // Build mobile→name lookup for owner identification
@@ -1474,19 +1475,26 @@ function renderAdmBorrRows(data){
     const fullIdx = fullArr.findIndex(x=>x.id===b.id);
     const owner   = b.addedBy ? (ownerName[b.addedBy]||b.addedBy) : '—';
     const pill    = PILL[b.status]||`<span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span>`;
-    return `<tr>
+    // Name fallback: name → email → phone → "Unnamed"
+    const hasName = b.name && b.name.trim();
+    const displayName = hasName ? b.name : (b.email || (b.phone?'☎ '+b.phone:'Unnamed Borrower'));
+    const subInfo = hasName ? (b.email||'') : (b.email && b.email!==displayName ? b.email : '');
+    const loc = b.location || b.city || b.state || '—';
+    return `<tr data-borr-id="${b.id||''}">
       <td style="color:#64748b;width:32px">${fullIdx+1}</td>
-      <td style="font-size:9px;color:#94a3b8;max-width:90px;overflow:hidden;text-overflow:ellipsis">${b.id||'—'}</td>
-      <td style="min-width:130px"><b style="color:#0f172a;font-size:12px">${b.name||'—'}</b><div style="font-size:9px;color:#64748b">${b.email||''}</div></td>
+      <td style="min-width:140px"><b style="color:${hasName?'#0f172a':'#64748b'};font-size:12px">${displayName}</b>${subInfo?`<div style="font-size:9px;color:#64748b">${subInfo}</div>`:''}</td>
       <td><a href="tel:${b.phone}" style="color:#1d4ed8;font-size:11px;font-weight:600">${b.phone||'—'}</a></td>
       <td><span class="pill p-blue" style="font-size:9px;font-weight:700">${b.product||'—'}</span></td>
       <td style="color:#15803d;font-weight:700;white-space:nowrap;font-size:12px">${b.amount?'₹'+Number(b.amount).toLocaleString('en-IN'):'—'}</td>
       <td style="color:#374151;font-size:11px">${b.profile||'—'}</td>
-      <td style="color:#374151;font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${b.location||'—'}</td>
+      <td style="color:#374151;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis" title="${loc}">${loc}</td>
       <td style="white-space:nowrap">${pill}</td>
       <td style="font-size:10px;color:#1d4ed8;white-space:nowrap;font-weight:600">${owner}</td>
       <td style="font-size:10px;color:#475569;white-space:nowrap">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
-      <td><button onclick="openEditBorr('${b.id}')" style="background:#fef9c3;border:1px solid #fbbf24;color:#92400e;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">✏ Edit</button></td>
+      <td style="white-space:nowrap">
+        <button onclick="openEditBorr('${b.id}')" style="background:#fef9c3;border:1px solid #fbbf24;color:#92400e;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-right:3px">✏ Edit</button>
+        <button onclick="deleteBorrower('${b.id}')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer">🗑</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -1566,6 +1574,52 @@ function exportBorrowers(){
   a.href=URL.createObjectURL(new Blob([header+rows],{type:'text/csv'}));
   a.download='DSA_CRM_Borrowers_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click(); showToast('📥 Borrowers exported!');
+}
+
+// ══ DELETE BORROWER (admin) ══
+function deleteBorrower(bid){
+  if(!bid) return;
+  const all = _admCache.crm_borrowers||[];
+  const idx = all.findIndex(x=>x.id===bid);
+  if(idx<0){ showToast('⚠️ Borrower not found'); return; }
+  const b = all[idx];
+  const label = (b.name && b.name.trim()) ? b.name : (b.phone||'this borrower');
+  if(!confirm('Delete '+label+'? This cannot be undone.')) return;
+  all.splice(idx,1);
+  _admCache.crm_borrowers = all;
+  try{ localStorage.setItem('crm_borrowers', JSON.stringify(all)); }catch(e){}
+  if(_admDb){
+    _admDb.ref('dsa_crm/crm_borrowers').set(all)
+      .then(function(){ showToast('🗑 Deleted & synced'); })
+      .catch(function(e){ console.warn('FB delete error:', e); showToast('🗑 Deleted locally (will sync when online)'); });
+  } else {
+    showToast('🗑 Deleted locally (Firebase offline)');
+  }
+  renderBorrowers();
+  loadDashboard();
+}
+
+// ══ DELETE FOLLOW-UP (admin) ══
+function deleteFollowUp(fid){
+  if(!fid) return;
+  const all = _admCache.crm_followups||[];
+  const idx = all.findIndex(x=>x.id===fid);
+  if(idx<0){ showToast('⚠️ Follow-up not found'); return; }
+  const f = all[idx];
+  const label = (f.name && f.name.trim()) ? f.name : (f.phone||'this follow-up');
+  if(!confirm('Delete follow-up for '+label+'?')) return;
+  all.splice(idx,1);
+  _admCache.crm_followups = all;
+  try{ localStorage.setItem('crm_followups', JSON.stringify(all)); }catch(e){}
+  if(_admDb){
+    _admDb.ref('dsa_crm/crm_followups').set(all)
+      .then(function(){ showToast('🗑 Follow-up deleted'); })
+      .catch(function(e){ console.warn('FB delete error:', e); showToast('🗑 Deleted locally (will sync when online)'); });
+  } else {
+    showToast('🗑 Deleted locally (Firebase offline)');
+  }
+  renderFollowUpsAdm();
+  loadDashboard();
 }
 
 
@@ -1830,7 +1884,7 @@ function renderFollowUpsAdm(){
 
   const tbody = document.getElementById('fu-adm-tbody');
   if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">☑</div><p>No follow-ups match the selected filter.</p></div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-ico">☑</div><p>No follow-ups match the selected filter.</p></div></td></tr>';
     return;
   }
   // Sort: today first, then by date
@@ -1852,14 +1906,17 @@ function renderFollowUpsAdm(){
     const rowStyle = isToday && outcome!=='DONE'
       ? 'background:rgba(245,158,11,.04);'
       : '';
-    return `<tr style="${rowStyle}">
+    // Customer display: name → fallback to phone → "Unnamed"
+    const displayName = (f.name && f.name.trim()) ? f.name : (f.phone ? '☎ '+f.phone : 'Unnamed Lead');
+    const nameColor = (f.name && f.name.trim()) ? (isToday?'var(--gold)':'#fff') : '#94a3b8';
+    return `<tr style="${rowStyle}" data-fu-id="${f.id||''}">
       <td style="color:var(--text3)">${i+1}</td>
       <td style="white-space:nowrap">
         <b style="color:${isToday?'var(--gold)':'#fff'};font-size:11px">${dateStr}</b>
         ${isToday?'<span class="pill p-gold" style="font-size:8px;margin-left:3px">TODAY</span>':''}
         <div style="font-size:10px;color:var(--text3)">${timeStr}</div>
       </td>
-      <td><b style="color:#fff">${f.name||'—'}</b><div style="font-size:10px;color:var(--text3)">${f.purpose||''}</div></td>
+      <td style="min-width:140px"><b style="color:${nameColor};font-size:12px">${displayName}</b><div style="font-size:10px;color:var(--text3)">${f.purpose||f.loan||''}</div></td>
       <td><a href="tel:${f.phone}" style="color:var(--cyan);text-decoration:none">📞 ${f.phone||'—'}</a></td>
       <td style="font-size:11px">${f.loan||'—'}</td>
       <td>${TYPE_PILL[f.type]||'<span class="pill p-gray">—</span>'}</td>
@@ -1867,6 +1924,7 @@ function renderFollowUpsAdm(){
       <td>${f.priority==='HIGH'?'<span class="pill p-red">🔴 High</span>':'<span class="pill p-gray">Normal</span>'}</td>
       <td style="font-size:10px;color:var(--text3)">${f.purpose||'—'}</td>
       <td style="font-size:10px;color:var(--text3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.notes||''}">${f.notes||'—'}</td>
+      <td style="white-space:nowrap"><button onclick="deleteFollowUp('${f.id||''}')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer">🗑 Delete</button></td>
     </tr>`;
   }).join('');
 }
