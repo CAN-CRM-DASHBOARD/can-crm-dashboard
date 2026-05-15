@@ -806,8 +806,8 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <span class="pill p-gray" id="conn-adm-count">0 entries</span>
           </div>
           <table>
-            <thead><tr><th>#</th><th>Name</th><th>DSA Code</th><th>Mobile</th><th>Status</th><th>Business Target</th><th>Business Vertical</th><th>Follow-Up Date</th><th>Added By (DSA)</th><th>Actions</th></tr></thead>
-            <tbody id="conn-adm-tbody"><tr><td colspan="10"><div class="empty"><div class="empty-ico">🤝</div><p>No connectors yet. DSA users add connectors from their dashboard.</p></div></td></tr></tbody>
+            <thead><tr><th>#</th><th>Name</th><th>DSA Code</th><th>Mobile</th><th>Status</th><th>Business Target</th><th>Business Vertical</th><th>Location</th><th>Follow-Up Date</th><th>Added By (DSA)</th><th>Actions</th></tr></thead>
+            <tbody id="conn-adm-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-ico">🤝</div><p>No connectors yet. DSA users add connectors from their dashboard.</p></div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -829,9 +829,16 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <span class="pill p-purple" id="fl-women-count">0 entries</span>
           </div>
           <table>
-            <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By (DSA)</th><th>Date</th></tr></thead>
-            <tbody id="fl-women-tbody"><tr><td colspan="9"><div class="empty"><div class="empty-ico">👩</div><p>No women freelancers registered yet.</p></div></td></tr></tbody>
+            <thead><tr>
+              <th style="width:28px"><input type="checkbox" id="fl-sel-all-women" onclick="flSelectAll('women',this)" title="Select All" style="accent-color:#7c3aed;cursor:pointer"></th>
+              <th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By (DSA)</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="fl-women-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-ico">👩</div><p>No women freelancers registered yet.</p></div></td></tr></tbody>
           </table>
+          <div id="fl-women-bulk" style="display:none;padding:8px 12px;background:#f0f4ff;border-top:1px solid #c7d2fe;display:flex;align-items:center;gap:10px">
+            <span id="fl-women-sel-count" style="font-size:11px;color:#3730a3;font-weight:600">0 selected</span>
+            <button onclick="flBulkDelete('women')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">🗑 Delete Selected</button>
+          </div>
         </div>
         <div class="card">
           <div class="card-head">
@@ -839,9 +846,16 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <span class="pill p-blue" id="fl-biz-count">0 entries</span>
           </div>
           <table>
-            <thead><tr><th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By (DSA)</th><th>Date</th></tr></thead>
-            <tbody id="fl-biz-tbody"><tr><td colspan="9"><div class="empty"><div class="empty-ico">🏢</div><p>No business freelancers registered yet.</p></div></td></tr></tbody>
+            <thead><tr>
+              <th style="width:28px"><input type="checkbox" id="fl-sel-all-biz" onclick="flSelectAll('biz',this)" title="Select All" style="accent-color:#1a5fb4;cursor:pointer"></th>
+              <th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By (DSA)</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="fl-biz-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-ico">🏢</div><p>No business freelancers registered yet.</p></div></td></tr></tbody>
           </table>
+          <div id="fl-biz-bulk" style="display:none;padding:8px 12px;background:#eff6ff;border-top:1px solid #bfdbfe;display:flex;align-items:center;gap:10px">
+            <span id="fl-biz-sel-count" style="font-size:11px;color:#1e40af;font-weight:600">0 selected</span>
+            <button onclick="flBulkDelete('biz')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">🗑 Delete Selected</button>
+          </div>
         </div>
       </div>
 
@@ -2322,7 +2336,7 @@ function renderAdmConnectors(){
   if(badge) badge.textContent = all.length;
   if(!tbody) return;
   if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">🤝</div><p>No connectors match the filter.</p></div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-ico">🤝</div><p>No connectors match the filter.</p></div></td></tr>';
     return;
   }
   const STATUS_PILL={
@@ -2335,26 +2349,64 @@ function renderAdmConnectors(){
     'CALL ME LATER':'<span class="pill p-cyan" style="font-size:9px">🕐 Call Later</span>',
   };
   tbody.innerHTML = filtered.map((c,i)=>{
-    const owner = c.addedBy ? (userMap[c.addedBy]||{}) : {};
+    const owner     = c.addedBy ? (userMap[c.addedBy]||{}) : {};
     const ownerName = owner.name || c.addedBy || '—';
-    const dtStr = c.dt ? new Date(c.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-    const verts = (c.verticals||[]).join(', ')||'—';
-    const code  = c.dsaCode || ((c.name||'???').slice(0,3).toUpperCase()+(c.phone||'0000').slice(-4));
-    return `<tr>
+    const dtStr     = c.dt ? new Date(c.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const verts     = (c.verticals||[]).join(', ')||'—';
+    const code      = c.dsaCode || ((c.name||'???').slice(0,3).toUpperCase()+(c.phone||'0000').slice(-4));
+    return `<tr data-conn-id="${c.id||''}">
       <td style="color:#64748b">${i+1}</td>
-      <td><b style="color:#0f172a">${c.name||'—'}</b><div style="font-size:9px;color:#64748b">${c.company||''} ${c.location?'📍'+c.location:''}</div></td>
+      <td><b style="color:#0f172a">${c.name||'—'}</b><div style="font-size:9px;color:#64748b">${c.company||''}</div></td>
       <td><span style="font-weight:700;color:#1a5fb4;font-size:10px;background:#e8f0fe;padding:2px 8px;border-radius:12px">${code}</span></td>
       <td><a href="tel:${c.phone}" style="color:#1a5fb4;font-size:10px">📞 ${c.phone||'—'}</a></td>
       <td>${STATUS_PILL[c.status]||`<span class="pill p-gray" style="font-size:9px">${c.status||'—'}</span>`}</td>
       <td style="font-size:11px;color:#e65100;font-weight:600">${c.target?'₹'+c.target+' L/mo':'—'}</td>
-      <td style="font-size:10px;max-width:120px;color:#475569">${verts}</td>
+      <td style="font-size:10px;max-width:100px;color:#475569">${verts}</td>
+      <td style="font-size:10px;color:#475569">${c.location||'—'}</td>
       <td style="font-size:10px;color:#64748b;white-space:nowrap">${dtStr}</td>
       <td style="font-size:10px;color:#1a5fb4;font-weight:500">${ownerName}</td>
-      <td>
-        <button class="act-btn act-del" style="font-size:9px" onclick="admDelConnector('${c.id}')">🗑</button>
+      <td style="white-space:nowrap">
+        <button class="act-btn act-edit" style="font-size:9px" onclick="admEditConnector('${c.id}')">✏ Edit</button>
+        <button class="act-btn act-del"  style="font-size:9px" onclick="admDelConnector('${c.id}')">🗑</button>
       </td>
     </tr>`;
   }).join('');
+}
+
+function admEditConnector(id){
+  const all = getConnectors();
+  const c   = all.find(x=>x.id===id); if(!c) return;
+  const dt  = c.dt ? new Date(c.dt).toISOString().slice(0,16) : '';
+  document.getElementById('modal-title').textContent = '✏ Edit Connector — '+c.name;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mfg" style="grid-column:span 2">
+        <div class="mfl">Name</div>
+        <input class="minp" id="ec-name" value="${c.name||''}">
+      </div>
+      <div class="mfg"><div class="mfl">Mobile</div><input class="minp" id="ec-phone" value="${c.phone||''}"></div>
+      <div class="mfg"><div class="mfl">Location</div><input class="minp" id="ec-location" value="${c.location||''}"></div>
+      <div class="mfg"><div class="mfl">Status</div>
+        <select class="minp" id="ec-status">
+          ${['INTERESTED','NOT INTERESTED','BUSY','CALL WAITING','WILL CALL YOU','LESS PAYOUT','CALL ME LATER'].map(s=>`<option ${c.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="mfg"><div class="mfl">Follow-Up Date & Time</div>
+        <input class="minp" id="ec-dt" type="datetime-local" value="${dt}">
+      </div>
+      <div class="mfg"><div class="mfl">Business Target (L/mo)</div>
+        <input class="minp" id="ec-target" value="${c.target||''}" placeholder="e.g. 50">
+      </div>
+      <div class="mfg"><div class="mfl">Company</div>
+        <input class="minp" id="ec-company" value="${c.company||''}">
+      </div>
+      <div class="mfg" style="grid-column:span 2"><div class="mfl">Notes</div>
+        <input class="minp" id="ec-notes" value="${c.notes||''}">
+      </div>
+    </div>`;
+  document.getElementById('modal-edit').dataset.type    = 'adm-connector';
+  document.getElementById('modal-edit').dataset.connid  = id;
+  document.getElementById('modal-edit').classList.add('open');
 }
 
 function admDelConnector(id){
@@ -2385,6 +2437,8 @@ function exportAdmConnectors(){
 // ══════════════════════════════════════
 // FREELANCER PROGRAMS — Admin View
 // ══════════════════════════════════════
+var _flSelectedIds = { women:new Set(), biz:new Set() };
+
 function renderAdmFreelancers(){
   const search = (document.getElementById('fl-adm-search')?.value||'').toLowerCase();
   const typeF  = document.getElementById('fl-adm-type')?.value||'ALL';
@@ -2392,39 +2446,143 @@ function renderAdmFreelancers(){
   const userMap= {}; users.forEach(u=>{ userMap[u.mobile]=u; });
   const badge  = document.getElementById('fl-adm-badge');
 
-  function renderFL(list, tbodyId, cntId){
-    const tbody = document.getElementById(tbodyId);
-    const cntEl = document.getElementById(cntId);
-    const filt  = list.filter(r=>
+  function renderFL(list, key, tbodyId, cntId, selAllId, bulkBarId, selCountId){
+    const tbody   = document.getElementById(tbodyId);
+    const cntEl   = document.getElementById(cntId);
+    const bulkBar = document.getElementById(bulkBarId);
+    const filt    = list.filter(r=>
       !search || (r.name||'').toLowerCase().includes(search) || (r.phone||'').includes(search) || (r.location||'').toLowerCase().includes(search)
     );
     if(cntEl) cntEl.textContent = filt.length+' entries';
     if(!tbody) return;
     if(!filt.length){
-      tbody.innerHTML=`<tr><td colspan="9"><div class="empty"><div class="empty-ico">👤</div><p>No registrations yet.</p></div></td></tr>`;
+      if(bulkBar) bulkBar.style.display='none';
+      tbody.innerHTML=`<tr><td colspan="11"><div class="empty"><div class="empty-ico">👤</div><p>No registrations yet.</p></div></td></tr>`;
       return;
     }
     tbody.innerHTML = filt.map((r,i)=>{
-      const owner = r.addedBy ? (userMap[r.addedBy]||{}) : {};
-      return `<tr>
+      const owner   = r.addedBy ? (userMap[r.addedBy]||{}) : {};
+      const checked = _flSelectedIds[key].has(r.id) ? 'checked' : '';
+      const accent  = key==='women'?'#7c3aed':'#1a5fb4';
+      return `<tr id="fl-row-${r.id}">
+        <td><input type="checkbox" ${checked} data-id="${r.id}" data-key="${key}"
+            onchange="flToggleSel('${key}','${r.id}',this.checked,'${selCountId}','${selAllId}','${bulkBarId}')"
+            style="accent-color:${accent};cursor:pointer"></td>
         <td style="color:#64748b">${i+1}</td>
         <td><b style="color:#0f172a">${r.name||'—'}</b></td>
         <td><a href="tel:${r.phone}" style="color:#1a5fb4;font-size:10px">📞 ${r.phone||'—'}</a></td>
         <td style="font-size:10px;color:#475569">${r.location||'—'}</td>
         <td><span class="pill ${r.profile==='Full Time'?'p-green':'p-blue'}" style="font-size:9px">${r.profile||'Part Time'}</span></td>
         <td style="font-size:11px;color:#e65100;font-weight:600">${r.expected?'₹'+r.expected+'L/mo':'—'}</td>
-        <td style="font-size:10px;color:#475569;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.remarks||'—'}</td>
+        <td style="font-size:10px;color:#475569;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.remarks||''}">${r.remarks||'—'}</td>
         <td style="font-size:10px;color:#1a5fb4;font-weight:500">${owner.name||r.addedBy||'—'}</td>
         <td style="font-size:10px;color:#64748b">${r.dt||'—'}</td>
+        <td style="white-space:nowrap">
+          <button class="act-btn act-edit" style="font-size:9px" onclick="admEditFreelancer('${key}','${r.id}')">✏ Edit</button>
+          <button class="act-btn act-del"  style="font-size:9px" onclick="admDelFreelancer('${key}','${r.id}')">🗑</button>
+        </td>
       </tr>`;
     }).join('');
+    // Sync select-all checkbox state
+    const selAll = document.getElementById(selAllId);
+    if(selAll){
+      const allIds = filt.map(r=>r.id);
+      const allChecked = allIds.length > 0 && allIds.every(id=>_flSelectedIds[key].has(id));
+      selAll.checked = allChecked;
+      selAll.indeterminate = !allChecked && _flSelectedIds[key].size > 0;
+    }
+    // Bulk bar
+    const n = _flSelectedIds[key].size;
+    if(bulkBar){ bulkBar.style.display = n>0 ? 'flex' : 'none'; }
+    const selCnt = document.getElementById(selCountId);
+    if(selCnt) selCnt.textContent = n+' selected';
   }
 
   const wf = getWomenFL();
   const bf = getBizFL();
   if(badge) badge.textContent = wf.length + bf.length;
-  if(typeF==='ALL' || typeF==='women') renderFL(wf, 'fl-women-tbody', 'fl-women-count');
-  if(typeF==='ALL' || typeF==='biz')   renderFL(bf, 'fl-biz-tbody',   'fl-biz-count');
+  if(typeF==='ALL' || typeF==='women')
+    renderFL(wf, 'women', 'fl-women-tbody', 'fl-women-count', 'fl-sel-all-women', 'fl-women-bulk', 'fl-women-sel-count');
+  if(typeF==='ALL' || typeF==='biz')
+    renderFL(bf, 'biz',   'fl-biz-tbody',   'fl-biz-count',   'fl-sel-all-biz',   'fl-biz-bulk',   'fl-biz-sel-count');
+}
+
+function flToggleSel(key, id, checked, selCountId, selAllId, bulkBarId){
+  if(checked) _flSelectedIds[key].add(id);
+  else        _flSelectedIds[key].delete(id);
+  // Update select-all checkbox
+  const tbody   = document.getElementById(key==='women'?'fl-women-tbody':'fl-biz-tbody');
+  const allRows = tbody ? tbody.querySelectorAll('input[type=checkbox]') : [];
+  const total   = allRows.length;
+  const checked_ = _flSelectedIds[key].size;
+  const selAll  = document.getElementById(selAllId);
+  if(selAll){
+    selAll.checked = checked_ === total && total > 0;
+    selAll.indeterminate = checked_ > 0 && checked_ < total;
+  }
+  const bulkBar = document.getElementById(bulkBarId);
+  if(bulkBar) bulkBar.style.display = checked_ > 0 ? 'flex' : 'none';
+  const selCnt = document.getElementById(selCountId);
+  if(selCnt) selCnt.textContent = checked_+' selected';
+}
+
+function flSelectAll(key, chkEl){
+  const isChecked = chkEl.checked;
+  const list      = key==='women' ? getWomenFL() : getBizFL();
+  _flSelectedIds[key].clear();
+  if(isChecked) list.forEach(r=>_flSelectedIds[key].add(r.id));
+  // Re-render to reflect checkboxes
+  renderAdmFreelancers();
+}
+
+function flBulkDelete(key){
+  const ids = Array.from(_flSelectedIds[key]);
+  if(!ids.length){ showToast('⚠️ No rows selected'); return; }
+  if(!confirm(`Delete ${ids.length} selected ${key==='women'?'women':'business'} freelancer(s)? Cannot be undone.`)) return;
+  const fbKey = key==='women' ? 'crm_womenfl' : 'crm_bizfl';
+  const list  = key==='women' ? getWomenFL() : getBizFL();
+  const kept  = list.filter(r=>!ids.includes(r.id));
+  _admWrite(fbKey, kept);
+  _admCache[fbKey] = kept;
+  _flSelectedIds[key].clear();
+  renderAdmFreelancers();
+  showToast(`🗑 Deleted ${ids.length} freelancer(s)`);
+}
+
+function admDelFreelancer(key, id){
+  if(!confirm('Delete this freelancer record?')) return;
+  const fbKey = key==='women' ? 'crm_womenfl' : 'crm_bizfl';
+  const list  = key==='women' ? getWomenFL() : getBizFL();
+  const kept  = list.filter(r=>r.id!==id);
+  _admWrite(fbKey, kept);
+  _admCache[fbKey] = kept;
+  _flSelectedIds[key].delete(id);
+  renderAdmFreelancers();
+  showToast('🗑 Freelancer deleted');
+}
+
+function admEditFreelancer(key, id){
+  const list = key==='women' ? getWomenFL() : getBizFL();
+  const r    = list.find(x=>x.id===id); if(!r) return;
+  document.getElementById('modal-title').textContent = '✏ Edit Freelancer — '+r.name;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mfg" style="grid-column:span 2"><div class="mfl">Full Name</div><input class="minp" id="ef-name" value="${r.name||''}"></div>
+      <div class="mfg"><div class="mfl">Mobile</div><input class="minp" id="ef-phone" value="${r.phone||''}" type="tel"></div>
+      <div class="mfg"><div class="mfl">Location</div><input class="minp" id="ef-location" value="${r.location||''}"></div>
+      <div class="mfg"><div class="mfl">Profile Type</div>
+        <select class="minp" id="ef-profile">
+          <option ${r.profile==='Part Time'?'selected':''}>Part Time</option>
+          <option ${r.profile==='Full Time'?'selected':''}>Full Time</option>
+        </select>
+      </div>
+      <div class="mfg"><div class="mfl">Expected Business (L/mo)</div><input class="minp" id="ef-expected" value="${r.expected||''}" placeholder="e.g. 10"></div>
+      <div class="mfg" style="grid-column:span 2"><div class="mfl">Remarks</div><input class="minp" id="ef-remarks" value="${r.remarks||''}"></div>
+    </div>`;
+  document.getElementById('modal-edit').dataset.type    = 'adm-freelancer';
+  document.getElementById('modal-edit').dataset.flkey   = key;
+  document.getElementById('modal-edit').dataset.flid    = id;
+  document.getElementById('modal-edit').classList.add('open');
 }
 
 function exportAdmFreelancers(){
@@ -2484,8 +2642,55 @@ function openAddModal(type){
 
 function saveModalEntry(){
   const modal = document.getElementById('modal-edit');
-  const type = modal.dataset.type;
-  const idx = parseInt(modal.dataset.idx);
+  const type  = modal.dataset.type;
+  const idx   = parseInt(modal.dataset.idx);
+
+  // ── Connector edit ──
+  if(type==='adm-connector'){
+    const connid = modal.dataset.connid;
+    const all    = getConnectors();
+    const ci     = all.findIndex(x=>x.id===connid);
+    if(ci>=0){
+      all[ci].name     = document.getElementById('ec-name')?.value     || all[ci].name;
+      all[ci].phone    = document.getElementById('ec-phone')?.value    || all[ci].phone;
+      all[ci].location = document.getElementById('ec-location')?.value || '';
+      all[ci].status   = document.getElementById('ec-status')?.value   || all[ci].status;
+      all[ci].target   = document.getElementById('ec-target')?.value   || '';
+      all[ci].company  = document.getElementById('ec-company')?.value  || '';
+      all[ci].notes    = document.getElementById('ec-notes')?.value    || '';
+      const dtVal = document.getElementById('ec-dt')?.value;
+      if(dtVal) all[ci].dt = new Date(dtVal).getTime();
+      _admWrite('crm_connectors', all);
+      _admCache.crm_connectors = all;
+      renderAdmConnectors();
+      closeModal();
+      showToast('✅ Connector updated');
+    }
+    return;
+  }
+
+  // ── Freelancer edit ──
+  if(type==='adm-freelancer'){
+    const key   = modal.dataset.flkey;
+    const flid  = modal.dataset.flid;
+    const fbKey = key==='women' ? 'crm_womenfl' : 'crm_bizfl';
+    const list  = key==='women' ? getWomenFL() : getBizFL();
+    const fi    = list.findIndex(x=>x.id===flid);
+    if(fi>=0){
+      list[fi].name     = document.getElementById('ef-name')?.value     || list[fi].name;
+      list[fi].phone    = document.getElementById('ef-phone')?.value    || list[fi].phone;
+      list[fi].location = document.getElementById('ef-location')?.value || '';
+      list[fi].profile  = document.getElementById('ef-profile')?.value  || list[fi].profile;
+      list[fi].expected = document.getElementById('ef-expected')?.value || '';
+      list[fi].remarks  = document.getElementById('ef-remarks')?.value  || '';
+      _admWrite(fbKey, list);
+      _admCache[fbKey] = list;
+      renderAdmFreelancers();
+      closeModal();
+      showToast('✅ Freelancer updated');
+    }
+    return;
+  }
 
   if(type==='policy'){
     const p = _policies[idx];
