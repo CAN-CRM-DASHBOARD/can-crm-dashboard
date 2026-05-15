@@ -1322,30 +1322,8 @@ function renderBorrowers(){
   if(kpiSubs[1]) kpiSubs[1].textContent = active.length+' Active files';
   if(kpiSubs[2]) kpiSubs[2].textContent = sanctioned.length+' Files';
 
-  // ── Queue-wise stats table ──
-  const QUEUES = [
-    {name:'🏭 Business Loan', key:'Business Loan'},
-    {name:'💳 Personal Loan', key:'Personal Loan'},
-    {name:'🏠 Home Loan',     key:'Home Loan'},
-    {name:'🏗️ LAP',          key:'LAP'},
-    {name:'⛨ Insurance',      key:'Insurance'},
-  ];
-  const qTbody = document.querySelector('#sec-borrowers table tbody');
-  if(qTbody){
-    let totalT=0,totalA=0,totalD=0,totalR=0;
-    qTbody.innerHTML = QUEUES.map(q=>{
-      const rows = all.filter(b=>b.product===q.key);
-      const t=rows.length, a=rows.filter(b=>!['REJECTED','CLOSED','DISBURSED'].includes(b.status)).length;
-      const d=rows.filter(b=>b.status==='DISBURSED').length, r=rows.filter(b=>b.status==='REJECTED').length;
-      const vol=rows.reduce((s,b)=>s+(parseFloat((b.amount||'0').replace(/[^0-9.]/g,''))||0),0);
-      totalT+=t;totalA+=a;totalD+=d;totalR+=r;
-      return `<tr><td>${q.name}</td><td>${t}</td><td>${a}</td><td>${d}</td><td>${r}</td><td>${vol?fmt(vol):'₹0'}</td></tr>`;
-    }).join('')+
-    `<tr style="font-weight:700"><td style="color:#fff">TOTAL</td>
-     <td style="color:#fff">${totalT}</td><td style="color:#fff">${totalA}</td>
-     <td style="color:var(--green)">${totalD}</td><td style="color:var(--red)">${totalR}</td>
-     <td style="color:var(--green)">${fmt(disburseAmt)}</td></tr>`;
-  }
+  // ── Queue-wise stats — handled by renderQueueStats() called from loadDashboard ──
+  // (removed duplicate table write to prevent conflict with qs-summary-tbody)
 
   // ── Disbursement Summary boxes ──
   const statVals = document.querySelectorAll('#sec-borrowers .stat-val');
@@ -1486,53 +1464,63 @@ function renderAdmBorrRows(data){
 function openEditBorr(bid){
   const all = _admCache.crm_borrowers||[];
   const b = all.find(x=>x.id===bid); if(!b) return;
-  // Populate edit modal
+  // Use eborr- prefix IDs to avoid conflict with editBanker modal fields
   const s = id => document.getElementById(id);
-  if(s('eb-id'))    s('eb-id').value    = b.id||'';
-  if(s('eb-name'))  s('eb-name').value  = b.name||'';
-  if(s('eb-phone')) s('eb-phone').value = b.phone||'';
-  if(s('eb-email')) s('eb-email').value = b.email||'';
-  if(s('eb-amount'))s('eb-amount').value= b.amount||'';
-  if(s('eb-income'))s('eb-income').value= b.income||'';
-  if(s('eb-profile'))s('eb-profile').value= b.profile||'';
-  if(s('eb-location'))s('eb-location').value= b.location||'';
-  if(s('eb-notes')) s('eb-notes').value = b.notes||'';
-  if(s('eb-status'))s('eb-status').value= b.status||'LEAD';
-  if(s('eb-product')){
-    s('eb-product').value = b.product||'Business Loan';
-  }
+  if(s('eborr-id'))      s('eborr-id').value      = b.id||'';
+  if(s('eborr-name'))    s('eborr-name').value     = b.name||'';
+  if(s('eborr-phone'))   s('eborr-phone').value    = b.phone||'';
+  if(s('eborr-email'))   s('eborr-email').value    = b.email||'';
+  if(s('eborr-amount'))  s('eborr-amount').value   = b.amount||'';
+  if(s('eborr-income'))  s('eborr-income').value   = b.income||'';
+  if(s('eborr-profile')) s('eborr-profile').value  = b.profile||'Salaried';
+  if(s('eborr-location'))s('eborr-location').value = b.location||'';
+  if(s('eborr-notes'))   s('eborr-notes').value    = b.notes||'';
+  if(s('eborr-status'))  s('eborr-status').value   = b.status||'LEAD';
+  if(s('eborr-product')) s('eborr-product').value  = b.product||'Business Loan';
   document.getElementById('MO_edit_borr').classList.add('on');
 }
 
 function saveEditBorr(){
-  const bid = document.getElementById('eb-id')?.value;
-  if(!bid){ showToast('Error: record ID missing','err'); return; }
+  const bid = (document.getElementById('eborr-id')?.value||'').trim();
+  if(!bid){ showToast('⚠️ Error: record ID missing'); return; }
   const all = _admCache.crm_borrowers||[];
   const idx = all.findIndex(x=>x.id===bid);
-  if(idx<0){ showToast('Record not found','err'); return; }
+  if(idx<0){ showToast('⚠️ Record not found in cache'); return; }
 
-  // Update fields
+  // Read from eborr- prefix IDs (no conflict with other modals)
   const g = id => (document.getElementById(id)?.value||'').trim();
-  all[idx].name     = g('eb-name')     || all[idx].name;
-  all[idx].phone    = g('eb-phone')    || all[idx].phone;
-  all[idx].email    = g('eb-email');
-  all[idx].amount   = g('eb-amount');
-  all[idx].income   = g('eb-income');
-  all[idx].profile  = document.getElementById('eb-profile')?.value  || all[idx].profile;
-  all[idx].product  = document.getElementById('eb-product')?.value  || all[idx].product;
-  all[idx].status   = document.getElementById('eb-status')?.value   || all[idx].status;
-  all[idx].location = g('eb-location');
-  all[idx].notes    = g('eb-notes');
+  all[idx].name     = g('eborr-name')     || all[idx].name;
+  all[idx].phone    = g('eborr-phone')    || all[idx].phone;
+  all[idx].email    = g('eborr-email');
+  all[idx].amount   = g('eborr-amount');
+  all[idx].income   = g('eborr-income');
+  all[idx].profile  = document.getElementById('eborr-profile')?.value || all[idx].profile;
+  all[idx].product  = document.getElementById('eborr-product')?.value || all[idx].product;
+  all[idx].status   = document.getElementById('eborr-status')?.value  || all[idx].status;
+  all[idx].location = g('eborr-location');
+  all[idx].notes    = g('eborr-notes');
   all[idx].editedOn = Date.now();
   all[idx].editedBy = 'admin';
 
-  // Write to localStorage AND Firebase (both paths)
-  _admWrite('crm_borrowers', all);
+  // Step 1: Update in-memory cache
+  _admCache.crm_borrowers = all;
+
+  // Step 2: Write to localStorage (always works — offline backup)
+  try{ localStorage.setItem('crm_borrowers', JSON.stringify(all)); }catch(e){}
+
+  // Step 3: Write to Firebase — DIRECT call, not via _admWrite to avoid listener loop
+  if(_admDb){
+    _admDb.ref('dsa_crm/crm_borrowers').set(all)
+      .then(function(){ showToast('✅ Saved & synced to Firebase!'); })
+      .catch(function(e){ console.warn('FB write error:', e); showToast('✅ Saved (offline — will sync when online)'); });
+  } else {
+    showToast('✅ Saved locally (Firebase offline)');
+  }
 
   document.getElementById('MO_edit_borr').classList.remove('on');
+  // Re-render without waiting for Firebase listener (instant UI update)
   renderBorrowers();
   loadDashboard();
-  showToast('✅ Borrower updated & synced to Firebase!','ok');
 }
 
 
@@ -1555,14 +1543,19 @@ function renderQueueStats(){
   const all   = _admCache.crm_borrowers||[];
   const users = getUsers();
 
-  // Populate Team/DSA dropdown (once)
+  // Populate Team/DSA dropdown — refresh each time so new users appear
   const ddl = document.getElementById('qs-filter-user');
-  if(ddl && ddl.options.length <= 1){
+  if(ddl){
+    const curVal = ddl.value;
+    // Keep only "All Team/DSA" option then re-add users
+    while(ddl.options.length > 1) ddl.remove(1);
     users.forEach(u=>{
       const opt=document.createElement('option');
       opt.value=u.mobile; opt.textContent=(u.name||u.mobile)+' ('+u.mobile+')';
       ddl.appendChild(opt);
     });
+    // Restore selection
+    if(curVal) ddl.value = curVal;
   }
 
   const selUser  = ddl?.value||'ALL';
@@ -2250,30 +2243,30 @@ function updateDateTime(){
       <button class="modal-close" onclick="document.getElementById('MO_edit_borr').classList.remove('on')">✕</button>
     </div>
     <div class="modal-body" style="background:#0d1829">
-      <input type="hidden" id="eb-id">
+      <input type="hidden" id="eborr-id">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="fg"><div class="fl" style="color:#7a8aaa">Customer Name *</div><input id="eb-name" placeholder="Full name" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
-        <div class="fg"><div class="fl" style="color:#7a8aaa">Mobile Number *</div><input id="eb-phone" type="tel" maxlength="10" placeholder="10-digit" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
-        <div class="fg"><div class="fl" style="color:#7a8aaa">Email</div><input id="eb-email" type="email" placeholder="email@example.com" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Customer Name *</div><input id="eborr-name" placeholder="Full name" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Mobile Number *</div><input id="eborr-phone" type="tel" maxlength="10" placeholder="10-digit" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Email</div><input id="eborr-email" type="email" placeholder="email@example.com" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
         <div class="fg"><div class="fl" style="color:#7a8aaa">Profile Type</div>
-          <select id="eb-profile" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
+          <select id="eborr-profile" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
             <option>Salaried</option><option>Self Employed</option><option>Professional</option><option>Business</option>
           </select>
         </div>
         <div class="fg"><div class="fl" style="color:#7a8aaa">Product</div>
-          <select id="eb-product" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
+          <select id="eborr-product" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
             <option>Business Loan</option><option>Personal Loan</option><option>Home Loan</option>
             <option>LAP</option><option>Car Loan</option><option>Insurance</option>
           </select>
         </div>
         <div class="fg"><div class="fl" style="color:#7a8aaa">Loan Amount ₹ *</div>
-          <input id="eb-amount" placeholder="e.g. 5,00,000" style="background:#0f2244;border:1px solid #22d3ee;color:#22d3ee;font-weight:700;font-size:14px">
-          <div style="font-size:9px;color:#7a8aaa;margin-top:2px">This updates both localStorage and Firebase in real-time</div>
+          <input id="eborr-amount" placeholder="e.g. 5,00,000" style="background:#0f2244;border:1px solid #22d3ee;color:#22d3ee;font-weight:700;font-size:14px">
+          <div style="font-size:9px;color:#22d3ee;margin-top:2px">✅ Syncs to Firebase in real-time when saved</div>
         </div>
-        <div class="fg"><div class="fl" style="color:#7a8aaa">Monthly Income ₹</div><input id="eb-income" placeholder="₹ Monthly income" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
-        <div class="fg"><div class="fl" style="color:#7a8aaa">Location</div><input id="eb-location" placeholder="City / District" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Monthly Income ₹</div><input id="eborr-income" placeholder="₹ Monthly income" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
+        <div class="fg"><div class="fl" style="color:#7a8aaa">Location</div><input id="eborr-location" placeholder="City / District" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5"></div>
         <div class="fg" style="grid-column:1/-1"><div class="fl" style="color:#7a8aaa">Status</div>
-          <select id="eb-status" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
+          <select id="eborr-status" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5">
             <option value="LEAD">💡 Lead</option>
             <option value="ACTIVE">🟢 Applied</option>
             <option value="FOLLOW UP">🔄 Follow Up</option>
@@ -2292,7 +2285,7 @@ function updateDateTime(){
           </select>
         </div>
         <div class="fg" style="grid-column:1/-1"><div class="fl" style="color:#7a8aaa">Notes / Remarks</div>
-          <textarea id="eb-notes" rows="2" placeholder="Notes…" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5;width:100%"></textarea>
+          <textarea id="eborr-notes" rows="2" placeholder="Notes…" style="background:#0f2244;border:1px solid #1e4d8c;color:#e0e8f5;width:100%"></textarea>
         </div>
       </div>
     </div>
