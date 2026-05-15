@@ -479,11 +479,39 @@ tr:hover td{background:rgba(255,255,255,.02)}
             </div>
             <!-- Filtered borrowers detail list -->
             <div id="qs-detail-wrap" style="margin-top:10px;display:none">
-              <div style="font-size:11px;font-weight:700;color:var(--cyan);margin-bottom:6px;padding:0 10px" id="qs-detail-title">Filtered Results</div>
-              <table>
-                <thead><tr><th>#</th><th>Name</th><th>Phone</th><th>Product</th><th>Amount</th><th>Status</th><th>Team/DSA</th><th>Date</th></tr></thead>
-                <tbody id="qs-detail-tbody"></tbody>
-              </table>
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:8px 12px;border-top:1px solid var(--border)">
+                <div style="font-size:11px;font-weight:700;color:var(--cyan)" id="qs-detail-title">Filtered Results</div>
+                <button onclick="document.getElementById('qs-detail-wrap').style.display='none'" style="font-size:10px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#fca5a5;padding:2px 9px;border-radius:5px;cursor:pointer">✕ Close</button>
+              </div>
+              <!-- Per-column filter bar -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr 1fr 1fr auto;gap:6px;padding:8px 12px;background:rgba(255,255,255,.02);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+                <input class="fsearch" id="qsd-f-name"    placeholder="🔍 Name"    oninput="renderQSDDetail()" style="font-size:10px;padding:4px 7px">
+                <input class="fsearch" id="qsd-f-phone"   placeholder="📞 Phone"   oninput="renderQSDDetail()" style="font-size:10px;padding:4px 7px">
+                <select class="fsel"   id="qsd-f-product" onchange="renderQSDDetail()" style="font-size:10px;padding:4px 6px">
+                  <option value="">All Products</option>
+                  <option>Business Loan</option><option>Personal Loan</option>
+                  <option>Home Loan</option><option>LAP</option><option>Insurance</option>
+                </select>
+                <input class="fsearch" id="qsd-f-amount"  placeholder="₹ Amount"  oninput="renderQSDDetail()" style="font-size:10px;padding:4px 7px">
+                <select class="fsel"   id="qsd-f-status"  onchange="renderQSDDetail()" style="font-size:10px;padding:4px 6px">
+                  <option value="">All Status</option>
+                  <option>LEAD</option><option>ACTIVE</option><option>FOLLOW UP</option>
+                  <option>NOT INTERESTED</option><option>BUSY</option><option>WILL UPDATE</option>
+                  <option>SWITCHED OFF</option><option>REFERENCE</option><option>CALL U LATER</option>
+                  <option>SEND DOCUMENTS</option><option>NEED</option>
+                  <option>SANCTIONED</option><option>DISBURSED</option><option>REJECTED</option><option>CLOSED</option>
+                </select>
+                <input class="fsearch" id="qsd-f-team"    placeholder="👤 Team/DSA" oninput="renderQSDDetail()" style="font-size:10px;padding:4px 7px">
+                <input class="fsearch" id="qsd-f-date"    placeholder="📅 Date (dd/mm)" oninput="renderQSDDetail()" style="font-size:10px;padding:4px 7px">
+                <button onclick="clearQSDFilters()" style="font-size:10px;padding:4px 10px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);color:var(--purple3);border-radius:5px;cursor:pointer;white-space:nowrap">✕ Clear</button>
+              </div>
+              <div style="overflow-x:auto">
+                <table style="min-width:900px">
+                  <thead><tr><th style="width:32px">#</th><th>Name</th><th>Phone</th><th>Product</th><th>Amount</th><th>Status</th><th>Team/DSA</th><th>Date</th><th>Edit</th></tr></thead>
+                  <tbody id="qs-detail-tbody"></tbody>
+                </table>
+              </div>
+              <div id="qs-detail-count" style="font-size:10px;color:var(--text3);padding:6px 12px;text-align:right"></div>
             </div>
           </div>
           <div class="card">
@@ -1621,36 +1649,107 @@ function renderQueueStats(){
 
   // ── Detail list (shown when filter active or row clicked) ──
   const detailWrap  = document.getElementById('qs-detail-wrap');
-  const detailTbody = document.getElementById('qs-detail-tbody');
   const detailTitle = document.getElementById('qs-detail-title');
-  if(isFilter && detailWrap && detailTbody){
+  if(isFilter && detailWrap){
+    _qsdAllRows = filtered; // store for per-column filtering
     detailWrap.style.display='block';
     if(detailTitle) detailTitle.textContent = `Filtered: ${filtered.length} borrower(s)`;
-    detailTbody.innerHTML = filtered.length ? filtered.map((b,i)=>`<tr>
-      <td style="color:var(--text3)">${i+1}</td>
-      <td><b style="color:#fff">${b.name||'—'}</b></td>
-      <td><a href="tel:${b.phone}" style="color:var(--cyan)">${b.phone||'—'}</a></td>
-      <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
-      <td style="color:var(--gold)">${b.amount?'₹'+b.amount:'—'}</td>
-      <td><span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span></td>
-      <td style="font-size:10px;color:var(--cyan)">${b.addedBy?(ownerName[b.addedBy]||b.addedBy):'—'}</td>
-      <td style="font-size:10px;color:var(--text3)">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
-    </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:14px">No borrowers match this filter</td></tr>';
-  } else if(detailWrap){
+    renderQSDDetail();
+  } else if(detailWrap && !isFilter){
     detailWrap.style.display='none';
   }
 }
 
-// Click a queue row to drill-down into that product's borrowers
-var _qsProductFilter = '';
-function filterQueueDetail(prod){
-  _qsProductFilter = prod;
-  const all   = _admCache.crm_borrowers||[];
+// ══ QUEUE STATS DETAIL — per-column filter + Edit ══
+var _qsdAllRows = []; // full source array for detail list
+
+function renderQSDDetail(){
   const users = getUsers();
   const ownerName={};
   users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
 
-  // Apply existing filters + product filter
+  const nameQ    = (document.getElementById('qsd-f-name')?.value   ||'').toLowerCase();
+  const phoneQ   = (document.getElementById('qsd-f-phone')?.value  ||'').toLowerCase();
+  const prodQ    = (document.getElementById('qsd-f-product')?.value||'').toLowerCase();
+  const amtQ     = (document.getElementById('qsd-f-amount')?.value ||'').toLowerCase();
+  const statusQ  = (document.getElementById('qsd-f-status')?.value ||'').toLowerCase();
+  const teamQ    = (document.getElementById('qsd-f-team')?.value   ||'').toLowerCase();
+  const dateQ    = (document.getElementById('qsd-f-date')?.value   ||'').toLowerCase();
+
+  const filtered = _qsdAllRows.filter(b=>{
+    const owner   = b.addedBy?(ownerName[b.addedBy]||b.addedBy):'';
+    const dateStr = b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'';
+    if(nameQ   && !(b.name||'').toLowerCase().includes(nameQ)) return false;
+    if(phoneQ  && !(b.phone||'').includes(phoneQ)) return false;
+    if(prodQ   && !(b.product||'').toLowerCase().includes(prodQ)) return false;
+    if(amtQ    && !(b.amount||'').toString().includes(amtQ)) return false;
+    if(statusQ && !(b.status||'').toLowerCase().includes(statusQ)) return false;
+    if(teamQ   && !owner.toLowerCase().includes(teamQ)) return false;
+    if(dateQ   && !dateStr.includes(dateQ)) return false;
+    return true;
+  });
+
+  const STATUS_PILL={
+    ACTIVE:'<span class="pill p-green" style="font-size:9px">🟢 Applied</span>',
+    LEAD:'<span class="pill p-blue" style="font-size:9px">💡 Lead</span>',
+    'FOLLOW UP':'<span class="pill p-gold" style="font-size:9px">🔄 Follow-up</span>',
+    SANCTIONED:'<span class="pill p-blue" style="font-size:9px">🔵 Sanctioned</span>',
+    DISBURSED:'<span class="pill p-green" style="font-size:9px;font-weight:700">💰 Disbursed</span>',
+    REJECTED:'<span class="pill p-red" style="font-size:9px">❌ Rejected</span>',
+    'NOT INTERESTED':'<span class="pill p-red" style="font-size:9px">❌ Not Interested</span>',
+    BUSY:'<span class="pill p-gold" style="font-size:9px">📵 Busy</span>',
+    'WILL UPDATE':'<span class="pill" style="font-size:9px;background:rgba(99,102,241,.15);color:#818cf8">🕐 Will Update</span>',
+    'SWITCHED OFF':'<span class="pill p-gray" style="font-size:9px">📴 Switched Off</span>',
+    REFERENCE:'<span class="pill" style="font-size:9px;background:rgba(139,92,246,.15);color:#a78bfa">👥 Reference</span>',
+    'CALL U LATER':'<span class="pill" style="font-size:9px;background:rgba(6,182,212,.15);color:#67e8f9">📞 Call Later</span>',
+    'SEND DOCUMENTS':'<span class="pill p-green" style="font-size:9px">📂 Send Docs</span>',
+    NEED:'<span class="pill p-green" style="font-size:9px;font-weight:700">✅ Need</span>',
+    CLOSED:'<span class="pill p-gray" style="font-size:9px">🔒 Closed</span>',
+  };
+
+  const tbody = document.getElementById('qs-detail-tbody');
+  const countEl = document.getElementById('qs-detail-count');
+  if(countEl) countEl.textContent = filtered.length+' record(s) shown';
+  if(!tbody) return;
+
+  if(!filtered.length){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--text3)">No records match the filter</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map((b,i)=>{
+    const owner   = b.addedBy?(ownerName[b.addedBy]||b.addedBy):'—';
+    const dateStr = b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—';
+    const pill    = STATUS_PILL[b.status]||`<span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span>`;
+    return `<tr>
+      <td style="color:var(--text3);width:30px">${i+1}</td>
+      <td><b style="color:#fff">${b.name||'—'}</b><div style="font-size:9px;color:var(--text3)">${b.email||''}</div></td>
+      <td><a href="tel:${b.phone}" style="color:var(--cyan);font-size:11px">${b.phone||'—'}</a></td>
+      <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
+      <td style="color:var(--gold);font-weight:600;white-space:nowrap">${b.amount?'₹'+Number(b.amount).toLocaleString('en-IN'):'—'}</td>
+      <td>${pill}</td>
+      <td style="font-size:10px;color:var(--cyan);white-space:nowrap">${owner}</td>
+      <td style="font-size:10px;color:var(--text3);white-space:nowrap">${dateStr}</td>
+      <td><button onclick="openEditBorr('${b.id}')" style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.3);color:#fbbf24;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap">✏ Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function clearQSDFilters(){
+  ['qsd-f-name','qsd-f-phone','qsd-f-amount','qsd-f-team','qsd-f-date'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  ['qsd-f-product','qsd-f-status'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.selectedIndex=0;
+  });
+  renderQSDDetail();
+}
+
+
+function filterQueueDetail(prod){
+  _qsProductFilter = prod;
+  const all   = _admCache.crm_borrowers||[];
+
   const ddl    = document.getElementById('qs-filter-user');
   const selUser= ddl?.value||'ALL';
   const nameQ  = (document.getElementById('qs-filter-name')?.value||'').toLowerCase();
@@ -1665,21 +1764,12 @@ function filterQueueDetail(prod){
   });
 
   const detailWrap  = document.getElementById('qs-detail-wrap');
-  const detailTbody = document.getElementById('qs-detail-tbody');
   const detailTitle = document.getElementById('qs-detail-title');
   if(!detailWrap) return;
+  _qsdAllRows = filtered; // store for per-column filtering
   detailWrap.style.display='block';
   if(detailTitle) detailTitle.textContent = `${prod} — ${filtered.length} record(s)`;
-  if(detailTbody) detailTbody.innerHTML = filtered.length ? filtered.map((b,i)=>`<tr>
-    <td style="color:var(--text3)">${i+1}</td>
-    <td><b style="color:#fff">${b.name||'—'}</b></td>
-    <td><a href="tel:${b.phone}" style="color:var(--cyan)">${b.phone||'—'}</a></td>
-    <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
-    <td style="color:var(--gold)">${b.amount?'₹'+b.amount:'—'}</td>
-    <td><span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span></td>
-    <td style="font-size:10px;color:var(--cyan)">${b.addedBy?(ownerName[b.addedBy]||b.addedBy):'—'}</td>
-    <td style="font-size:10px;color:var(--text3)">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
-  </tr>`).join('') : '<tr><td colspan="8" style="text-align:center;color:var(--text3)">No records</td></tr>';
+  clearQSDFilters(); // reset column filters when switching queue
 }
 
 
