@@ -8,12 +8,12 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0d14;--bg2:#0f1320;--bg3:#141829;--card:#151c2e;--card2:#1a2238;
-  --border:#1e2d4a;--border2:#243256;
-  --purple:#7c3aed;--purple2:#6d28d9;--purple3:#a78bfa;--purple-glow:rgba(124,58,237,.18);
-  --gold:#f59e0b;--gold2:#d97706;
-  --green:#10b981;--red:#ef4444;--blue:#3b82f6;--cyan:#06b6d4;
-  --text:#e2e8f0;--text2:#94a3b8;--text3:#475569;
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2333;--card:#1c2333;--card2:#21293a;
+  --border:#30363d;--border2:#3d4f63;
+  --purple:#7c3aed;--purple2:#6d28d9;--purple3:#c4b5fd;--purple-glow:rgba(124,58,237,.18);
+  --gold:#fbbf24;--gold2:#d97706;
+  --green:#22c55e;--red:#f87171;--blue:#60a5fa;--cyan:#38bdf8;
+  --text:#f0f6fc;--text2:#cdd9e5;--text3:#8b949e;
   --r:10px;--r2:7px;
 }
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13px;height:100vh;overflow:hidden;display:flex}
@@ -54,7 +54,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 #app{display:flex;height:100vh;width:100%;display:none}
 
 /* ── SIDEBAR ── */
-.sb{width:230px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.sb{width:230px;background:#161b22;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .sb-head{padding:18px 16px 14px;border-bottom:1px solid var(--border)}
 .sb-head-top{display:flex;align-items:center;gap:10px;margin-bottom:2px}
 .sb-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--purple),var(--purple2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
@@ -95,32 +95,32 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);fon
 .kpi.green::before{background:linear-gradient(90deg,var(--green),#34d399)}
 .kpi.gold::before{background:linear-gradient(90deg,var(--gold),#fcd34d)}
 .kpi-ico{font-size:1.2rem;margin-bottom:8px;opacity:.8}
-.kpi-lbl{font-size:10px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
-.kpi-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#fff;line-height:1}
+.kpi-lbl{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--text);line-height:1}
 .kpi-sub{font-size:10px;color:var(--text3);margin-top:5px}
 
 /* ── CARDS ── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
-.card-head{padding:11px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
-.card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#fff}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.card-head{padding:11px 15px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:rgba(48,54,61,.25)}
+.card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text)}
 .card-body{padding:14px 15px}
 
 /* ── TABLE ── */
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{padding:8px 10px;color:var(--text3);font-weight:600;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
-td{padding:9px 10px;border-bottom:1px solid rgba(255,255,255,.04);color:var(--text2);vertical-align:middle}
+th{padding:8px 10px;color:#94a3b8;font-weight:700;background:rgba(48,54,61,.6);border-bottom:2px solid var(--border2);text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;font-size:11.5px}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(255,255,255,.02)}
+tr:hover td{background:rgba(99,162,255,.06);color:var(--text)}
 
 /* ── PILLS ── */
 .pill{display:inline-block;font-size:9.5px;padding:2px 8px;border-radius:999px;font-weight:700}
-.p-purple{background:rgba(124,58,237,.15);color:var(--purple3)}
-.p-green{background:rgba(16,185,129,.12);color:#34d399}
-.p-red{background:rgba(239,68,68,.12);color:#fca5a5}
-.p-gold{background:rgba(245,158,11,.12);color:#fcd34d}
-.p-blue{background:rgba(59,130,246,.12);color:#93c5fd}
-.p-gray{background:rgba(255,255,255,.06);color:var(--text2)}
-.p-cyan{background:rgba(6,182,212,.12);color:#67e8f9}
+.p-purple{background:rgba(196,181,253,.15);color:#c4b5fd;border:1px solid rgba(196,181,253,.25)}
+.p-green{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.3)}
+.p-red{background:rgba(248,113,113,.15);color:#fca5a5;border:1px solid rgba(248,113,113,.3)}
+.p-gold{background:rgba(251,191,36,.15);color:#fde68a;border:1px solid rgba(251,191,36,.3)}
+.p-blue{background:rgba(96,165,250,.15);color:#93c5fd;border:1px solid rgba(96,165,250,.3)}
+.p-gray{background:rgba(255,255,255,.08);color:var(--text2);border:1px solid rgba(255,255,255,.12)}
+.p-cyan{background:rgba(56,189,248,.15);color:#7dd3fc;border:1px solid rgba(56,189,248,.3)}
 
 /* ── BUTTONS ── */
 .btn{padding:6px 13px;border-radius:var(--r2);font-size:11px;cursor:pointer;border:1px solid var(--border2);background:rgba(255,255,255,.05);color:var(--text);font-weight:500;font-family:'DM Sans',sans-serif;transition:all .15s}
@@ -159,7 +159,7 @@ tr:hover td{background:rgba(255,255,255,.02)}
 .fsel{padding:6px 10px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--card2);color:var(--text);font-size:11px;outline:none;font-family:'DM Sans',sans-serif}
 .fsel:focus{border-color:var(--purple)}
 .fsearch{padding:6px 12px;border:1px solid var(--border2);border-radius:var(--r2);background:var(--card2);color:var(--text);font-size:11px;outline:none;font-family:'DM Sans',sans-serif;width:180px}
-.fsearch:focus{border-color:var(--purple)}
+.fsearch:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(124,58,237,.15)}
 .fsearch::placeholder{color:var(--text3)}
 
 /* ── EMPTY STATE ── */
@@ -1477,16 +1477,16 @@ function renderAdmBorrRows(data){
     return `<tr>
       <td style="color:var(--text3);width:32px">${fullIdx+1}</td>
       <td style="font-size:9px;color:var(--text3);max-width:90px;overflow:hidden;text-overflow:ellipsis">${b.id||'—'}</td>
-      <td style="min-width:130px"><b style="color:#fff">${b.name||'—'}</b><div style="font-size:9px;color:var(--text3)">${b.email||''}</div></td>
-      <td><a href="tel:${b.phone}" style="color:var(--cyan);font-size:11px">${b.phone||'—'}</a></td>
-      <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
-      <td style="color:var(--gold);font-weight:600;white-space:nowrap">${b.amount?'₹'+Number(b.amount).toLocaleString('en-IN'):'—'}</td>
-      <td style="color:var(--text3);font-size:10px">${b.profile||'—'}</td>
-      <td style="color:var(--text3);font-size:10px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${b.location||'—'}</td>
+      <td style="min-width:130px"><b style="color:var(--text);font-size:12px">${b.name||'—'}</b><div style="font-size:9px;color:var(--text3)">${b.email||''}</div></td>
+      <td><a href="tel:${b.phone}" style="color:var(--cyan);font-size:11px;font-weight:600">${b.phone||'—'}</a></td>
+      <td><span class="pill p-blue" style="font-size:9px;font-weight:700">${b.product||'—'}</span></td>
+      <td style="color:var(--gold);font-weight:700;white-space:nowrap;font-size:12px">${b.amount?'₹'+Number(b.amount).toLocaleString('en-IN'):'—'}</td>
+      <td style="color:var(--text2);font-size:11px">${b.profile||'—'}</td>
+      <td style="color:var(--text2);font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${b.location||'—'}</td>
       <td style="white-space:nowrap">${pill}</td>
-      <td style="font-size:10px;color:var(--cyan);white-space:nowrap">${owner}</td>
-      <td style="font-size:10px;color:var(--text3);white-space:nowrap">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
-      <td><button onclick="openEditBorr('${b.id}')" style="background:rgba(250,204,21,.12);border:1px solid rgba(250,204,21,.3);color:#fbbf24;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap">✏ Edit</button></td>
+      <td style="font-size:10px;color:var(--cyan);white-space:nowrap;font-weight:600">${owner}</td>
+      <td style="font-size:10px;color:var(--text2);white-space:nowrap">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
+      <td><button onclick="openEditBorr('${b.id}')" style="background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.4);color:#fbbf24;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">✏ Edit</button></td>
     </tr>`;
   }).join('');
 }
