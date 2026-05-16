@@ -14,7 +14,7 @@
   --gold:#b45309;--gold2:#92400e;
   --green:#15803d;--red:#dc2626;--blue:#1d4ed8;--cyan:#0369a1;
   --text:#0f172a;--text2:#1e293b;--text3:#475569;
-  --r:10px;--r2:7px;  
+  --r:10px;--r2:7px;
 }
 body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a;font-size:13px;height:100vh;overflow:hidden;display:flex}
 
@@ -799,6 +799,11 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <option value="CALL ME LATER">🕐 Call Me Later</option>
           </select>
           <button class="btn btn-gold" onclick="exportAdmConnectors()">📥 Export CSV</button>
+          <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+            <span style="font-size:10px;color:#64748b;font-weight:600">Access:</span>
+            <button class="btn btn-p" style="font-size:10px;padding:5px 10px" onclick="bulkGrantFeature('dsaconn')">🤝 Grant DSA Access — All Users</button>
+            <button class="btn btn-r" style="font-size:10px;padding:5px 10px" onclick="bulkRevokeFeature('dsaconn')">🚫 Revoke DSA Access</button>
+          </div>
         </div>
         <div class="card">
           <div class="card-head">
@@ -822,8 +827,15 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <option value="biz">🏢 Business Freelancer</option>
           </select>
           <button class="btn btn-gold" onclick="exportAdmFreelancers()">📥 Export CSV</button>
+          <!-- Bulk Feature Access grant for all users -->
+          <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+            <span style="font-size:10px;color:#64748b;font-weight:600">Grant access to:</span>
+            <button class="btn btn-p" style="font-size:10px;padding:5px 10px" onclick="bulkGrantFeature('womenfl')">👩 Women FL — All Users</button>
+            <button class="btn btn-p" style="font-size:10px;padding:5px 10px" onclick="bulkGrantFeature('bizfl')">🏢 Biz FL — All Users</button>
+            <button class="btn btn-r" style="font-size:10px;padding:5px 10px" onclick="bulkRevokeFeature('womenfl','bizfl')">🚫 Revoke FL Access</button>
+          </div>
         </div>
-        <div class="card" style="margin-bottom:12px">
+        <div id="fl-card-women" class="card" style="margin-bottom:12px">
           <div class="card-head">
             <span class="card-title">👩 Women Freelancer Programme — All DSAs</span>
             <span class="pill p-purple" id="fl-women-count">0 entries</span>
@@ -840,7 +852,7 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <button onclick="flBulkDelete('women')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">🗑 Delete Selected</button>
           </div>
         </div>
-        <div class="card">
+        <div id="fl-card-biz" class="card">
           <div class="card-head">
             <span class="card-title">🏢 Business Freelancer Programme — All DSAs</span>
             <span class="pill p-blue" id="fl-biz-count">0 entries</span>
@@ -879,56 +891,56 @@ tr:hover td{background:#edf2ff;color:#0f172a}
                 <div class="market-name">Automated Email Reports</div>
                 <div class="market-desc">Schedule daily, weekly and monthly summary reports to be auto-emailed to admin and team leads with queue performance metrics.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📧 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Automated Email Reports')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🤖</div>
                 <div class="market-name">AI Credit Scoring</div>
                 <div class="market-desc">Automated credit analysis using AI to assess borrower creditworthiness, predict approval probability and recommend suitable banks.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🤖 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('AI Credit Scoring')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">📊</div>
                 <div class="market-name">Advanced Analytics</div>
                 <div class="market-desc">DSA performance leaderboard, conversion funnel analysis, revenue trend graphs, queue velocity and disbursement heatmaps.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📊 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Advanced Analytics')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🔔</div>
                 <div class="market-name">Push Notifications</div>
                 <div class="market-desc">Real-time browser push notifications for follow-up deadlines, disbursement completions, policy updates and new borrower entries.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🔔 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Push Notifications')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🏦</div>
                 <div class="market-name">Live Bank API Sync</div>
                 <div class="market-desc">Auto-sync bank policies, interest rates and eligibility criteria directly from bank APIs. Rates update in real-time without manual entry.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🏦 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Live Bank API Sync')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">📱</div>
                 <div class="market-name">Mobile App (Android / iOS)</div>
                 <div class="market-desc">Native mobile app for DSAs and connectors to manage leads, follow-ups and check eligibility on the go with offline support.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📱 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Mobile App')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🔐</div>
                 <div class="market-name">Role-Based Permissions</div>
                 <div class="market-desc">Fine-grained access control — restrict DSAs from seeing each other's data, limit connector access to specific queues, custom role templates.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🔐 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Role-Based Permissions')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">📈</div>
                 <div class="market-name">Commission Tracker</div>
                 <div class="market-desc">Automated payout calculations, sub-agent split tracking, GST invoice generation and commission statement downloads for each DSA.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📈 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Commission Tracker')">Request Early Access</button>
               </div>
             </div>
           </div>
@@ -1575,7 +1587,7 @@ function buildAdmBorrTable(all){
   tbl.style.cssText = 'min-width:1100px;white-space:nowrap;table-layout:auto';
   tbl.innerHTML = `<thead><tr>
     <th style="width:32px">#</th>
-    <th style="min-width:140px">Name</th>
+    <th style="min-width:100px;max-width:160px">Name</th>
     <th>Phone</th>
     <th>Product</th>
     <th>Amount</th>
@@ -1642,7 +1654,7 @@ function renderAdmBorrRows(data){
     const loc = b.location || b.city || b.state || '—';
     return `<tr data-borr-id="${b.id||''}">
       <td style="color:#64748b;width:32px">${fullIdx+1}</td>
-      <td style="min-width:140px"><b style="color:${hasName?'#0f172a':'#64748b'};font-size:12px">${displayName}</b>${subInfo?`<div style="font-size:9px;color:#64748b">${subInfo}</div>`:''}</td>
+      <td style="min-width:100px;max-width:160px;overflow:hidden;text-overflow:ellipsis"><b style="color:${hasName?'#0f172a':'#64748b'};font-size:12px">${displayName}</b>${subInfo?`<div style="font-size:9px;color:#64748b;overflow:hidden;text-overflow:ellipsis">${subInfo}</div>`:''}</td>
       <td><a href="tel:${b.phone}" style="color:#1d4ed8;font-size:11px;font-weight:600">${b.phone||'—'}</a></td>
       <td><span class="pill p-blue" style="font-size:9px;font-weight:700">${b.product||'—'}</span></td>
       <td style="color:#15803d;font-weight:700;white-space:nowrap;font-size:12px">${b.amount?'₹'+Number(b.amount).toLocaleString('en-IN'):'—'}</td>
@@ -2415,7 +2427,69 @@ function admDelConnector(id){
   _admWrite('crm_connectors', all);
   _admCache.crm_connectors = all;
   renderAdmConnectors();
-  showToast('🗑 Connector deleted');
+  showToast('Connector deleted');
+}
+
+// Feature Marketplace: Request Early Access
+function openEarlyAccess(featureName){
+  document.getElementById('modal-title').textContent = 'Request Early Access: '+featureName;
+  document.getElementById('modal-body').innerHTML =
+    '<div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#4c1d95">'
+    +'Requesting early access to <b>'+featureName+'</b>. Our team will contact you within 24-48 hours.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    +'<div class="mfg" style="grid-column:span 2"><div class="mfl">Contact Name</div><input class="minp" id="ea-name" value="Admin Cat-Eye"></div>'
+    +'<div class="mfg"><div class="mfl">Mobile</div><input class="minp" id="ea-mobile" value="9398504048"></div>'
+    +'<div class="mfg"><div class="mfl">Email</div><input class="minp" id="ea-email" placeholder="email@company.com"></div>'
+    +'<div class="mfg" style="grid-column:span 2"><div class="mfl">Message (optional)</div><textarea class="minp" id="ea-msg" rows="2" style="resize:vertical"></textarea></div></div>'
+    +'<div style="margin-top:10px;display:flex;gap:8px">'
+    +'<button onclick="submitEarlyAccess()" class="btn btn-p" style="flex:1;padding:9px">Submit Request</button>'
+    +'<a href="https://wa.me/919398504048" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;background:#25d366;color:#fff;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;padding:9px">WhatsApp Us</a></div>';
+  window._eaFeat = featureName;
+  document.getElementById('modal-edit').dataset.type = 'early-access';
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function submitEarlyAccess(){
+  var feat   = window._eaFeat||'Feature';
+  var name   = document.getElementById('ea-name')?.value||'Admin';
+  var mobile = document.getElementById('ea-mobile')?.value||'';
+  var email  = document.getElementById('ea-email')?.value||'';
+  var msg    = document.getElementById('ea-msg')?.value||'';
+  var req    = {feat:feat,name:name,mobile:mobile,email:email,msg:msg,ts:Date.now(),status:'PENDING'};
+  var key    = 'feature_requests';
+  var all    = []; try{all=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
+  all.push(req);
+  localStorage.setItem(key,JSON.stringify(all));
+  if(_admDb) _admDb.ref('dsa_crm/'+key).set(all).catch(function(){});
+  closeModal();
+  showToast('Request submitted for '+feat+'. We will contact you within 24-48 hrs.');
+}
+
+// Bulk Feature Grant/Revoke for ALL users
+function bulkGrantFeature(){
+  var features=Array.prototype.slice.call(arguments);
+  var users=getUsers();
+  if(!users.length){showToast('No users found');return;}
+  if(!confirm('Grant '+features.join(' & ')+' access to ALL '+users.length+' users?'))return;
+  users.forEach(function(u){
+    var ex=u.features||[];
+    features.forEach(function(f){if(!ex.includes(f))ex.push(f);});
+    u.features=ex;
+  });
+  saveUsers(users);_admWrite('dsacrm_users',users);
+  showToast('Access granted to all '+users.length+' users!');
+}
+
+function bulkRevokeFeature(){
+  var features=Array.prototype.slice.call(arguments);
+  var users=getUsers();
+  if(!users.length){showToast('No users found');return;}
+  if(!confirm('Revoke '+features.join(' & ')+' access from ALL '+users.length+' users?'))return;
+  users.forEach(function(u){
+    u.features=(u.features||[]).filter(function(f){return !features.includes(f);});
+  });
+  saveUsers(users);_admWrite('dsacrm_users',users);
+  showToast('Access revoked from all '+users.length+' users!');
 }
 
 function exportAdmConnectors(){
@@ -2501,6 +2575,13 @@ function renderAdmFreelancers(){
   const wf = getWomenFL();
   const bf = getBizFL();
   if(badge) badge.textContent = wf.length + bf.length;
+
+  // Show/hide whole card based on type filter
+  const wCard = document.getElementById('fl-card-women');
+  const bCard = document.getElementById('fl-card-biz');
+  if(wCard) wCard.style.display = (typeF==='ALL' || typeF==='women') ? '' : 'none';
+  if(bCard) bCard.style.display = (typeF==='ALL' || typeF==='biz')   ? '' : 'none';
+
   if(typeF==='ALL' || typeF==='women')
     renderFL(wf, 'women', 'fl-women-tbody', 'fl-women-count', 'fl-sel-all-women', 'fl-women-bulk', 'fl-women-sel-count');
   if(typeF==='ALL' || typeF==='biz')
