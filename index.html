@@ -33,12 +33,12 @@ body{font-family:system-ui,sans-serif;background:#eef0f5;color:#1a1a2e;font-size
 .ftab{padding:5px 12px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;border:1.5px solid #cdd5e8;background:#f7f9fc;color:#7a8aaa;transition:all .15s}
 .ftab:hover{border-color:#1a5fb4;color:#1a5fb4}.ftab.active{background:#1a5fb4;color:#fff;border-color:#1a5fb4}
 .ftab.done-tab.active{background:#2e7d32;border-color:#2e7d32}.ftab.rejected-tab.active{background:#c62828;border-color:#c62828}
-.card{background:#fff;border-radius:10px;border:1px solid #dde2ee;overflow:hidden;margin-bottom:10px}
-.card-head{padding:9px 13px;border-bottom:1px solid #eef0f5;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
-.card-title{font-size:12px;font-weight:600;color:#0d1b36}
+.card{background:#fff;border-radius:10px;border:1px solid #bfdbfe;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 6px rgba(59,130,246,.08)}
+.card-head{padding:10px 14px;border-bottom:1px solid #bfdbfe;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;background:linear-gradient(90deg,#eff6ff,#f8faff)}
+.card-title{font-size:12px;font-weight:700;color:#1e3a8a}
 .card-body{padding:12px}
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{padding:6px 9px;color:#7a8aaa;font-weight:600;background:#f7f9fc;border-bottom:1px solid #eef0f5;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+th{padding:7px 9px;color:#1d4ed8;font-weight:700;background:#eff6ff;border-bottom:1px solid #bfdbfe;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
 td{padding:7px 9px;border-bottom:1px solid #f0f2f5;color:#2d3550;vertical-align:middle}
 tr:last-child td{border-bottom:none}tr:hover td{background:#f7fbff}
 .pill{display:inline-block;font-size:9.5px;padding:2px 8px;border-radius:999px;font-weight:600}
@@ -46,10 +46,10 @@ tr:last-child td{border-bottom:none}tr:hover td{background:#f7fbff}
 .p-a{background:#fff8e1;color:#e65100}.p-r{background:#ffebee;color:#c62828}
 .p-v{background:#f3e5f5;color:#6a1b9a}.p-gray{background:#f5f5f5;color:#555}
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-.kpi{background:#fff;border-radius:10px;padding:12px;border:1px solid #dde2ee}
-.kpi-lbl{font-size:10px;color:#7a8aaa;margin-bottom:4px;font-weight:500}
-.kpi-val{font-size:21px;font-weight:700;color:#0d1b36}
-.kpi-sub{font-size:10px;margin-top:3px}.up{color:#2e7d32}.dn{color:#c62828}
+.kpi{background:#ffffff;border-radius:10px;padding:14px;border:1px solid #bfdbfe;box-shadow:0 2px 10px rgba(59,130,246,.1)}
+.kpi-lbl{font-size:10px;color:#1d4ed8;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.kpi-val{font-size:22px;font-weight:800;color:#1e3a8a}
+.kpi-sub{font-size:10px;margin-top:3px;color:#3b82f6;font-weight:500}.up{color:#2e7d32}.dn{color:#c62828}
 .fg{display:flex;flex-direction:column;gap:3px;margin-bottom:9px}
 .fl{font-size:10px;font-weight:600;color:#7a8aaa;text-transform:uppercase;letter-spacing:.05em}
 input,select,textarea{padding:7px 10px;border:1px solid #cdd5e8;border-radius:6px;font-size:12px;color:#1a1a2e;background:#fff;width:100%}
@@ -1737,6 +1737,50 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
       </a>
       <div style="font-size:10px;color:#64748b;margin-top:8px">Opens securely on Poonawalla Fincorp's official website</div>
     </div>
+
+    <!-- ── Record CIBIL Check ── -->
+    <div style="background:#fff;border:2px solid #3b82f6;border-radius:14px;padding:22px 24px;box-shadow:0 4px 20px rgba(59,130,246,.12)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <div style="width:36px;height:36px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📝</div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#0d1b36">Record CIBIL Check Result</div>
+          <div style="font-size:10px;color:#64748b">After checking on Poonawalla, save the result here — visible to Admin</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">First Name *</label>
+          <input id="cib-fname" placeholder="As per PAN card" style="padding:8px 11px;border:1px solid #c5cde4;border-radius:7px;font-size:12px;outline:none;font-family:inherit" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#c5cde4'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Last Name *</label>
+          <input id="cib-lname" placeholder="As per PAN card" style="padding:8px 11px;border:1px solid #c5cde4;border-radius:7px;font-size:12px;outline:none;font-family:inherit" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#c5cde4'">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Mobile Number *</label>
+          <input id="cib-mobile" placeholder="10-digit mobile" maxlength="10" type="tel" style="padding:8px 11px;border:1px solid #c5cde4;border-radius:7px;font-size:12px;outline:none;font-family:inherit" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#c5cde4'" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">PAN Number *</label>
+          <input id="cib-pan" placeholder="e.g. ABCDE1234F" maxlength="10" style="padding:8px 11px;border:1px solid #c5cde4;border-radius:7px;font-size:12px;outline:none;font-family:inherit;text-transform:uppercase" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#c5cde4'" oninput="this.value=this.value.toUpperCase()">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">CIBIL Score *</label>
+          <input id="cib-score" placeholder="300 – 900" maxlength="3" type="tel" style="padding:8px 11px;border:1px solid #c5cde4;border-radius:7px;font-size:14px;font-weight:700;outline:none;font-family:inherit" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#c5cde4'" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <label style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Remarks</label>
+          <input id="cib-remarks" placeholder="Optional notes" style="padding:8px 11px;border:1px solid #c5cde4;border-radius:7px;font-size:12px;outline:none;font-family:inherit" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#c5cde4'">
+        </div>
+      </div>
+      <button onclick="saveCibilCheck()"
+        style="margin-top:14px;width:100%;padding:11px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(59,130,246,.3)">
+        💾 Save CIBIL Record → Sync to Admin
+      </button>
+      <!-- Recent records preview -->
+      <div id="cibil-recent" style="margin-top:14px"></div>
+    </div>
+
   </div>
 </div>
 
@@ -2341,6 +2385,7 @@ var _cache = {
   crm_policies:  _lsParse('crm_policies'),
   crm_womenfl:   _lsParse('crm_womenfl'),
   crm_bizfl:     _lsParse('crm_bizfl'),
+  crm_cibil:     _lsParse('crm_cibil'),
 };
 // ═══════════════════════════════════════════════════════
 
@@ -4724,7 +4769,7 @@ window.addEventListener('load', () => {
 // ══════════════════════════════════════════════════════
 
 // Refresh _cache keys that were still empty after early seed
-['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_connectors','crm_womenfl','crm_bizfl'].forEach(function(k){
+['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_connectors','crm_womenfl','crm_bizfl','crm_cibil'].forEach(function(k){
   if(!_cache[k]||!_cache[k].length){
     try{ var v=localStorage.getItem(k); if(v) _cache[k]=JSON.parse(v); }catch(e){}
   }
@@ -6295,6 +6340,67 @@ const _origUpdateBadges = typeof updateBadges==='function'?updateBadges:null;
 // ── Feature 4: TITLES + nav init ──
 
 // ── Feature 4: Feature stubs — WA & BL features (coming soon) ──
+// ── CIBIL Check Recording ──
+function saveCibilCheck(){
+  var fname   = (document.getElementById('cib-fname')?.value||'').trim();
+  var lname   = (document.getElementById('cib-lname')?.value||'').trim();
+  var mobile  = (document.getElementById('cib-mobile')?.value||'').trim();
+  var pan     = (document.getElementById('cib-pan')?.value||'').trim().toUpperCase();
+  var score   = parseInt(document.getElementById('cib-score')?.value||'0');
+  var remarks = (document.getElementById('cib-remarks')?.value||'').trim();
+
+  if(!fname||!lname||!mobile||!pan||!score){
+    showToast('⚠️ Please fill First Name, Last Name, Mobile, PAN and Score');
+    return;
+  }
+  if(mobile.length<10){ showToast('⚠️ Enter valid 10-digit mobile'); return; }
+  if(pan.length!==10)  { showToast('⚠️ Enter valid 10-character PAN'); return; }
+  if(score<300||score>900){ showToast('⚠️ CIBIL score must be 300–900'); return; }
+
+  var rec = {
+    id:     'CIB'+Date.now(),
+    fname:  fname,
+    lname:  lname,
+    mobile: mobile,
+    pan:    pan,
+    score:  score,
+    remarks:remarks,
+    addedBy: getCurrentUser()?.mobile || _getSession() || 'unknown',
+    addedOn: Date.now(),
+    dt:     new Date().toLocaleDateString('en-IN')
+  };
+
+  var all = _cache.crm_cibil || [];
+  all.push(rec);
+  _fbSet('crm_cibil', all);
+  _cache.crm_cibil = all;
+
+  // Clear form
+  ['cib-fname','cib-lname','cib-mobile','cib-pan','cib-score','cib-remarks'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+
+  renderCibilRecent();
+  showToast('✅ CIBIL record saved & synced to Admin!');
+}
+
+function renderCibilRecent(){
+  var el = document.getElementById('cibil-recent'); if(!el) return;
+  var myMobile = getCurrentUser()?.mobile || _getSession() || '';
+  var all  = (_cache.crm_cibil||[]).filter(function(r){ return r.addedBy===myMobile; });
+  if(!all.length){ el.innerHTML=''; return; }
+  var last3 = all.slice(-3).reverse();
+  var scoreColor = function(s){ return s>=750?'#15803d':s>=650?'#1d4ed8':s>=550?'#b45309':'#dc2626'; };
+  el.innerHTML = '<div style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Recent Records (yours)</div>'
+    + last3.map(function(r){
+        return '<div style="display:flex;align-items:center;justify-content:space-between;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:8px 12px;margin-bottom:6px">'
+          +'<div><div style="font-size:12px;font-weight:700;color:#0d1b36">'+r.fname+' '+r.lname+'</div>'
+          +'<div style="font-size:10px;color:#64748b">📞 '+r.mobile+' &nbsp;|&nbsp; 🪪 '+r.pan+'</div></div>'
+          +'<div style="text-align:right"><div style="font-size:18px;font-weight:800;color:'+scoreColor(r.score)+'">'+r.score+'</div>'
+          +'<div style="font-size:9px;color:#64748b">'+r.dt+'</div></div>'
+          +'</div>';
+      }).join('');
+}
 // ── Feature Access: show/hide gated sidebar sections based on admin grant ──
 function _applyFeatureAccess(){
   const u = getCurrentUser();
