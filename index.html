@@ -1633,27 +1633,110 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1a5fb4}
 <div class="sec" id="sec-cibil">
   <div class="sec-hdr" style="justify-content:space-between;align-items:center">
     <div style="display:flex;align-items:center;gap:10px">
-      <button onclick="nav(document.querySelector('.ni.active'),'dashboard')"
-        style="background:rgba(74,144,226,.15);border:1px solid rgba(74,144,226,.3);color:#90c8ff;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px">
-        ← Back to Dashboard
+      <button onclick="nav(document.querySelector('.ni[onclick*=dashboard]'),'dashboard')"
+        style="background:rgba(74,144,226,.15);border:1px solid rgba(74,144,226,.3);color:#90c8ff;padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">
+        ← Back
       </button>
       <div style="font-weight:700;font-size:15px;color:#0d1b36">📊 Check Your CIBIL Score — Free</div>
     </div>
-    <a href="https://poonawallafincorp.com/credit-score/check-cibil-score" target="_blank"
-       style="font-size:11px;color:#4a90e2;text-decoration:none;font-weight:600">Open in new tab ↗</a>
   </div>
-  <div style="background:#f0f6ff;border:1px solid #c2d4f5;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:11.5px;color:#1a3a6e;display:flex;align-items:center;gap:8px">
-    <span style="font-size:16px">ℹ️</span>
-    <span>If the page shows a security error, click <b>Open in new tab ↗</b> above — some browsers block embedded pages for security.</span>
-  </div>
-  <div style="border-radius:10px;overflow:hidden;border:1px solid #c2d4f5;height:calc(100vh - 160px);background:#fff">
-    <iframe
-      src="https://poonawallafincorp.com/credit-score/check-cibil-score"
-      style="width:100%;height:100%;border:none"
-      title="Check CIBIL Score — Poonawalla Fincorp"
-      loading="lazy"
-      sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-top-navigation">
-    </iframe>
+
+  <!-- Main card -->
+  <div style="max-width:680px;margin:0 auto;padding:8px 0">
+
+    <!-- Hero -->
+    <div style="background:linear-gradient(135deg,#003087 0%,#0051d4 60%,#1a73e8 100%);border-radius:14px;padding:28px 32px;color:#fff;display:flex;align-items:center;gap:28px;margin-bottom:16px;box-shadow:0 8px 32px rgba(0,80,200,.25)">
+      <div style="flex:1">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#90c0ff;margin-bottom:8px">Powered by Poonawalla Fincorp</div>
+        <div style="font-size:24px;font-weight:800;line-height:1.2;margin-bottom:8px">Check Free CIBIL Score<br>Online</div>
+        <div style="font-size:12px;color:#c0d8ff;margin-bottom:20px">Quick · Hassle-Free · Completely Safe</div>
+        <a href="https://poonawallafincorp.com/credit-score/check-cibil-score" target="_blank"
+           style="display:inline-flex;align-items:center;gap:8px;background:#fff;color:#003087;padding:11px 24px;border-radius:10px;font-size:13px;font-weight:800;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:opacity .15s"
+           onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+          📊 Check My CIBIL Score Now &nbsp;↗
+        </a>
+      </div>
+      <!-- Score gauge SVG -->
+      <div style="flex-shrink:0;text-align:center">
+        <svg width="120" height="80" viewBox="0 0 120 80" style="overflow:visible">
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ef4444"/>
+              <stop offset="40%" style="stop-color:#f59e0b"/>
+              <stop offset="100%" style="stop-color:#22c55e"/>
+            </linearGradient>
+          </defs>
+          <path d="M10,70 A50,50 0 0,1 110,70" fill="none" stroke="rgba(255,255,255,.2)" stroke-width="12" stroke-linecap="round"/>
+          <path d="M10,70 A50,50 0 0,1 110,70" fill="none" stroke="url(#gaugeGrad)" stroke-width="12" stroke-linecap="round" stroke-dasharray="157" stroke-dashoffset="40"/>
+          <circle cx="93" cy="38" r="6" fill="#22c55e"/>
+          <text x="60" y="68" text-anchor="middle" fill="#fff" font-size="20" font-weight="800" font-family="sans-serif">825</text>
+          <text x="60" y="80" text-anchor="middle" fill="#c0d8ff" font-size="9" font-family="sans-serif">EXCELLENT</text>
+        </svg>
+      </div>
+    </div>
+
+    <!-- What you need -->
+    <div style="background:#fff;border:1px solid #dde2ee;border-radius:12px;padding:20px 24px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+      <div style="font-size:12px;font-weight:700;color:#0d1b36;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">📋 What You Need to Check</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:10px 12px">
+          <span style="font-size:18px">👤</span>
+          <div><div style="font-size:11px;font-weight:700;color:#0d1b36">First & Last Name</div><div style="font-size:10px;color:#64748b">As per PAN card</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:10px 12px">
+          <span style="font-size:18px">📱</span>
+          <div><div style="font-size:11px;font-weight:700;color:#0d1b36">Mobile Number</div><div style="font-size:10px;color:#64748b">For OTP verification</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#f8faff;border:1px solid #e0e8ff;border-radius:8px;padding:10px 12px">
+          <span style="font-size:18px">🪪</span>
+          <div><div style="font-size:11px;font-weight:700;color:#0d1b36">PAN Card Number</div><div style="font-size:10px;color:#64748b">10-digit PAN</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;background:#f0fff4;border:1px solid #bbf7d0;border-radius:8px;padding:10px 12px">
+          <span style="font-size:18px">✅</span>
+          <div><div style="font-size:11px;font-weight:700;color:#15803d">100% Free</div><div style="font-size:10px;color:#64748b">No hidden charges</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Score ranges -->
+    <div style="background:#fff;border:1px solid #dde2ee;border-radius:12px;padding:20px 24px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)">
+      <div style="font-size:12px;font-weight:700;color:#0d1b36;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">📈 Understanding Your Score</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:110px;font-size:11px;font-weight:700;color:#dc2626">300 – 549</div>
+          <div style="flex:1;height:8px;background:#fee2e2;border-radius:4px"><div style="width:20%;height:100%;background:#dc2626;border-radius:4px"></div></div>
+          <div style="font-size:10px;color:#64748b;width:70px">Poor</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:110px;font-size:11px;font-weight:700;color:#f59e0b">550 – 649</div>
+          <div style="flex:1;height:8px;background:#fef3c7;border-radius:4px"><div style="width:40%;height:100%;background:#f59e0b;border-radius:4px"></div></div>
+          <div style="font-size:10px;color:#64748b;width:70px">Fair</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:110px;font-size:11px;font-weight:700;color:#3b82f6">650 – 749</div>
+          <div style="flex:1;height:8px;background:#dbeafe;border-radius:4px"><div style="width:65%;height:100%;background:#3b82f6;border-radius:4px"></div></div>
+          <div style="font-size:10px;color:#64748b;width:70px">Good</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:110px;font-size:11px;font-weight:700;color:#15803d">750 – 900</div>
+          <div style="flex:1;height:8px;background:#dcfce7;border-radius:4px"><div style="width:90%;height:100%;background:#15803d;border-radius:4px"></div></div>
+          <div style="font-size:10px;color:#64748b;width:70px">Excellent</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;padding:10px 12px;font-size:11px;color:#0369a1">
+        💡 <b>Tip:</b> A score above 750 greatly improves your chances of loan approval and better interest rates.
+      </div>
+    </div>
+
+    <!-- CTA bottom -->
+    <div style="text-align:center;padding:8px 0 16px">
+      <a href="https://poonawallafincorp.com/credit-score/check-cibil-score" target="_blank"
+         style="display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,#003087,#1a73e8);color:#fff;padding:13px 32px;border-radius:12px;font-size:14px;font-weight:800;text-decoration:none;box-shadow:0 6px 24px rgba(0,80,200,.3)"
+         onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">
+        📊 Check My CIBIL Score — It's Free! &nbsp;↗
+      </a>
+      <div style="font-size:10px;color:#64748b;margin-top:8px">Opens securely on Poonawalla Fincorp's official website</div>
+    </div>
   </div>
 </div>
 
