@@ -40,9 +40,9 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a;font-size
 .info-box{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:var(--r2);padding:10px 12px;font-size:11px;color:#6ee7b7;margin-bottom:12px;display:none}
 /* OTP */
 .otp-row{display:flex;gap:8px;justify-content:center;margin:14px 0}
-.otp-inp{width:46px;height:52px;border:2px solid var(--border2);border-radius:var(--r2);background:rgba(255,255,255,.04);color:#fff;text-align:center;font-size:1.3rem;font-weight:700;outline:none;transition:border-color .15s;font-family:'Syne',sans-serif}
-.otp-inp:focus{border-color:var(--purple);background:rgba(124,58,237,.08)}
-.otp-inp.filled{border-color:var(--purple3)}
+.otp-inp{width:46px;height:52px;border:2px solid var(--border2);border-radius:var(--r2);background:#ffffff;color:#1e1b4b;text-align:center;font-size:1.5rem;font-weight:800;outline:none;transition:border-color .15s,box-shadow .15s;font-family:'Syne',sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.otp-inp:focus{border-color:var(--purple);background:#f5f3ff;box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.otp-inp.filled{border-color:var(--purple3);background:#ede9fe;color:#4c1d95}
 .timer-row{text-align:center;font-size:11px;color:var(--text2);margin-top:8px}
 .resend{color:var(--purple3);cursor:pointer;font-weight:600;pointer-events:none;opacity:.4}
 .resend.on{pointer-events:auto;opacity:1}
@@ -2465,31 +2465,113 @@ function submitEarlyAccess(){
   showToast('Request submitted for '+feat+'. We will contact you within 24-48 hrs.');
 }
 
-// Bulk Feature Grant/Revoke for ALL users
+// Bulk Feature Grant/Revoke — shows user selection modal
 function bulkGrantFeature(){
-  var features=Array.prototype.slice.call(arguments);
-  var users=getUsers();
-  if(!users.length){showToast('No users found');return;}
-  if(!confirm('Grant '+features.join(' & ')+' access to ALL '+users.length+' users?'))return;
-  users.forEach(function(u){
-    var ex=u.features||[];
-    features.forEach(function(f){if(!ex.includes(f))ex.push(f);});
-    u.features=ex;
-  });
-  saveUsers(users);_admWrite('dsacrm_users',users);
-  showToast('Access granted to all '+users.length+' users!');
+  var features = Array.prototype.slice.call(arguments);
+  _openFeatureAccessModal(features, 'grant');
 }
 
 function bulkRevokeFeature(){
-  var features=Array.prototype.slice.call(arguments);
-  var users=getUsers();
-  if(!users.length){showToast('No users found');return;}
-  if(!confirm('Revoke '+features.join(' & ')+' access from ALL '+users.length+' users?'))return;
-  users.forEach(function(u){
-    u.features=(u.features||[]).filter(function(f){return !features.includes(f);});
+  var features = Array.prototype.slice.call(arguments);
+  _openFeatureAccessModal(features, 'revoke');
+}
+
+function _openFeatureAccessModal(features, action){
+  var users = getUsers();
+  if(!users.length){ showToast('No registered users found'); return; }
+  var label = features.join(' + ');
+  var isGrant = action === 'grant';
+  var actionLabel = isGrant ? 'Grant' : 'Revoke';
+  var actionColor = isGrant ? '#5b21b6' : '#dc2626';
+  var actionBg    = isGrant ? 'linear-gradient(135deg,#5b21b6,#7c3aed)' : 'linear-gradient(135deg,#dc2626,#ef4444)';
+
+  // Build user rows — pre-check if they already have/don't have the feature
+  var rows = users.map(function(u, idx){
+    var has = features.every(function(f){ return (u.features||[]).includes(f); });
+    var relevantAction = isGrant ? !has : has; // only show relevant users first
+    var statusPill = has
+      ? '<span style="font-size:9px;background:#dcfce7;color:#15803d;border:1px solid #86efac;padding:1px 7px;border-radius:20px;font-weight:700">✅ Has Access</span>'
+      : '<span style="font-size:9px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:1px 7px;border-radius:20px;font-weight:700">❌ No Access</span>';
+    return '<tr style="border-bottom:1px solid #e2e8f0">'
+      + '<td style="padding:7px 10px"><input type="checkbox" class="fa-user-chk" data-idx="'+idx+'" '+(relevantAction?'checked':'')
+      +' style="accent-color:'+actionColor+';cursor:pointer;width:14px;height:14px"></td>'
+      + '<td style="padding:7px 10px;font-size:11px;font-weight:600;color:#0f172a">'+u.name+'</td>'
+      + '<td style="padding:7px 10px;font-size:10px;color:#475569">'+u.mobile+'</td>'
+      + '<td style="padding:7px 10px;font-size:10px"><span style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:10px;font-size:9px">'+u.type+'</span></td>'
+      + '<td style="padding:7px 10px">'+statusPill+'</td>'
+      + '</tr>';
+  }).join('');
+
+  document.getElementById('modal-title').textContent = actionLabel + ' Access: ' + label;
+  document.getElementById('modal-body').innerHTML =
+    '<div style="background:' + (isGrant?'#f5f3ff':'#fff1f2') + ';border:1px solid '+(isGrant?'#ddd6fe':'#fecaca')+';border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:'+(isGrant?'#4c1d95':'#b91c1c')+'">'
+    + (isGrant ? '✅ Check users to <b>grant</b> access to <b>' + label + '</b> features.' : '🚫 Check users to <b>revoke</b> <b>' + label + '</b> access.')
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:8px">'
+    + '<button onclick="_faSelectAll(true)" style="font-size:10px;padding:3px 10px;border:1px solid #c5cde4;border-radius:5px;cursor:pointer;background:#f8fafc">Select All</button>'
+    + '<button onclick="_faSelectAll(false)" style="font-size:10px;padding:3px 10px;border:1px solid #c5cde4;border-radius:5px;cursor:pointer;background:#f8fafc">Deselect All</button>'
+    + '<span style="margin-left:auto;font-size:10px;color:#64748b;align-self:center" id="fa-sel-count">' + users.filter(function(u){ return features.every(function(f){return isGrant?!(u.features||[]).includes(f):(u.features||[]).includes(f);}); }).length + ' users pre-selected</span>'
+    + '</div>'
+    + '<div style="max-height:320px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px">'
+    + '<table style="width:100%;border-collapse:collapse">'
+    + '<thead><tr style="background:#f8fafc;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em">'
+    + '<th style="padding:7px 10px;width:32px"><input type="checkbox" id="fa-sel-all-chk" onchange="_faSelectAll(this.checked)" style="accent-color:'+actionColor+'"></th>'
+    + '<th style="padding:7px 10px;text-align:left">Name</th><th style="padding:7px 10px;text-align:left">Mobile</th>'
+    + '<th style="padding:7px 10px;text-align:left">Type</th><th style="padding:7px 10px;text-align:left">Current Status</th>'
+    + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+
+  document.getElementById('modal-edit').dataset.type      = 'feature-access';
+  document.getElementById('modal-edit').dataset.feats     = features.join(',');
+  document.getElementById('modal-edit').dataset.faaction  = action;
+  document.getElementById('modal-edit').classList.add('open');
+
+  // Update count as user checks/unchecks
+  document.querySelectorAll('.fa-user-chk').forEach(function(chk){
+    chk.onchange = function(){ _faUpdateCount(); };
   });
-  saveUsers(users);_admWrite('dsacrm_users',users);
-  showToast('Access revoked from all '+users.length+' users!');
+  _faUpdateCount();
+}
+
+function _faSelectAll(checked){
+  document.querySelectorAll('.fa-user-chk').forEach(function(c){ c.checked=checked; });
+  var allChk = document.getElementById('fa-sel-all-chk');
+  if(allChk) allChk.checked = checked;
+  _faUpdateCount();
+}
+
+function _faUpdateCount(){
+  var n = document.querySelectorAll('.fa-user-chk:checked').length;
+  var el = document.getElementById('fa-sel-count');
+  if(el) el.textContent = n + ' user(s) selected';
+}
+
+// Save feature-access modal
+function _saveFeatureAccess(){
+  var modal    = document.getElementById('modal-edit');
+  var features = (modal.dataset.feats||'').split(',').filter(Boolean);
+  var action   = modal.dataset.faaction;
+  var users    = getUsers();
+  var checks   = document.querySelectorAll('.fa-user-chk');
+  var changed  = 0;
+  checks.forEach(function(chk){
+    var idx = parseInt(chk.dataset.idx);
+    if(isNaN(idx)||!users[idx]) return;
+    if(!chk.checked) return;
+    var ex = users[idx].features || [];
+    if(action === 'grant'){
+      features.forEach(function(f){ if(!ex.includes(f)) ex.push(f); });
+    } else {
+      ex = ex.filter(function(f){ return !features.includes(f); });
+    }
+    users[idx].features = ex;
+    changed++;
+  });
+  if(!changed){ showToast('No users selected'); return; }
+  saveUsers(users);
+  _admWrite('dsacrm_users', users);
+  closeModal();
+  showToast((action==='grant'?'Access granted':'Access revoked')+' for '+changed+' user(s)!');
+  renderUsers();
 }
 
 function exportAdmConnectors(){
@@ -2727,6 +2809,8 @@ function saveModalEntry(){
   const idx   = parseInt(modal.dataset.idx);
 
   // ── Connector edit ──
+  if(type==='early-access'){ closeModal(); return; }
+  if(type==='feature-access'){ _saveFeatureAccess(); return; }
   if(type==='adm-connector'){
     const connid = modal.dataset.connid;
     const all    = getConnectors();
@@ -3162,7 +3246,7 @@ function refreshFirebase(){
 
   if(_admDb){
     // Firebase is connected — force re-read all keys
-    const KEYS = ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies'];
+    const KEYS = ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_connectors','crm_womenfl','crm_bizfl'];
     let done = 0;
     KEYS.forEach(function(key){
       _admDb.ref('dsa_crm/'+key).once('value', function(snap){
@@ -3176,6 +3260,8 @@ function refreshFirebase(){
           renderUsers();
           renderBorrowers();
           renderQueueStats();
+          renderAdmConnectors();
+          renderAdmFreelancers();
           if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm();
           // Stop spinner
           if(ico){ ico.style.animation='none'; }
