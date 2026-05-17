@@ -2186,9 +2186,11 @@ function _lsParse(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v)
 var _cache = {
   dsacrm_users:  _lsParse('dsacrm_users'),
   crm_borrowers: _lsParse('crm_borrowers'),
-  crm_connectors: _lsParse('crm_connectors'),
+  crm_connectors:_lsParse('crm_connectors'),
   crm_contacts:  _lsParse('crm_contacts'),
   crm_policies:  _lsParse('crm_policies'),
+  crm_womenfl:   _lsParse('crm_womenfl'),
+  crm_bizfl:     _lsParse('crm_bizfl'),
 };
 // ═══════════════════════════════════════════════════════
 
@@ -2289,6 +2291,7 @@ function gateLogin(){
   const sb=document.querySelector('.sb-footer .dsa-name');
   if(sb)sb.textContent=user.name+' ('+user.type+')';
   showToast('Welcome back, '+user.name+'! 👋');
+  setTimeout(_applyFeatureAccess, 200); // apply feature gating after sidebar renders
 }
 
 // ══ 2factor.in Real SMS OTP ══
@@ -2471,6 +2474,7 @@ function gateLogout(){
       document.getElementById('auth-gate').style.display='none';
       const sb=document.querySelector('.sb-footer .dsa-name');
       if(sb)sb.textContent=user.name+' ('+user.type+')';
+      setTimeout(_applyFeatureAccess, 300); // apply feature gating after DOM settles
       return;
     }
     _clearSession();
@@ -4570,7 +4574,7 @@ window.addEventListener('load', () => {
 // ══════════════════════════════════════════════════════
 
 // Refresh _cache keys that were still empty after early seed
-['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_connectors'].forEach(function(k){
+['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_connectors','crm_womenfl','crm_bizfl'].forEach(function(k){
   if(!_cache[k]||!_cache[k].length){
     try{ var v=localStorage.getItem(k); if(v) _cache[k]=JSON.parse(v); }catch(e){}
   }
@@ -4686,6 +4690,15 @@ function _onFirebaseSync(key){
   if(key==='crm_borrowers') { renderAllBorrowers(); renderDashboard(); updateBadges(); }
   if(key==='crm_followups') { renderFollowUps(); renderDashboard(); updateBadges(); buildCal(); }
   if(key==='crm_connectors'){ renderConnectors(); updateBadges(); populateConnectorDropdowns(); }
+  if(key==='crm_womenfl' || key==='crm_bizfl'){ renderFreelancers(); }
+  if(key==='dsacrm_users'){
+    // Admin may have updated feature access — re-evaluate sidebar visibility
+    const session=_getSession();
+    if(session){
+      const fresh=(_cache.dsacrm_users||[]).find(u=>u.mobile===session);
+      if(fresh){ _currentUser=fresh; _applyFeatureAccess(); }
+    }
+  }
   if(key==='crm_policies')  { renderSavedPolicies(); }
   if(key==='dsacrm_users')  { /* keep cache fresh — session user re-validated on next getCurrentUser() call */ }
 }
@@ -5766,15 +5779,15 @@ function saveFreelancer(){
 
   const type = window._flType||'women';
   const key  = type==='women' ? 'crm_womenfl' : 'crm_bizfl';
-  const fl   = JSON.parse(localStorage.getItem(key)||'[]');
+  // Read from _cache (Firebase-synced) then write back via _fbSet
+  const fl   = _cache[key] || JSON.parse(localStorage.getItem(key)||'[]');
   const rec  = {
     id:'FL'+Date.now(), name, phone, email, location, profile, expected, remarks,
     type: profile, dt: new Date().toLocaleDateString('en-IN'), addedOn: Date.now(),
     addedBy: getCurrentUser()?.mobile||_getSession()||'unknown', status:'PENDING'
   };
   fl.push(rec);
-  localStorage.setItem(key, JSON.stringify(fl));
-  if(typeof _fbSet==='function') _fbSet(key, fl);
+  _fbSet(key, fl); // writes to _cache + localStorage + Firebase
 
   // Clear form
   ['fl-name','fl-phone','fl-email','fl-location','fl-expected','fl-remarks'].forEach(function(id){
@@ -5786,8 +5799,8 @@ function saveFreelancer(){
 }
 
 function renderFreelancers(){
-  var wf = JSON.parse(localStorage.getItem('crm_womenfl')||'[]');
-  var bf = JSON.parse(localStorage.getItem('crm_bizfl')||'[]');
+  var wf = _cache.crm_womenfl || JSON.parse(localStorage.getItem('crm_womenfl')||'[]');
+  var bf = _cache.crm_bizfl   || JSON.parse(localStorage.getItem('crm_bizfl')||'[]');
 
   // Badge counts
   var wb = document.getElementById('wf-count-badge'); if(wb) wb.textContent=wf.length;
@@ -5901,7 +5914,34 @@ function applyFUDateTime(){
 // FEATURE 4 + 5: DSA/CONNECTOR DASHBOARD
 // ══════════════════════════════════════════════
 function getConnectors(){ return _cache.crm_connectors||[]; }
-function saveConnectors(d){ _fbSet('crm_connectors',d); _cache.crm_connectors=d; }
+
+// ── Merge-save: preserve other users' connectors, only update current user's ──
+function saveConnectors(myConnectors){
+  const myMobile = getCurrentUser()?.mobile || _getSession() || '';
+  _cache.crm_connectors = myConnectors;
+  try{ localStorage.setItem('crm_connectors', JSON.stringify(myConnectors)); }catch(e){}
+  if(!_fbDb){
+    // Firebase not ready — just store locally, will sync when connection established
+    return;
+  }
+  // Read-modify-write: preserve other users' connectors, only replace current user's
+  _fbDb.ref('dsa_crm/crm_connectors').once('value', function(snap){
+    var raw  = snap.val();
+    var all  = Array.isArray(raw) ? raw : (raw ? Object.values(raw) : []);
+    var others = all.filter(function(c){ return c.addedBy !== myMobile; });
+    var merged = others.concat(myConnectors);
+    _cache.crm_connectors = merged;
+    try{ localStorage.setItem('crm_connectors', JSON.stringify(merged)); }catch(e){}
+    _fbDb.ref('dsa_crm/crm_connectors').set(merged)
+      .then(function(){ console.log('Connectors saved to Firebase:', merged.length, 'total'); })
+      .catch(function(e){ console.warn('Connector FB write error:', e); });
+  }).catch(function(e){
+    // Read failed — write user's own connectors directly as fallback
+    console.warn('Connector FB read failed, writing directly:', e);
+    _fbDb.ref('dsa_crm/crm_connectors').set(myConnectors)
+      .catch(function(e2){ console.warn('Connector FB direct write error:', e2); });
+  });
+}
 
 var _connEditId = null;
 var _connFilter = 'ALL';
@@ -6105,6 +6145,25 @@ const _origUpdateBadges = typeof updateBadges==='function'?updateBadges:null;
 // ── Feature 4: TITLES + nav init ──
 
 // ── Feature 4: Feature stubs — WA & BL features (coming soon) ──
+// ── Feature Access: show/hide gated sidebar sections based on admin grant ──
+function _applyFeatureAccess(){
+  const u = getCurrentUser();
+  if(!u) return;
+  const features = u.features || [];
+  // Sections that require explicit admin grant — hidden by default for new users
+  // Legacy users (Cheyutha Multiway) who have no features array get ALL access
+  const isLegacy = !u.features; // null/undefined = legacy user → full access
+  [
+    { key:'womenfl',     sel:'.ni[onclick*="womenfl"]'    },
+    { key:'bizfl',       sel:'.ni[onclick*="bizfl"]'      },
+    { key:'dsaconn',     sel:'.ni[onclick*="dsaconn"]'   },
+    { key:'instantloan', sel:'.ni[onclick*="instantloan"]'},
+  ].forEach(({key, sel})=>{
+    document.querySelectorAll(sel).forEach(ni=>{
+      ni.style.display = (isLegacy || features.includes(key)) ? '' : 'none';
+    });
+  });
+}
 // These prevent "X is not defined" errors when buttons are clicked.
 function saveBLProfile(){
   showToast('💾 Business loan profile saved');
