@@ -8,7 +8,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#f0f2f5;--bg2:#ffffff;--bg3:#ffffff;--card:#ffffff;--card2:#f5f7fa;
+  --bg:#f4f7fb;--bg2:#ffffff;--bg3:#ffffff;--card:#ffffff;--card2:#f8fafc;
   --border:#dde2ee;--border2:#c5cde4;
   --purple:#5b21b6;--purple2:#4c1d95;--purple3:#7c3aed;--purple-glow:rgba(91,33,182,.1);
   --gold:#b45309;--gold2:#92400e;
@@ -40,9 +40,9 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a;font-size
 .info-box{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);border-radius:var(--r2);padding:10px 12px;font-size:11px;color:#6ee7b7;margin-bottom:12px;display:none}
 /* OTP */
 .otp-row{display:flex;gap:8px;justify-content:center;margin:14px 0}
-.otp-inp{width:46px;height:52px;border:2px solid var(--border2);border-radius:var(--r2);background:rgba(255,255,255,.04);color:#fff;text-align:center;font-size:1.3rem;font-weight:700;outline:none;transition:border-color .15s;font-family:'Syne',sans-serif}
-.otp-inp:focus{border-color:var(--purple);background:rgba(124,58,237,.08)}
-.otp-inp.filled{border-color:var(--purple3)}
+.otp-inp{width:46px;height:52px;border:2px solid var(--border2);border-radius:var(--r2);background:#ffffff;color:#1e1b4b;text-align:center;font-size:1.5rem;font-weight:800;outline:none;transition:border-color .15s,box-shadow .15s;font-family:'Syne',sans-serif;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.otp-inp:focus{border-color:var(--purple);background:#f5f3ff;box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+.otp-inp.filled{border-color:var(--purple3);background:#ede9fe;color:#4c1d95}
 .timer-row{text-align:center;font-size:11px;color:var(--text2);margin-top:8px}
 .resend{color:var(--purple3);cursor:pointer;font-weight:600;pointer-events:none;opacity:.4}
 .resend.on{pointer-events:auto;opacity:1}
@@ -67,7 +67,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a;font-size
 .ni-ico{font-size:13px;width:16px;text-align:center;flex-shrink:0;color:inherit}
 .sb-footer{margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.15);background:rgba(0,0,0,.2)}
 .adm-info{font-size:11px;color:rgba(255,255,255,.75);margin-bottom:8px}
-.adm-info b{color:#c4b5fd;font-weight:700}
+.adm-info b{color:#ffffff;font-weight:700}
 .btn-logout{width:100%;padding:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:var(--r2);color:#fff;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif}
 .btn-logout:hover{background:rgba(255,255,255,.22)}
 
@@ -87,7 +87,7 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a;font-size
 
 /* ── KPI CARDS ── */
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.kpi{background:#ffffff;border:1px solid #dde2ee;border-radius:var(--r);padding:14px;position:relative;overflow:hidden;transition:all .2s;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.kpi{background:#ffffff;border:1px solid #e2e8f0;border-radius:var(--r);padding:16px;position:relative;overflow:hidden;transition:box-shadow .2s;box-shadow:0 1px 4px rgba(0,0,0,.07)}
 .kpi:hover{border-color:#5b21b6;box-shadow:0 4px 16px rgba(91,33,182,.08)}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:2px 2px 0 0}
 .kpi.purple::before{background:linear-gradient(90deg,var(--purple),var(--purple3))}
@@ -95,22 +95,22 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:#0f172a;font-size
 .kpi.green::before{background:linear-gradient(90deg,var(--green),#34d399)}
 .kpi.gold::before{background:linear-gradient(90deg,var(--gold),#fcd34d)}
 .kpi-ico{font-size:1.2rem;margin-bottom:8px;opacity:.8}
-.kpi-lbl{font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
-.kpi-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:#0f172a;line-height:1}
+.kpi-lbl{font-size:10px;color:#2563eb;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.kpi-val{font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:800;color:#0f172a;line-height:1}
 .kpi-sub{font-size:10px;color:#64748b;margin-top:5px}
 
 /* ── CARDS ── */
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,.3)}
-.card-head{padding:11px 15px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:rgba(48,54,61,.25)}
-.card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text)}
+.card{background:#ffffff;border:1px solid #e2e8f0;border-radius:var(--r);overflow:hidden;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.card-head{padding:11px 16px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:#ffffff}
+.card-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:#1e40af}
 .card-body{padding:14px 15px}
 
 /* ── TABLE ── */
 table{width:100%;border-collapse:collapse;font-size:11px}
-th{padding:8px 10px;color:#1e293b;font-weight:700;background:#e8ecf4;border-bottom:2px solid #c5cde4;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+th{padding:8px 10px;color:#2563eb;font-weight:700;background:#ffffff;border-bottom:2px solid #dbeafe;text-align:left;font-size:9.5px;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
 td{padding:9px 10px;border-bottom:1px solid #dde2ee;color:#1e293b;vertical-align:middle;font-size:11.5px}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:#edf2ff;color:#0f172a}
+tr:hover td{background:#f0f7ff;color:#0f172a}
 
 /* ── PILLS ── */
 .pill{display:inline-block;font-size:9.5px;padding:2px 8px;border-radius:999px;font-weight:700}
@@ -219,6 +219,11 @@ tr:hover td{background:#edf2ff;color:#0f172a}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 </style>
+<!-- SheetJS for real Excel export & jsPDF for real PDF export -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+
 <!-- Firebase Compat SDK — multi-CDN waterfall loader -->
 <script>
 (function(){
@@ -321,9 +326,9 @@ tr:hover td{background:#edf2ff;color:#0f172a}
     <div class="ni" onclick="navTo(this,'policies')"><span class="ni-ico">⌘</span>Bank Policies</div>
     <div class="ni" onclick="navTo(this,'filesdump')"><span class="ni-ico">▤</span>Files Dump</div>
     <div class="ni" onclick="navTo(this,'bankerdir')"><span class="ni-ico">☏</span>Banker Directory</div>
-    <div class="ni" onclick="navTo(this,'cibildata')"><span class="ni-ico">📊</span>CIBIL Data <span id="sb-cibil-badge" style="margin-left:auto;background:#1e3a5f;color:#93c5fd;font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700">0</span></div>
-    <div class="ni" onclick="navTo(this,'connectors')"><span class="ni-ico">🤝</span>DSA/Connectors <span id="sb-dsa-badge" style="margin-left:auto;background:#3b2a5e;color:#c4b5fd;font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700">0</span></div>
-    <div class="ni" onclick="navTo(this,'freelancers')"><span class="ni-ico">🌟</span>Freelancer Programs <span id="sb-fl-badge" style="margin-left:auto;background:#14532d;color:#86efac;font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700">0</span></div>
+    <div class="ni" onclick="navTo(this,'cibildata')"><span class="ni-ico">📊</span>CIBIL Data <span id="cibil-adm-badge" style="margin-left:auto;background:rgba(255,255,255,.2);color:#ffffff;font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700;border:1px solid rgba(255,255,255,.3)">0</span></div>
+    <div class="ni" onclick="navTo(this,'connectors')"><span class="ni-ico">🤝</span>DSA/Connectors <span id="conn-adm-badge" style="margin-left:auto;background:rgba(255,255,255,.2);color:#ffffff;font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700;border:1px solid rgba(255,255,255,.3)">0</span></div>
+    <div class="ni" onclick="navTo(this,'freelancers')"><span class="ni-ico">👤</span>Freelancer Programs <span id="fl-adm-badge" style="margin-left:auto;background:rgba(255,255,255,.2);color:#ffffff;font-size:8px;padding:1px 6px;border-radius:10px;font-weight:700;border:1px solid rgba(255,255,255,.3)">0</span></div>
 
     <div class="sb-lbl">Platform</div>
     <div class="ni" onclick="navTo(this,'market')"><span class="ni-ico">🚀</span>Feature Marketplace</div>
@@ -603,18 +608,20 @@ tr:hover td{background:#edf2ff;color:#0f172a}
             <span class="card-title">☑ Follow-up Queue (Admin View)</span>
             <span class="pill p-gray" id="fu-count-badge">0 entries</span>
           </div>
-          <table>
+          <div style="overflow-x:auto;width:100%">
+          <table style="min-width:1180px;white-space:nowrap">
             <thead><tr>
               <th>#</th><th>Date / Time</th><th>Customer</th><th>Phone</th>
               <th>Loan Type</th><th>Type</th><th>Outcome / Status</th>
-              <th>Priority</th><th>Purpose</th><th>Notes</th>
+              <th>Priority</th><th>Purpose</th><th>Notes</th><th>Action</th>
             </tr></thead>
             <tbody id="fu-adm-tbody">
-              <tr><td colspan="10"><div class="empty"><div class="empty-ico">☑</div>
+              <tr><td colspan="11"><div class="empty"><div class="empty-ico">☑</div>
                 <p>No follow-ups yet.<br>Follow-ups added by DSAs will appear here.</p>
               </div></td></tr>
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -772,6 +779,142 @@ tr:hover td{background:#edf2ff;color:#0f172a}
         </div>
       </div>
 
+      <!-- ══ DSA/CONNECTORS ADMIN ══ -->
+      <div class="sec" id="sec-connectors">
+        <div class="filter-bar">
+          <input class="fsearch" placeholder="🔍 Search connector name, phone…" id="conn-adm-search" oninput="renderAdmConnectors()">
+          <select class="fsel" id="conn-adm-status" onchange="renderAdmConnectors()">
+            <option value="ALL">All Status</option>
+            <option value="INTERESTED">✅ Interested</option>
+            <option value="NOT INTERESTED">❌ Not Interested</option>
+            <option value="BUSY">📵 Busy</option>
+            <option value="CALL WAITING">⏳ Call Waiting</option>
+            <option value="WILL CALL YOU">📞 Will Call You</option>
+            <option value="LESS PAYOUT">💰 Less Payout</option>
+            <option value="CALL ME LATER">🕐 Call Me Later</option>
+          </select>
+          <button class="btn btn-gold" onclick="exportAdmConnectors()">📥 Export CSV</button>
+          <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+            <span style="font-size:10px;color:#64748b;font-weight:600">Access:</span>
+            <button class="btn btn-p" style="font-size:10px;padding:5px 10px" onclick="bulkGrantFeature('dsaconn')">🤝 Grant DSA Access — All Users</button>
+            <button class="btn btn-r" style="font-size:10px;padding:5px 10px" onclick="bulkRevokeFeature('dsaconn')">🚫 Revoke DSA Access</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">🤝 DSA / Connector Dashboard — All Users</span>
+            <span class="pill p-gray" id="conn-adm-count">0 entries</span>
+          </div>
+          <table>
+            <thead><tr><th>#</th><th>Name</th><th>DSA Code</th><th>Mobile</th><th>Status</th><th>Business Target</th><th>Business Vertical</th><th>Location</th><th>Follow-Up Date</th><th>Added By (DSA)</th><th>Actions</th></tr></thead>
+            <tbody id="conn-adm-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-ico">🤝</div><p>No connectors yet. DSA users add connectors from their dashboard.</p></div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ FREELANCER PROGRAMS ADMIN ══ -->
+      <div class="sec" id="sec-freelancers">
+        <div class="filter-bar">
+          <input class="fsearch" placeholder="🔍 Search freelancer…" id="fl-adm-search" oninput="renderAdmFreelancers()">
+          <select class="fsel" id="fl-adm-type" onchange="renderAdmFreelancers()">
+            <option value="ALL">All Programs</option>
+            <option value="women">👩 Women Freelancer</option>
+            <option value="biz">🏢 Business Freelancer</option>
+          </select>
+          <button class="btn btn-gold" onclick="exportAdmFreelancers()">📥 Export CSV</button>
+          <!-- Bulk Feature Access grant for all users -->
+          <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+            <span style="font-size:10px;color:#64748b;font-weight:600">Grant access to:</span>
+            <button class="btn btn-p" style="font-size:10px;padding:5px 10px" onclick="bulkGrantFeature('womenfl')">👩 Women FL — All Users</button>
+            <button class="btn btn-p" style="font-size:10px;padding:5px 10px" onclick="bulkGrantFeature('bizfl')">🏢 Biz FL — All Users</button>
+            <button class="btn btn-r" style="font-size:10px;padding:5px 10px" onclick="bulkRevokeFeature('womenfl','bizfl')">🚫 Revoke FL Access</button>
+          </div>
+        </div>
+        <div id="fl-card-women" class="card" style="margin-bottom:12px">
+          <div class="card-head">
+            <span class="card-title">👩 Women Freelancer Programme — All DSAs</span>
+            <span class="pill p-purple" id="fl-women-count">0 entries</span>
+          </div>
+          <table>
+            <thead><tr>
+              <th style="width:28px"><input type="checkbox" id="fl-sel-all-women" onclick="flSelectAll('women',this)" title="Select All" style="accent-color:#7c3aed;cursor:pointer"></th>
+              <th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By (DSA)</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="fl-women-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-ico">👩</div><p>No women freelancers registered yet.</p></div></td></tr></tbody>
+          </table>
+          <div id="fl-women-bulk" style="display:none;padding:8px 12px;background:#f0f4ff;border-top:1px solid #c7d2fe;display:flex;align-items:center;gap:10px">
+            <span id="fl-women-sel-count" style="font-size:11px;color:#3730a3;font-weight:600">0 selected</span>
+            <button onclick="flBulkDelete('women')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">🗑 Delete Selected</button>
+          </div>
+        </div>
+        <div id="fl-card-biz" class="card">
+          <div class="card-head">
+            <span class="card-title">🏢 Business Freelancer Programme — All DSAs</span>
+            <span class="pill p-blue" id="fl-biz-count">0 entries</span>
+          </div>
+          <table>
+            <thead><tr>
+              <th style="width:28px"><input type="checkbox" id="fl-sel-all-biz" onclick="flSelectAll('biz',this)" title="Select All" style="accent-color:#1a5fb4;cursor:pointer"></th>
+              <th>#</th><th>Name</th><th>Mobile</th><th>Location</th><th>Profile</th><th>Expected Business</th><th>Remarks</th><th>Added By (DSA)</th><th>Date</th><th>Actions</th>
+            </tr></thead>
+            <tbody id="fl-biz-tbody"><tr><td colspan="11"><div class="empty"><div class="empty-ico">🏢</div><p>No business freelancers registered yet.</p></div></td></tr></tbody>
+          </table>
+          <div id="fl-biz-bulk" style="display:none;padding:8px 12px;background:#eff6ff;border-top:1px solid #bfdbfe;display:flex;align-items:center;gap:10px">
+            <span id="fl-biz-sel-count" style="font-size:11px;color:#1e40af;font-weight:600">0 selected</span>
+            <button onclick="flBulkDelete('biz')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 12px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer">🗑 Delete Selected</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CIBIL DATA QUEUE ══ -->
+      <div class="sec" id="sec-cibildata">
+        <div class="filter-bar">
+          <input class="fsearch" placeholder="🔍 Search name, mobile, PAN…" id="cibil-search" oninput="renderAdmCibil()">
+          <select class="fsel" id="cibil-score-filter" onchange="renderAdmCibil()">
+            <option value="ALL">All Score Ranges</option>
+            <option value="EXCELLENT">🟢 Excellent (750–900)</option>
+            <option value="GOOD">🔵 Good (650–749)</option>
+            <option value="FAIR">🟡 Fair (550–649)</option>
+            <option value="POOR">🔴 Poor (300–549)</option>
+          </select>
+          <select class="fsel" id="cibil-user-filter" onchange="renderAdmCibil()">
+            <option value="ALL">All Team/DSA</option>
+          </select>
+          <button class="btn btn-gold" onclick="exportAdmCibil()">📥 Export Excel</button>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">📊 CIBIL Data Queue — All DSAs</span>
+            <div style="display:flex;gap:8px;align-items:center">
+              <span class="pill p-green" id="cibil-excellent-count">0 Excellent</span>
+              <span class="pill p-blue"  id="cibil-good-count">0 Good</span>
+              <span class="pill p-gold"  id="cibil-fair-count">0 Fair</span>
+              <span class="pill p-red"   id="cibil-poor-count">0 Poor</span>
+              <span class="pill p-gray"  id="cibil-total-count">0 total</span>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+          <table style="min-width:1000px">
+            <thead><tr>
+              <th style="width:36px">S.No</th>
+              <th>Date</th>
+              <th>First Name</th>
+              <th>Last Name</th>
+              <th>Mobile Number</th>
+              <th>PAN Number</th>
+              <th>CIBIL Score</th>
+              <th>Remarks</th>
+              <th>Team Name<br><span style="font-weight:400;font-size:8px;color:#94a3b8">DSA Name below</span></th>
+              <th>Actions</th>
+            </tr></thead>
+            <tbody id="cibil-adm-tbody">
+              <tr><td colspan="10"><div class="empty"><div class="empty-ico">📊</div><p>No CIBIL records yet.<br>DSA users save CIBIL results from the User Dashboard → Check Your CIBIL.</p></div></td></tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+
       <!-- ══ FEATURE MARKETPLACE ══ -->
       <div class="sec" id="sec-market">
         <div class="card" style="margin-bottom:16px">
@@ -792,149 +935,58 @@ tr:hover td{background:#edf2ff;color:#0f172a}
                 <div class="market-name">Automated Email Reports</div>
                 <div class="market-desc">Schedule daily, weekly and monthly summary reports to be auto-emailed to admin and team leads with queue performance metrics.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📧 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Automated Email Reports')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🤖</div>
                 <div class="market-name">AI Credit Scoring</div>
                 <div class="market-desc">Automated credit analysis using AI to assess borrower creditworthiness, predict approval probability and recommend suitable banks.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🤖 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('AI Credit Scoring')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">📊</div>
                 <div class="market-name">Advanced Analytics</div>
                 <div class="market-desc">DSA performance leaderboard, conversion funnel analysis, revenue trend graphs, queue velocity and disbursement heatmaps.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📊 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Advanced Analytics')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🔔</div>
                 <div class="market-name">Push Notifications</div>
                 <div class="market-desc">Real-time browser push notifications for follow-up deadlines, disbursement completions, policy updates and new borrower entries.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🔔 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Push Notifications')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🏦</div>
                 <div class="market-name">Live Bank API Sync</div>
                 <div class="market-desc">Auto-sync bank policies, interest rates and eligibility criteria directly from bank APIs. Rates update in real-time without manual entry.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🏦 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Live Bank API Sync')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">📱</div>
                 <div class="market-name">Mobile App (Android / iOS)</div>
                 <div class="market-desc">Native mobile app for DSAs and connectors to manage leads, follow-ups and check eligibility on the go with offline support.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📱 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Mobile App')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">🔐</div>
                 <div class="market-name">Role-Based Permissions</div>
                 <div class="market-desc">Fine-grained access control — restrict DSAs from seeing each other's data, limit connector access to specific queues, custom role templates.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('🔐 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Role-Based Permissions')">Request Early Access</button>
               </div>
               <div class="market-card">
                 <div class="market-ico">📈</div>
                 <div class="market-name">Commission Tracker</div>
                 <div class="market-desc">Automated payout calculations, sub-agent split tracking, GST invoice generation and commission statement downloads for each DSA.</div>
                 <span class="pill p-gold">Coming Soon</span>
-                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="showToast('📈 Feature request noted!')">Request Early Access</button>
+                <button class="btn btn-p" style="margin-top:8px;width:100%;font-size:10px" onclick="openEarlyAccess('Commission Tracker')">Request Early Access</button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ CIBIL DATA QUEUE ══ -->
-      <div class="sec" id="sec-cibildata">
-        <div class="filter-bar">
-          <input class="fsearch" id="cibil-search" placeholder="🔍 Name, mobile, PAN…" oninput="renderAdmCibil()">
-          <select class="fsel" id="cibil-score-filter" onchange="renderAdmCibil()">
-            <option value="ALL">All Score Ranges</option>
-            <option value="excellent">🟢 Excellent (750+)</option>
-            <option value="good">🔵 Good (700–749)</option>
-            <option value="fair">🟡 Fair (650–699)</option>
-            <option value="poor">🔴 Poor (below 650)</option>
-          </select>
-          <select class="fsel" id="cibil-user-filter" onchange="renderAdmCibil()" style="min-width:150px">
-            <option value="ALL">All Team/DSA</option>
-          </select>
-          <button class="btn btn-gold" onclick="exportAdmCibil()">📥 Export Excel</button>
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px" id="cibil-score-summary"></div>
-        <div class="card">
-          <div class="card-head">
-            <span class="card-title">📊 CIBIL Data Queue — All DSAs</span>
-          </div>
-          <div style="overflow-x:auto">
-            <table style="min-width:900px">
-              <thead><tr>
-                <th>S.NO</th><th>DATE</th><th>FIRST NAME</th><th>LAST NAME</th>
-                <th>MOBILE NUMBER</th><th>PAN NUMBER</th><th>CIBIL SCORE</th>
-                <th>REMARKS</th><th>TEAM NAME / DSA</th><th>ACTIONS</th>
-              </tr></thead>
-              <tbody id="cibil-tbody">
-                <tr><td colspan="10" style="text-align:center;padding:40px;color:#64748b"><div style="font-size:2rem">📊</div>No CIBIL records found.</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ DSA / CONNECTORS ══ -->
-      <div class="sec" id="sec-connectors">
-        <div class="filter-bar">
-          <input class="fsearch" id="dsa-search" placeholder="🔍 Search name or mobile…" oninput="renderDSAConnectors()">
-          <select class="fsel" id="dsa-type-filter" onchange="renderDSAConnectors()">
-            <option value="ALL">All Types</option>
-            <option>Individual DSA</option><option>Connector</option><option>Sub-DSA</option>
-            <option>DSA Company</option><option>NBFC</option><option>Bank</option>
-            <option>Credit Team</option><option>Accounts</option><option>Team Member</option>
-          </select>
-          <span class="pill p-gray" id="dsa-count-badge" style="font-size:11px;padding:5px 12px">0 users</span>
-          <button class="btn btn-gold" onclick="downloadUsers()">📥 Export Excel</button>
-        </div>
-        <!-- Type Summary Cards -->
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px" id="dsa-type-summary"></div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">🤝 All Registered Users by Type</span></div>
-          <div style="overflow-x:auto">
-            <table style="min-width:850px">
-              <thead><tr>
-                <th>#</th><th>MOBILE</th><th>NAME</th><th>USER TYPE</th>
-                <th>DSA / BANK NAME</th><th>STATUS</th><th>JOINED</th><th>LEADS</th><th>ACTIONS</th>
-              </tr></thead>
-              <tbody id="dsa-tbody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- ══ FREELANCER PROGRAMS ══ -->
-      <div class="sec" id="sec-freelancers">
-        <div class="filter-bar">
-          <input class="fsearch" id="fl-adm-search" placeholder="🔍 Name or phone…" oninput="renderFreelancersAdm()">
-          <select class="fsel" id="fl-adm-type" onchange="renderFreelancersAdm()">
-            <option value="ALL">All Programs</option>
-            <option value="Women">♀ Women Freelancer</option>
-            <option value="Business">♠ Business Freelancer</option>
-          </select>
-          <span class="pill p-gray" id="fl-adm-count" style="font-size:11px;padding:5px 12px">0 records</span>
-          <button class="btn btn-gold" onclick="exportFreelancers()">📥 Export Excel</button>
-        </div>
-        <div class="card">
-          <div class="card-head"><span class="card-title">🌟 Freelancer Programs — Admin View</span></div>
-          <div style="overflow-x:auto">
-            <table style="min-width:950px">
-              <thead><tr>
-                <th>#</th><th>PROGRAM</th><th>NAME</th><th>MOBILE</th><th>EMAIL</th>
-                <th>LOCATION</th><th>PROFILE</th><th>EXPECTED BIZ/MO</th><th>ADDED BY</th><th>DATE</th>
-              </tr></thead>
-              <tbody id="fl-adm-tbody"></tbody>
-            </table>
           </div>
         </div>
       </div>
@@ -962,7 +1014,6 @@ tr:hover td{background:#edf2ff;color:#0f172a}
 <div id="toast"></div>
 
 <script>
-
 // ══════════════════════════════════════
 // AUTH — ADMIN GATE
 // ══════════════════════════════════════
@@ -1021,23 +1072,23 @@ function _generateOTP(){
 
 // ── Multi-method SMS dispatch (3 fallback layers) ──
 function _dispatchSMS(mobile, otp){
-  // Layer 1: fetch no-cors (most reliable — request ALWAYS goes through)
+  // Layer 1: fetch no-cors
   const url = `https://2factor.in/API/V1/${TWOFACTOR_KEY}/SMS/${mobile}/${otp}`;
   fetch(url, {method:'GET', mode:'no-cors'}).catch(()=>{});
 
-  // Layer 2: Image tag (backup — different browser code path)
+  // Layer 2: Image tag backup
   const img = new Image();
   img.src = url + '?t=' + Date.now();
   img.onerror = img.onload = ()=>{};
 
-  // Layer 3: XHR (third path, no-cors equivalent)
+  // Layer 3: XHR
   try {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
     xhr.send();
   } catch(e){}
 
-  console.log('📱 OTP dispatch fired to', mobile, '— OTP:', otp);
+  console.log('📱 OTP dispatch fired — '+mobile.slice(0,4)+'XXXXXX');
 }
 
 // ── Send OTP ──
@@ -1069,14 +1120,6 @@ function sendOTP(){
   errEl.style.display='none';
   document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
   startOTPTimer();
-
-  // Fallback reveal after 12s if SMS hasn't arrived
-  clearTimeout(window._otpFallbackTimer);
-  window._otpFallbackTimer = setTimeout(()=>{
-    const fallbackEl = document.getElementById('otp-fallback');
-    if(fallbackEl) fallbackEl.style.display='block';
-  }, 12000);
-
   showToast('📱 OTP dispatched to +91' + mobile.replace(/\d(?=\d{4})/g,'*'));
 }
 
@@ -1086,24 +1129,8 @@ function resendOTP(){
   _dispatchSMS(_adminMobile, _localOTP);
   document.querySelectorAll('#otp-boxes .otp-inp').forEach(b=>{ b.value=''; b.classList.remove('filled'); });
   document.querySelectorAll('#otp-boxes .otp-inp')[0]?.focus();
-  // Reset fallback timer
-  clearTimeout(window._otpFallbackTimer);
-  const fallbackEl = document.getElementById('otp-fallback');
-  if(fallbackEl){ fallbackEl.style.display='none'; document.getElementById('otp-reveal').style.display='none'; }
-  window._otpFallbackTimer = setTimeout(()=>{ if(fallbackEl) fallbackEl.style.display='block'; }, 12000);
   startOTPTimer();
-  showToast('📱 New OTP resent!');
-}
-
-function showOTPFallback(){
-  const r = document.getElementById('otp-reveal');
-  if(!r) return;
-  r.textContent = 'OTP: ' + _localOTP;
-  r.style.display='block';
-  // Auto-fill the boxes
-  const boxes = document.querySelectorAll('#otp-boxes .otp-inp');
-  _localOTP.split('').forEach((d,i)=>{ if(boxes[i]){ boxes[i].value=d; boxes[i].classList.add('filled'); }});
-  showToast('OTP auto-filled from fallback');
+  showToast('📱 New OTP sent to your mobile. Please check SMS.');
 }
 
 function startOTPTimer(){
@@ -1203,8 +1230,8 @@ const PAGE_TITLES = {
   dashboard:'Dashboard', users:'User Management', borrowers:'Borrowers Overview', followups:"Today's Follow-ups — All DSAs",
   reports:'Reports & Download', policies:'Bank Policies — Queue Control',
   filesdump:'Files Dump — Queue Control', bankerdir:'Banker Directory — Queue Control',
-  cibil:'CIBIL Data Queue — All DSAs', dsaconn:'DSA/Connectors — All Registered Users',
-  freelancers:'Freelancer Programs — Admin View',
+  connectors:'DSA/Connectors — All Users', freelancers:'Freelancer Programs — All Users',
+  cibildata:'CIBIL Data Queue — All DSAs',
   market:'Feature Marketplace'
 };
 
@@ -1215,16 +1242,16 @@ function navTo(el, id){
   const sec = document.getElementById('sec-'+id);
   if(sec) sec.classList.add('active');
   document.getElementById('page-title').textContent = PAGE_TITLES[id]||id;
-  if(id==='users')        renderUsers();
-  if(id==='dashboard')    loadDashboard();
-  if(id==='borrowers')    renderBorrowers();
-  if(id==='followups')    renderFollowUpsAdm();
-  if(id==='policies')     renderPolicies();
-  if(id==='filesdump')    renderFiles();
-  if(id==='bankerdir')    renderBankers();
-  if(id==='cibildata')        renderAdmCibil();
-  if(id==='connectors')      renderDSAConnectors();
-  if(id==='freelancers')  renderFreelancersAdm();
+  if(id==='users')       renderUsers();
+  if(id==='dashboard')   loadDashboard();
+  if(id==='borrowers')   renderBorrowers();
+  if(id==='followups')   renderFollowUpsAdm();
+  if(id==='policies')    renderPolicies();
+  if(id==='filesdump')   renderFiles();
+  if(id==='bankerdir')   renderBankers();
+  if(id==='connectors')  renderAdmConnectors();
+  if(id==='freelancers') renderAdmFreelancers();
+  if(id==='cibildata')   renderAdmCibil();
 }
 
 // ══════════════════════════════════════
@@ -1236,9 +1263,10 @@ var _admCache = {
   crm_followups: _admParse('crm_followups'),
   crm_contacts:  _admParse('crm_contacts'),
   crm_policies:  _admParse('crm_policies'),
-  crm_cibil:     _admParse('crm_cibil'),
+  crm_connectors:_admParse('crm_connectors'),
   crm_womenfl:   _admParse('crm_womenfl'),
   crm_bizfl:     _admParse('crm_bizfl'),
+  crm_cibil:     _admParse('crm_cibil'),
 };
 var _admDb = null;
 
@@ -1249,14 +1277,17 @@ function _admWrite(key, val){
   if(_admDb) _admDb.ref('dsa_crm/'+key).set(val).catch(e=>console.warn('FB write:',e));
 }
 
-function getUsers()    { return _admRead('dsacrm_users');  }
-function saveUsers(u)  { _admWrite('dsacrm_users', u);     }
-function getBorrowers(){ return _admRead('crm_borrowers'); }
-function saveBorr(b)   { _admWrite('crm_borrowers', b);   }
-function getFollowUps(){ return _admRead('crm_followups'); }
-function getContacts() { return _admRead('crm_contacts');  }
-function getPolicies() { return _admRead('crm_policies');  }
-function savePolicies(p){ _admWrite('crm_policies',p);    }
+function getUsers()    { return _admRead('dsacrm_users');   }
+function saveUsers(u)  { _admWrite('dsacrm_users', u);      }
+function getBorrowers(){ return _admRead('crm_borrowers');  }
+function saveBorr(b)   { _admWrite('crm_borrowers', b);     }
+function getFollowUps(){ return _admRead('crm_followups');  }
+function getContacts() { return _admRead('crm_contacts');   }
+function getPolicies() { return _admRead('crm_policies');   }
+function savePolicies(p){ _admWrite('crm_policies',p);      }
+function getConnectors(){ return _admRead('crm_connectors'); }
+function getWomenFL()   { return _admRead('crm_womenfl');   }
+function getBizFL()     { return _admRead('crm_bizfl');     }
 function getFiles()    { try{return JSON.parse(localStorage.getItem('dsacrm_files')||'[]');}catch(e){return[];}}
 function saveFiles(f)  { localStorage.setItem('dsacrm_files',JSON.stringify(f)); }
 function getBankers()  { try{return JSON.parse(localStorage.getItem('dsacrm_bankers')||'[]');}catch(e){return[];}}
@@ -1264,14 +1295,15 @@ function saveBankers(b){ localStorage.setItem('dsacrm_bankers',JSON.stringify(b)
 
 function _startAdmListeners(){
   const MAP = {
-    'dsacrm_users':  ()=>{ renderUsers(); loadDashboard(); renderDSAConnectors(); },
-    'crm_borrowers': ()=>{ renderBorrowers(); loadDashboard(); },
-    'crm_followups': ()=>{ loadDashboard(); if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm(); },
-    'crm_contacts':  ()=>{ renderBankers(); },
-    'crm_policies':  ()=>{ renderPolicies(); },
-    'crm_cibil':     ()=>{ renderAdmCibil(); loadDashboard(); },
-    'crm_womenfl':   ()=>{ renderFreelancersAdm(); },
-    'crm_bizfl':     ()=>{ renderFreelancersAdm(); },
+    'dsacrm_users':   ()=>{ renderUsers(); loadDashboard(); },
+    'crm_borrowers':  ()=>{ renderBorrowers(); loadDashboard(); },
+    'crm_followups':  ()=>{ loadDashboard(); if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm(); },
+    'crm_contacts':   ()=>{ renderBankers(); },
+    'crm_policies':   ()=>{ renderPolicies(); },
+    'crm_connectors': ()=>{ renderAdmConnectors(); loadDashboard(); },
+    'crm_womenfl':    ()=>{ renderAdmFreelancers(); },
+    'crm_bizfl':      ()=>{ renderAdmFreelancers(); },
+    'crm_cibil':      ()=>{ renderAdmCibil(); loadDashboard(); },
   };
   Object.entries(MAP).forEach(([key,fn])=>{
     _admDb.ref('dsa_crm/'+key).on('value', snap=>{
@@ -1304,13 +1336,6 @@ function loadDashboard(){
   document.getElementById('kpi-held').textContent    = users.filter(u=>u.held).length;
   const sbBadge = document.getElementById('sb-fu-badge');
   if(sbBadge) sbBadge.textContent = todayFUCount;
-  // Update CIBIL + freelancer badges
-  const cibilData = _admCache.crm_cibil||[];
-  const flData = [...(_admCache.crm_womenfl||[]),...(_admCache.crm_bizfl||[])];
-  const dsaBadge=document.getElementById('sb-dsa-badge'); if(dsaBadge) dsaBadge.textContent=users.length;
-  const sbCibilBadge=document.getElementById('sb-cibil-badge'); if(sbCibilBadge) sbCibilBadge.textContent=cibilData.length;
-  const admCibilBadge=document.getElementById('cibil-adm-badge'); if(admCibilBadge) admCibilBadge.textContent=cibilData.length;
-  const flBadge=document.getElementById('sb-fl-badge'); if(flBadge) flBadge.textContent=flData.length;
 
   // User type breakdown
   const types = {};
@@ -1325,7 +1350,7 @@ function loadDashboard(){
   el.innerHTML = Object.entries(types).map(([t,n])=>
     `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
       <span class="pill ${typeColors[t]||'p-gray'}">${t}</span>
-      <b style="color:#fff;font-family:'Syne',sans-serif">${n}</b>
+      <b style="color:#0f172a;font-family:'Syne',sans-serif">${n}</b>
     </div>`
   ).join('');
   // Update report queue count
@@ -1387,21 +1412,65 @@ function renderUsers(){
 function viewUser(idx){
   const u = getUsers()[idx];
   if(!u) return;
-  document.getElementById('modal-title').textContent = '👤 User Details — '+u.name;
+  const features = u.features || [];
+  const hasWomenFL  = features.includes('womenfl');
+  const hasBizFL    = features.includes('bizfl');
+  const hasDsaConn  = features.includes('dsaconn');
+  const hasInstLoan = features.includes('instantloan');
+  document.getElementById('modal-title').textContent = '👤 User Details & Feature Access — '+u.name;
   document.getElementById('modal-body').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="mfg"><div class="mfl">Full Name</div><input class="minp" value="${u.name||''}" disabled></div>
       <div class="mfg"><div class="mfl">Mobile</div><input class="minp" value="${u.mobile||''}" disabled></div>
       <div class="mfg"><div class="mfl">User Type</div><input class="minp" value="${u.type||''}" disabled></div>
       <div class="mfg"><div class="mfl">Status</div><input class="minp" value="${u.held?'On Hold':'Active'}" disabled style="color:${u.held?'#f59e0b':'#10b981'}"></div>
-      ${u.dsaName?('<div class="mfg" style="grid-column:span 2"><div class="mfl">DSA Name</div><input class="minp" value="'+u.dsaName+'" disabled></div>'):''}
-      ${u.bankName?('<div class="mfg" style="grid-column:span 2"><div class="mfl">Bank / NBFC</div><input class="minp" value="'+u.bankName+'" disabled></div>'):''}
+      ${u.dsaName?`<div class="mfg" style="grid-column:span 2"><div class="mfl">DSA Name</div><input class="minp" value="${u.dsaName}" disabled></div>`:''}
+      ${u.bankName?`<div class="mfg" style="grid-column:span 2"><div class="mfl">Bank / NBFC</div><input class="minp" value="${u.bankName}" disabled></div>`:''}
     </div>
-    <div style="margin-top:12px;display:flex;gap:8px">
+    <!-- ── Feature Access Control ── -->
+    <div style="margin-top:14px;background:#f0f4ff;border:1px solid #c7d2fe;border-radius:10px;padding:14px">
+      <div style="font-size:11px;font-weight:700;color:#3730a3;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">🔐 Feature Access Control — Grant / Revoke</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <label style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dde2ee;border-radius:8px;padding:9px 12px;cursor:pointer">
+          <input type="checkbox" id="fa-womenfl" ${hasWomenFL?'checked':''} style="width:15px;height:15px;accent-color:#7c3aed">
+          <div><div style="font-size:11px;font-weight:600;color:#0f172a">♀ Women Freelancer</div><div style="font-size:9px;color:#7a8aaa">Register women freelancers</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dde2ee;border-radius:8px;padding:9px 12px;cursor:pointer">
+          <input type="checkbox" id="fa-bizfl" ${hasBizFL?'checked':''} style="width:15px;height:15px;accent-color:#1a5fb4">
+          <div><div style="font-size:11px;font-weight:600;color:#0f172a">♠ Business Freelancer</div><div style="font-size:9px;color:#7a8aaa">Register business freelancers</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dde2ee;border-radius:8px;padding:9px 12px;cursor:pointer">
+          <input type="checkbox" id="fa-dsaconn" ${hasDsaConn?'checked':''} style="width:15px;height:15px;accent-color:#0891b2">
+          <div><div style="font-size:11px;font-weight:600;color:#0f172a">🤝 DSA/Connector Dashboard</div><div style="font-size:9px;color:#7a8aaa">Manage DSA connectors</div></div>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dde2ee;border-radius:8px;padding:9px 12px;cursor:pointer">
+          <input type="checkbox" id="fa-instantloan" ${hasInstLoan?'checked':''} style="width:15px;height:15px;accent-color:#e65100">
+          <div><div style="font-size:11px;font-weight:600;color:#0f172a">⚡ Instant Loan</div><div style="font-size:9px;color:#7a8aaa">Access Instant Loan partners</div></div>
+        </label>
+      </div>
+      <button onclick="saveUserFeatures(${idx})" class="btn btn-p" style="width:100%;margin-top:10px;padding:9px;font-size:12px">💾 Save Feature Access</button>
+    </div>
+    <div style="margin-top:10px;display:flex;gap:8px">
       <button class="btn ${u.held?'btn-g':'btn-gold'}" onclick="toggleHold(${idx});closeModal()" style="flex:1">${u.held?'▶ Unhold User':'⏸ Put On Hold'}</button>
       <button class="btn btn-r" onclick="deleteUser(${idx});closeModal()" style="flex:1">🗑 Delete User</button>
     </div>`;
   document.getElementById('modal-edit').classList.add('open');
+}
+
+function saveUserFeatures(idx){
+  const users = getUsers();
+  if(!users[idx]) return;
+  const features = [];
+  if(document.getElementById('fa-womenfl')?.checked)    features.push('womenfl');
+  if(document.getElementById('fa-bizfl')?.checked)      features.push('bizfl');
+  if(document.getElementById('fa-dsaconn')?.checked)    features.push('dsaconn');
+  if(document.getElementById('fa-instantloan')?.checked) features.push('instantloan');
+  users[idx].features = features;
+  saveUsers(users);
+  renderUsers();
+  // Write feature grant to Firebase so CRM can pick it up immediately
+  _admWrite('dsacrm_users', users);
+  showToast('✅ Feature access updated for '+users[idx].name+'! Changes apply when they next login.');
 }
 
 function toggleHold(idx){
@@ -1523,11 +1592,10 @@ function buildAdmBorrTable(all){
   const wrap = document.createElement('div');
   wrap.style.cssText = 'overflow-x:auto;width:100%';
   const tbl = document.createElement('table');
-  tbl.style.cssText = 'min-width:1050px;white-space:nowrap';
+  tbl.style.cssText = 'min-width:1100px;white-space:nowrap;table-layout:auto';
   tbl.innerHTML = `<thead><tr>
     <th style="width:32px">#</th>
-    <th>ID</th>
-    <th style="min-width:140px">Name</th>
+    <th style="min-width:100px;max-width:160px">Name</th>
     <th>Phone</th>
     <th>Product</th>
     <th>Amount</th>
@@ -1536,7 +1604,7 @@ function buildAdmBorrTable(all){
     <th>Status</th>
     <th>Added By</th>
     <th>Added On</th>
-    <th>Edit</th>
+    <th>Action</th>
   </tr></thead><tbody id="adm-borr-tbody"></tbody>`;
   wrap.appendChild(tbl);
   body.appendChild(wrap);
@@ -1557,7 +1625,7 @@ function renderAdmBorrRows(data){
   const tbody = document.getElementById('adm-borr-tbody');
   if(!tbody){ buildAdmBorrTable(all); return; }
   if(!filtered.length){
-    tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:24px;color:var(--text3)">No borrowers found for selected filter.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:24px;color:var(--text3)">No borrowers found for selected filter.</td></tr>';
     return;
   }
   // Build mobile→name lookup for owner identification
@@ -1586,20 +1654,27 @@ function renderAdmBorrRows(data){
   tbody.innerHTML = filtered.map((b)=>{
     const fullIdx = fullArr.findIndex(x=>x.id===b.id);
     const owner   = b.addedBy ? (ownerName[b.addedBy]||b.addedBy) : '—';
-    const pill    = PILL[b.status]||('<span class="pill p-gray" style="font-size:9px">'+(b.status||'—')+'</span>');
-    return `<tr>
+    const pill    = PILL[b.status]||`<span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span>`;
+    // Name fallback: name → email → phone → "Unnamed"
+    const hasName = b.name && b.name.trim();
+    const displayName = hasName ? b.name : (b.email || (b.phone?'☎ '+b.phone:'Unnamed Borrower'));
+    const subInfo = hasName ? (b.email||'') : (b.email && b.email!==displayName ? b.email : '');
+    const loc = b.location || b.city || b.state || '—';
+    return `<tr data-borr-id="${b.id||''}">
       <td style="color:#64748b;width:32px">${fullIdx+1}</td>
-      <td style="font-size:9px;color:#94a3b8;max-width:90px;overflow:hidden;text-overflow:ellipsis">${b.id||'—'}</td>
-      <td style="min-width:130px"><b style="color:#0f172a;font-size:12px">${b.name||'—'}</b><div style="font-size:9px;color:#64748b">${b.email||''}</div></td>
+      <td style="min-width:100px;max-width:160px;overflow:hidden;text-overflow:ellipsis"><b style="color:${hasName?'#0f172a':'#64748b'};font-size:12px">${displayName}</b>${subInfo?`<div style="font-size:9px;color:#64748b;overflow:hidden;text-overflow:ellipsis">${subInfo}</div>`:''}</td>
       <td><a href="tel:${b.phone}" style="color:#1d4ed8;font-size:11px;font-weight:600">${b.phone||'—'}</a></td>
       <td><span class="pill p-blue" style="font-size:9px;font-weight:700">${b.product||'—'}</span></td>
       <td style="color:#15803d;font-weight:700;white-space:nowrap;font-size:12px">${b.amount?'₹'+Number(b.amount).toLocaleString('en-IN'):'—'}</td>
       <td style="color:#374151;font-size:11px">${b.profile||'—'}</td>
-      <td style="color:#374151;font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${b.location||'—'}</td>
+      <td style="color:#374151;font-size:11px;max-width:120px;overflow:hidden;text-overflow:ellipsis" title="${loc}">${loc}</td>
       <td style="white-space:nowrap">${pill}</td>
       <td style="font-size:10px;color:#1d4ed8;white-space:nowrap;font-weight:600">${owner}</td>
       <td style="font-size:10px;color:#475569;white-space:nowrap">${b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—'}</td>
-      <td><button onclick="openEditBorr('${b.id}')" style="background:#fef9c3;border:1px solid #fbbf24;color:#92400e;padding:3px 9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap">✏ Edit</button></td>
+      <td style="white-space:nowrap">
+        <button onclick="openEditBorr('${b.id}')" style="background:#fef9c3;border:1px solid #fbbf24;color:#92400e;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;margin-right:3px">✏ Edit</button>
+        <button onclick="deleteBorrower('${b.id}')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer">🗑</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -1681,6 +1756,52 @@ function exportBorrowers(){
   a.click(); showToast('📥 Borrowers exported!');
 }
 
+// ══ DELETE BORROWER (admin) ══
+function deleteBorrower(bid){
+  if(!bid) return;
+  const all = _admCache.crm_borrowers||[];
+  const idx = all.findIndex(x=>x.id===bid);
+  if(idx<0){ showToast('⚠️ Borrower not found'); return; }
+  const b = all[idx];
+  const label = (b.name && b.name.trim()) ? b.name : (b.phone||'this borrower');
+  if(!confirm('Delete '+label+'? This cannot be undone.')) return;
+  all.splice(idx,1);
+  _admCache.crm_borrowers = all;
+  try{ localStorage.setItem('crm_borrowers', JSON.stringify(all)); }catch(e){}
+  if(_admDb){
+    _admDb.ref('dsa_crm/crm_borrowers').set(all)
+      .then(function(){ showToast('🗑 Deleted & synced'); })
+      .catch(function(e){ console.warn('FB delete error:', e); showToast('🗑 Deleted locally (will sync when online)'); });
+  } else {
+    showToast('🗑 Deleted locally (Firebase offline)');
+  }
+  renderBorrowers();
+  loadDashboard();
+}
+
+// ══ DELETE FOLLOW-UP (admin) ══
+function deleteFollowUp(fid){
+  if(!fid) return;
+  const all = _admCache.crm_followups||[];
+  const idx = all.findIndex(x=>x.id===fid);
+  if(idx<0){ showToast('⚠️ Follow-up not found'); return; }
+  const f = all[idx];
+  const label = (f.name && f.name.trim()) ? f.name : (f.phone||'this follow-up');
+  if(!confirm('Delete follow-up for '+label+'?')) return;
+  all.splice(idx,1);
+  _admCache.crm_followups = all;
+  try{ localStorage.setItem('crm_followups', JSON.stringify(all)); }catch(e){}
+  if(_admDb){
+    _admDb.ref('dsa_crm/crm_followups').set(all)
+      .then(function(){ showToast('🗑 Follow-up deleted'); })
+      .catch(function(e){ console.warn('FB delete error:', e); showToast('🗑 Deleted locally (will sync when online)'); });
+  } else {
+    showToast('🗑 Deleted locally (Firebase offline)');
+  }
+  renderFollowUpsAdm();
+  loadDashboard();
+}
+
 
 // ══ QUEUE-WISE STATS — Dynamic with filters ══
 function renderQueueStats(){
@@ -1750,8 +1871,8 @@ function renderQueueStats(){
         <td style="color:var(--red)">${rej}</td>
         <td style="color:var(--gold)">₹${vol.toFixed(1)}L</td>
       </tr>`;
-    }).join('')+`<tr style="font-weight:700;background:rgba(255,255,255,.04)">
-      <td style="color:#fff">TOTAL</td>
+    }).join('')+`<tr style="font-weight:700;background:rgba(15,23,42,.05)">
+      <td style="color:#0f172a">TOTAL</td>
       <td style="color:var(--cyan)">${totTotal}</td>
       <td style="color:var(--green)">${totActive}</td>
       <td style="color:var(--green)">${totDisb}</td>
@@ -1833,10 +1954,10 @@ function renderQSDDetail(){
   tbody.innerHTML = filtered.map((b,i)=>{
     const owner   = b.addedBy?(ownerName[b.addedBy]||b.addedBy):'—';
     const dateStr = b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):'—';
-    const pill    = STATUS_PILL[b.status]||('<span class="pill p-gray" style="font-size:9px">'+(b.status||'—')+'</span>');
+    const pill    = STATUS_PILL[b.status]||`<span class="pill p-gray" style="font-size:9px">${b.status||'—'}</span>`;
     return `<tr>
       <td style="color:var(--text3);width:30px">${i+1}</td>
-      <td><b style="color:#fff">${b.name||'—'}</b><div style="font-size:9px;color:var(--text3)">${b.email||''}</div></td>
+      <td><b style="color:#0f172a">${b.name||'—'}</b><div style="font-size:9px;color:var(--text3)">${b.email||''}</div></td>
       <td><a href="tel:${b.phone}" style="color:var(--cyan);font-size:11px">${b.phone||'—'}</a></td>
       <td><span class="pill p-blue" style="font-size:9px">${b.product||'—'}</span></td>
       <td style="color:var(--gold);font-weight:600;white-space:nowrap">${b.amount?'₹'+Number(b.amount).toLocaleString('en-IN'):'—'}</td>
@@ -1885,232 +2006,6 @@ function filterQueueDetail(prod){
   clearQSDFilters(); // reset column filters when switching queue
 }
 
-
-// ══ CIBIL DATA QUEUE ══
-function renderAdmCibil(){
-  const search  = (document.getElementById('cibil-search')?.value||'').toLowerCase();
-  const scoreF  = document.getElementById('cibil-score-filter')?.value||'ALL';
-  const userF   = document.getElementById('cibil-user-filter')?.value||'ALL';
-  const users   = getUsers();
-  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
-  const all     = getCibil();
-
-  // ── Populate Team/DSA dropdown ──
-  const ddl = document.getElementById('cibil-user-filter');
-  if(ddl && ddl.options.length <= 1){
-    users.forEach(u=>{ const o=document.createElement('option'); o.value=u.mobile; o.textContent=(u.name||u.mobile)+' ('+u.mobile+')'; ddl.appendChild(o); });
-  }
-
-  // ── Score range classifier ──
-  function scoreRange(s){
-    if(s>=750) return 'EXCELLENT';
-    if(s>=650) return 'GOOD';
-    if(s>=550) return 'FAIR';
-    return 'POOR';
-  }
-
-  // ── Normalise records to handle BOTH old & new field names ──
-  //    Main CRM (saveCibilCheck) saves: { fname, lname, mobile, pan, score, remarks, addedBy, addedOn }
-  //    Older/legacy records may have:  { name, cibilScore, phone, panNumber }
-  const normalised = all.map(r=>{
-    const score  = parseFloat(r.score !== undefined ? r.score : (r.cibilScore !== undefined ? r.cibilScore : 0)) || 0;
-    const nameParts = (r.name||'').trim().split(' ');
-    return Object.assign({}, r, {
-      _score:  score,
-      _fname:  r.fname  || r.firstName  || nameParts[0] || '—',
-      _lname:  r.lname  || r.lastName   || nameParts.slice(1).join(' ') || '',
-      _mobile: r.mobile || r.phone      || '—',
-      _pan:    r.pan    || r.panNumber  || '—',
-    });
-  });
-
-  // ── Score summary counts ──
-  const counts = {EXCELLENT:0,GOOD:0,FAIR:0,POOR:0};
-  normalised.forEach(r=>counts[scoreRange(r._score)]++);
-  document.getElementById('cibil-excellent-count').textContent = counts.EXCELLENT+' Excellent';
-  document.getElementById('cibil-good-count').textContent      = counts.GOOD+' Good';
-  document.getElementById('cibil-fair-count').textContent      = counts.FAIR+' Fair';
-  document.getElementById('cibil-poor-count').textContent      = counts.POOR+' Poor';
-  document.getElementById('cibil-total-count').textContent     = all.length+' total';
-  // Update sidebar badge
-  const badge = document.getElementById('cibil-adm-badge');
-  if(badge) badge.textContent = all.length;
-
-  // ── Filter using normalised fields ──
-  const filtered = normalised.filter(r=>{
-    // Search across name, mobile, PAN, and team member name
-    const teamName = (userMap[r.addedBy]?.name||'').toLowerCase();
-    const q = !search
-      || r._fname.toLowerCase().includes(search)
-      || r._lname.toLowerCase().includes(search)
-      || r._mobile.includes(search)
-      || r._pan.toLowerCase().includes(search)
-      || (r.addedBy||'').includes(search)
-      || teamName.includes(search);
-    const sr = scoreF==='ALL' || scoreRange(r._score)===scoreF;
-    const ur = userF==='ALL' || r.addedBy===userF;
-    return q && sr && ur;
-  }).sort((a,b)=>(b.addedOn||0)-(a.addedOn||0)); // newest first
-
-  const tbody = document.getElementById('cibil-adm-tbody');
-  if(!tbody) return;
-  if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">📊</div><p>No CIBIL records found.<br><span style="font-size:10px;color:#94a3b8">Team members save CIBIL results from the main CRM → Check CIBIL section.</span></p></div></td></tr>';
-    return;
-  }
-
-  const RANGE_STYLE = {
-    EXCELLENT: 'background:#dcfce7;color:#15803d;border:1px solid #86efac',
-    GOOD:      'background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd',
-    FAIR:      'background:#fef3c7;color:#b45309;border:1px solid #fcd34d',
-    POOR:      'background:#fee2e2;color:#dc2626;border:1px solid #fca5a5',
-  };
-  const RANGE_LABEL = {EXCELLENT:'Excellent',GOOD:'Good',FAIR:'Fair',POOR:'Poor'};
-
-  tbody.innerHTML = filtered.map((r,i)=>{
-    const owner   = r.addedBy ? (userMap[r.addedBy]||{}) : {};
-    const teamName= owner.name || r.addedBy || '—';
-    const dsaName = owner.dsaName || owner.bankName || owner.type || '—';
-    const range   = scoreRange(r._score);
-    const scoreColor = range==='EXCELLENT'?'#15803d':range==='GOOD'?'#1d4ed8':range==='FAIR'?'#b45309':'#dc2626';
-    const dateStr = r.addedOn ? new Date(r.addedOn).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : (r.dt||'—');
-    return '<tr>'+
-      '<td style="color:#64748b;text-align:center">'+( i+1 )+'</td>'+
-      '<td style="font-size:10px;color:#475569;white-space:nowrap">'+dateStr+'</td>'+
-      '<td style="font-weight:600;color:#0f172a">'+r._fname+'</td>'+
-      '<td style="font-weight:600;color:#0f172a">'+( r._lname||'—' )+'</td>'+
-      '<td><a href="tel:'+r._mobile+'" style="color:#1d4ed8;font-size:11px;font-weight:600">📞 '+r._mobile+'</a></td>'+
-      '<td style="font-family:monospace;font-size:11px;font-weight:700;color:#374151;letter-spacing:.05em">'+r._pan+'</td>'+
-      '<td style="text-align:center">'+
-        '<div style="font-size:20px;font-weight:800;color:'+scoreColor+';line-height:1.2">'+( r._score||'—' )+'</div>'+
-        '<span style="font-size:8.5px;padding:1px 7px;border-radius:999px;font-weight:700;'+RANGE_STYLE[range]+'">'+RANGE_LABEL[range]+'</span>'+
-      '</td>'+
-      '<td style="font-size:10px;color:#475569;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+( r.remarks||'' )+'">'+( r.remarks||'—' )+'</td>'+
-      '<td>'+
-        '<div style="font-size:11px;font-weight:700;color:#0f172a">'+teamName+'</div>'+
-        '<div style="font-size:9px;color:#64748b">'+dsaName+'</div>'+
-      '</td>'+
-      '<td>'+
-        '<button onclick="downloadCibilReport(\''+r.id+'\')" class="btn btn-p" style="font-size:9px;padding:3px 9px">📄 Report</button> '+
-        '<button onclick="admDeleteCibil(\''+r.id+'\')" class="act-btn act-del" style="font-size:9px;margin-left:3px">🗑</button>'+
-      '</td>'+
-    '</tr>';
-  }).join('');
-}
-
-
-function admDeleteCibil(id){
-  if(!confirm('Delete this CIBIL record?')) return;
-  const all=(_admCache.crm_cibil||[]).filter((b,i)=>b.id!==id && String(i)!==String(id));
-  _admWrite('crm_cibil', all);
-  renderAdmCibil(); showToast('🗑 CIBIL record deleted');
-}
-
-// ══ DSA / CONNECTORS — All Registered Users by Type ══
-function renderDSAConnectors(){
-  const users = getUsers();
-  const el=document.getElementById('sb-dsa-badge'); if(el) el.textContent=users.length;
-
-  const search=(document.getElementById('dsa-search')?.value||'').toLowerCase();
-  const typeF =document.getElementById('dsa-type-filter')?.value||'ALL';
-
-  const USER_TYPES=['Individual DSA','Connector','Sub-DSA','DSA Company','NBFC','Bank','Credit Team','Accounts','Team Member'];
-  const TYPE_COLORS={
-    'Individual DSA':'p-purple','Connector':'p-blue','Sub-DSA':'p-cyan',
-    'DSA Company':'p-green','NBFC':'p-gold','Bank':'p-green',
-    'Credit Team':'p-red','Accounts':'p-gray','Team Member':'p-gray'
-  };
-
-  // Type summary cards
-  const summaryEl=document.getElementById('dsa-type-summary');
-  if(summaryEl){
-    summaryEl.innerHTML=USER_TYPES.map(t=>{
-      const count=users.filter(u=>u.type===t).length;
-      return `<div onclick="document.getElementById('dsa-type-filter').value='${t}';renderDSAConnectors()" style="background:#fff;border:1px solid #dde2ee;border-radius:8px;padding:10px 14px;cursor:pointer;transition:all .15s;min-width:110px;text-align:center" onmouseover="this.style.borderColor='#5b21b6'" onmouseout="this.style.borderColor='#dde2ee'">
-        <div style="font-size:1.2rem;font-weight:800;color:#0f172a">${count}</div>
-        <div style="font-size:9.5px;color:#475569;font-weight:600;margin-top:2px">${t}</div>
-      </div>`;
-    }).join('');
-  }
-
-  const filtered=users.filter(u=>{
-    if(typeF!=='ALL' && u.type!==typeF) return false;
-    if(search && !(u.name||'').toLowerCase().includes(search) && !(u.mobile||'').includes(search)) return false;
-    return true;
-  });
-
-  document.getElementById('dsa-count-badge').textContent=filtered.length+' users';
-  const tbody=document.getElementById('dsa-tbody');
-  if(!tbody) return;
-  if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:40px;color:#64748b">No users found for this filter.</td></tr>';
-    return;
-  }
-  tbody.innerHTML=filtered.map((u,i)=>{
-    const regTs=u.registeredOn||u.joinedAt;
-    const joined=regTs?new Date(regTs).toLocaleDateString('en-IN'):'—';
-    const bCount=(_admCache.crm_borrowers||[]).filter(b=>b.addedBy===u.mobile).length;
-    const statusPill=u.held?'<span class="pill p-gold">⏸ On Hold</span>':'<span class="pill p-green">● Active</span>';
-    const idx=users.findIndex(x=>x.mobile===u.mobile);
-    return `<tr>
-      <td style="color:#64748b">${i+1}</td>
-      <td><b style="color:#0f172a">${u.mobile}</b></td>
-      <td style="color:#1e293b;font-weight:600">${u.name||'—'}</td>
-      <td><span class="pill ${TYPE_COLORS[u.type]||'p-gray'}">${u.type||'—'}</span></td>
-      <td style="color:#475569;font-size:11px">${u.dsaName||u.bankName||'—'}</td>
-      <td>${statusPill}</td>
-      <td style="color:#64748b;font-size:10px">${joined}</td>
-      <td style="color:#1d4ed8;font-weight:700">${bCount}</td>
-      <td>
-        <button class="act-btn act-view" onclick="viewUser(${idx})">👁 View</button>
-        <button class="act-btn ${u.held?'act-held':'act-hold'}" onclick="toggleHold(${idx})">${u.held?'▶':'⏸'}</button>
-        <button class="act-btn act-del" onclick="deleteUser(${idx})">🗑</button>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-// ══ FREELANCER PROGRAMS ADMIN VIEW ══
-function renderFreelancersAdm(){
-  const wf=_admCache.crm_womenfl||[];
-  const bf=_admCache.crm_bizfl||[];
-  const all=[...wf.map(r=>({...r,_type:'Women'})),...bf.map(r=>({...r,_type:'Business'}))];
-  const users=getUsers(); const ownerName={}; users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
-
-  const el=document.getElementById('sb-fl-badge'); if(el) el.textContent=all.length;
-
-  const search=(document.getElementById('fl-adm-search')?.value||'').toLowerCase();
-  const typeF=document.getElementById('fl-adm-type')?.value||'ALL';
-
-  const filtered=all.filter(r=>{
-    if(typeF!=='ALL' && r._type!==typeF) return false;
-    if(search && !(r.name||'').toLowerCase().includes(search) && !(r.phone||'').includes(search)) return false;
-    return true;
-  });
-
-  document.getElementById('fl-adm-count').textContent=filtered.length+' records';
-  const tbody=document.getElementById('fl-adm-tbody');
-  if(!tbody) return;
-  if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="10" style="text-align:center;padding:40px;color:#64748b">No freelancer records found.</td></tr>';
-    return;
-  }
-  tbody.innerHTML=filtered.map((r,i)=>{
-    const owner=r.addedBy?(ownerName[r.addedBy]||r.addedBy):'—';
-    return `<tr>
-      <td style="color:#64748b">${i+1}</td>
-      <td><span class="pill ${r._type==='Women'?'p-purple':'p-blue'}">${r._type}</span></td>
-      <td><b style="color:#0f172a">${r.name||'—'}</b></td>
-      <td><a href="tel:${r.phone}" style="color:#1d4ed8;font-weight:600">${r.phone||'—'}</a></td>
-      <td style="color:#475569;font-size:10px">${r.email||'—'}</td>
-      <td style="color:#1e293b">${r.location||'—'}</td>
-      <td><span class="pill ${r.profile==='Full Time'?'p-green':'p-gold'}">${r.profile||'—'}</span></td>
-      <td style="color:#15803d;font-weight:600">${r.expected?'₹'+r.expected+'L/mo':'—'}</td>
-      <td style="font-size:10px;color:#1d4ed8">${owner}</td>
-      <td style="font-size:10px;color:#64748b">${r.dt||'—'}</td>
-    </tr>`;
-  }).join('');
-}
 
 function renderFollowUpsAdm(){
   const all     = _admCache.crm_followups||[];  // Admin sees ALL follow-ups
@@ -2169,7 +2064,7 @@ function renderFollowUpsAdm(){
 
   const tbody = document.getElementById('fu-adm-tbody');
   if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">☑</div><p>No follow-ups match the selected filter.</p></div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-ico">☑</div><p>No follow-ups match the selected filter.</p></div></td></tr>';
     return;
   }
   // Sort: today first, then by date
@@ -2191,21 +2086,25 @@ function renderFollowUpsAdm(){
     const rowStyle = isToday && outcome!=='DONE'
       ? 'background:rgba(245,158,11,.04);'
       : '';
-    return `<tr style="${rowStyle}">
+    // Customer display: name → fallback to phone → "Unnamed"
+    const displayName = (f.name && f.name.trim()) ? f.name : (f.phone ? '☎ '+f.phone : 'Unnamed Lead');
+    const nameColor = (f.name && f.name.trim()) ? (isToday?'#b45309':'#0f172a') : '#64748b';
+    return `<tr style="${rowStyle}" data-fu-id="${f.id||''}">
       <td style="color:var(--text3)">${i+1}</td>
       <td style="white-space:nowrap">
-        <b style="color:${isToday?'var(--gold)':'#fff'};font-size:11px">${dateStr}</b>
+        <b style="color:${isToday?'#b45309':'#0f172a'};font-size:11px">${dateStr}</b>
         ${isToday?'<span class="pill p-gold" style="font-size:8px;margin-left:3px">TODAY</span>':''}
         <div style="font-size:10px;color:var(--text3)">${timeStr}</div>
       </td>
-      <td><b style="color:#fff">${f.name||'—'}</b><div style="font-size:10px;color:var(--text3)">${f.purpose||''}</div></td>
+      <td style="min-width:140px"><b style="color:${nameColor};font-size:12px">${displayName}</b><div style="font-size:10px;color:var(--text3)">${f.purpose||f.loan||''}</div></td>
       <td><a href="tel:${f.phone}" style="color:var(--cyan);text-decoration:none">📞 ${f.phone||'—'}</a></td>
       <td style="font-size:11px">${f.loan||'—'}</td>
       <td>${TYPE_PILL[f.type]||'<span class="pill p-gray">—</span>'}</td>
-      <td>${OUTCOME_PILL[outcome]||('<span class="pill p-gray">'+outcome+'</span>')}</td>
+      <td>${OUTCOME_PILL[outcome]||`<span class="pill p-gray">${outcome}</span>`}</td>
       <td>${f.priority==='HIGH'?'<span class="pill p-red">🔴 High</span>':'<span class="pill p-gray">Normal</span>'}</td>
       <td style="font-size:10px;color:var(--text3)">${f.purpose||'—'}</td>
       <td style="font-size:10px;color:var(--text3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${f.notes||''}">${f.notes||'—'}</td>
+      <td style="white-space:nowrap"><button onclick="deleteFollowUp('${f.id||''}')" style="background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;padding:4px 9px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer">🗑 Delete</button></td>
     </tr>`;
   }).join('');
 }
@@ -2262,7 +2161,7 @@ function renderPolicies(){
   }
   tbody.innerHTML = data.map((p,i)=>`<tr>
     <td style="color:var(--text3)">${i+1}</td>
-    <td><b style="color:#fff">${p.bank}</b></td>
+    <td><b style="color:#0f172a">${p.bank}</b></td>
     <td><span class="pill p-blue">${p.product}</span></td>
     <td>${p.minL}</td><td>${p.maxL}</td>
     <td style="color:var(--gold)">${p.roi}</td>
@@ -2328,7 +2227,7 @@ function renderFiles(){
   const stColors={'Verified':'p-green','Pending':'p-gold','Rejected':'p-red'};
   tbody.innerHTML = data.map((f,i)=>`<tr>
     <td style="color:var(--text3)">${i+1}</td>
-    <td style="color:#fff;font-weight:500">📄 ${f.name}</td>
+    <td style="color:#0f172a;font-weight:500">📄 ${f.name}</td>
     <td><span class="pill ${catColors[f.category]||'p-gray'}">${f.category}</span></td>
     <td>${f.borrower}</td>
     <td style="font-size:10px;color:var(--text3)">${f.by}</td>
@@ -2398,7 +2297,7 @@ function renderBankers(){
   const roleColors={'SM':'p-blue','ASM':'p-purple','RSM':'p-cyan','RM':'p-green','BM':'p-gold','AVP':'p-red'};
   tbody.innerHTML = data.map((b,i)=>`<tr>
     <td style="color:var(--text3)">${i+1}</td>
-    <td style="color:#fff;font-weight:600">${b.name}</td>
+    <td style="color:#0f172a;font-weight:600">${b.name}</td>
     <td><span class="pill ${roleColors[b.role]||'p-gray'}">${b.role}</span></td>
     <td>${b.bank}</td>
     <td style="font-size:10px"><span class="pill p-gray">${b.product}</span></td>
@@ -2434,6 +2333,596 @@ function deleteBanker(i){
   _bankers.splice(i,1);
   renderBankers();
   showToast('🗑 Banker contact deleted');
+}
+
+// ══════════════════════════════════════
+// DSA/CONNECTORS — Admin View
+// ══════════════════════════════════════
+function renderAdmConnectors(){
+  const search  = (document.getElementById('conn-adm-search')?.value||'').toLowerCase();
+  const statusF = document.getElementById('conn-adm-status')?.value||'ALL';
+  const users   = getUsers();
+  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
+  const all     = getConnectors();
+  const filtered = all.filter(c=>{
+    const matchS = statusF==='ALL' || c.status===statusF;
+    const matchQ = !search || (c.name||'').toLowerCase().includes(search) || (c.phone||'').includes(search) || (c.company||'').toLowerCase().includes(search);
+    return matchS && matchQ;
+  });
+  const tbody = document.getElementById('conn-adm-tbody');
+  const cntEl = document.getElementById('conn-adm-count');
+  const badge = document.getElementById('conn-adm-badge');
+  if(cntEl) cntEl.textContent = filtered.length+' entries';
+  if(badge) badge.textContent = all.length;
+  if(!tbody) return;
+  if(!filtered.length){
+    tbody.innerHTML='<tr><td colspan="11"><div class="empty"><div class="empty-ico">🤝</div><p>No connectors match the filter.</p></div></td></tr>';
+    return;
+  }
+  const STATUS_PILL={
+    'INTERESTED':'<span class="pill p-green" style="font-size:9px">✅ Interested</span>',
+    'NOT INTERESTED':'<span class="pill p-red" style="font-size:9px">❌ Not Interested</span>',
+    'BUSY':'<span class="pill p-gold" style="font-size:9px">📵 Busy</span>',
+    'CALL WAITING':'<span class="pill p-purple" style="font-size:9px">⏳ Waiting</span>',
+    'WILL CALL YOU':'<span class="pill p-blue" style="font-size:9px">📞 Will Call</span>',
+    'LESS PAYOUT':'<span class="pill p-gold" style="font-size:9px">💰 Less Payout</span>',
+    'CALL ME LATER':'<span class="pill p-cyan" style="font-size:9px">🕐 Call Later</span>',
+  };
+  tbody.innerHTML = filtered.map((c,i)=>{
+    const owner     = c.addedBy ? (userMap[c.addedBy]||{}) : {};
+    const ownerName = owner.name || c.addedBy || '—';
+    const dtStr     = c.dt ? new Date(c.dt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const verts     = (c.verticals||[]).join(', ')||'—';
+    const code      = c.dsaCode || ((c.name||'???').slice(0,3).toUpperCase()+(c.phone||'0000').slice(-4));
+    return `<tr data-conn-id="${c.id||''}">
+      <td style="color:#64748b">${i+1}</td>
+      <td><b style="color:#0f172a">${c.name||'—'}</b><div style="font-size:9px;color:#64748b">${c.company||''}</div></td>
+      <td><span style="font-weight:700;color:#1a5fb4;font-size:10px;background:#e8f0fe;padding:2px 8px;border-radius:12px">${code}</span></td>
+      <td><a href="tel:${c.phone}" style="color:#1a5fb4;font-size:10px">📞 ${c.phone||'—'}</a></td>
+      <td>${STATUS_PILL[c.status]||`<span class="pill p-gray" style="font-size:9px">${c.status||'—'}</span>`}</td>
+      <td style="font-size:11px;color:#e65100;font-weight:600">${c.target?'₹'+c.target+' L/mo':'—'}</td>
+      <td style="font-size:10px;max-width:100px;color:#475569">${verts}</td>
+      <td style="font-size:10px;color:#475569">${c.location||'—'}</td>
+      <td style="font-size:10px;color:#64748b;white-space:nowrap">${dtStr}</td>
+      <td style="font-size:10px;color:#1a5fb4;font-weight:500">${ownerName}</td>
+      <td style="white-space:nowrap">
+        <button class="act-btn act-edit" style="font-size:9px" onclick="admEditConnector('${c.id}')">✏ Edit</button>
+        <button class="act-btn act-del"  style="font-size:9px" onclick="admDelConnector('${c.id}')">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function admEditConnector(id){
+  const all = getConnectors();
+  const c   = all.find(x=>x.id===id); if(!c) return;
+  const dt  = c.dt ? new Date(c.dt).toISOString().slice(0,16) : '';
+  document.getElementById('modal-title').textContent = '✏ Edit Connector — '+c.name;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mfg" style="grid-column:span 2">
+        <div class="mfl">Name</div>
+        <input class="minp" id="ec-name" value="${c.name||''}">
+      </div>
+      <div class="mfg"><div class="mfl">Mobile</div><input class="minp" id="ec-phone" value="${c.phone||''}"></div>
+      <div class="mfg"><div class="mfl">Location</div><input class="minp" id="ec-location" value="${c.location||''}"></div>
+      <div class="mfg"><div class="mfl">Status</div>
+        <select class="minp" id="ec-status">
+          ${['INTERESTED','NOT INTERESTED','BUSY','CALL WAITING','WILL CALL YOU','LESS PAYOUT','CALL ME LATER'].map(s=>`<option ${c.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="mfg"><div class="mfl">Follow-Up Date & Time</div>
+        <input class="minp" id="ec-dt" type="datetime-local" value="${dt}">
+      </div>
+      <div class="mfg"><div class="mfl">Business Target (L/mo)</div>
+        <input class="minp" id="ec-target" value="${c.target||''}" placeholder="e.g. 50">
+      </div>
+      <div class="mfg"><div class="mfl">Company</div>
+        <input class="minp" id="ec-company" value="${c.company||''}">
+      </div>
+      <div class="mfg" style="grid-column:span 2"><div class="mfl">Notes</div>
+        <input class="minp" id="ec-notes" value="${c.notes||''}">
+      </div>
+    </div>`;
+  document.getElementById('modal-edit').dataset.type    = 'adm-connector';
+  document.getElementById('modal-edit').dataset.connid  = id;
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function admDelConnector(id){
+  if(!confirm('Delete this connector?')) return;
+  const all = getConnectors().filter(c=>c.id!==id);
+  _admWrite('crm_connectors', all);
+  _admCache.crm_connectors = all;
+  renderAdmConnectors();
+  showToast('Connector deleted');
+}
+
+// Feature Marketplace: Request Early Access
+function openEarlyAccess(featureName){
+  document.getElementById('modal-title').textContent = 'Request Early Access: '+featureName;
+  document.getElementById('modal-body').innerHTML =
+    '<div style="background:#f5f3ff;border:1px solid #ddd6fe;border-radius:8px;padding:12px;margin-bottom:14px;font-size:12px;color:#4c1d95">'
+    +'Requesting early access to <b>'+featureName+'</b>. Our team will contact you within 24-48 hours.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'
+    +'<div class="mfg" style="grid-column:span 2"><div class="mfl">Contact Name</div><input class="minp" id="ea-name" value="Admin Cat-Eye"></div>'
+    +'<div class="mfg"><div class="mfl">Mobile</div><input class="minp" id="ea-mobile" value="9398504048"></div>'
+    +'<div class="mfg"><div class="mfl">Email</div><input class="minp" id="ea-email" placeholder="email@company.com"></div>'
+    +'<div class="mfg" style="grid-column:span 2"><div class="mfl">Message (optional)</div><textarea class="minp" id="ea-msg" rows="2" style="resize:vertical"></textarea></div></div>'
+    +'<div style="margin-top:10px;display:flex;gap:8px">'
+    +'<button onclick="submitEarlyAccess()" class="btn btn-p" style="flex:1;padding:9px">Submit Request</button>'
+    +'<a href="https://wa.me/919398504048" target="_blank" style="flex:1;display:flex;align-items:center;justify-content:center;background:#25d366;color:#fff;border-radius:7px;font-size:12px;font-weight:700;text-decoration:none;padding:9px">WhatsApp Us</a></div>';
+  window._eaFeat = featureName;
+  document.getElementById('modal-edit').dataset.type = 'early-access';
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function submitEarlyAccess(){
+  var feat   = window._eaFeat||'Feature';
+  var name   = document.getElementById('ea-name')?.value||'Admin';
+  var mobile = document.getElementById('ea-mobile')?.value||'';
+  var email  = document.getElementById('ea-email')?.value||'';
+  var msg    = document.getElementById('ea-msg')?.value||'';
+  var req    = {feat:feat,name:name,mobile:mobile,email:email,msg:msg,ts:Date.now(),status:'PENDING'};
+  var key    = 'feature_requests';
+  var all    = []; try{all=JSON.parse(localStorage.getItem(key)||'[]');}catch(e){}
+  all.push(req);
+  localStorage.setItem(key,JSON.stringify(all));
+  if(_admDb) _admDb.ref('dsa_crm/'+key).set(all).catch(function(){});
+  closeModal();
+  showToast('Request submitted for '+feat+'. We will contact you within 24-48 hrs.');
+}
+
+// Bulk Feature Grant/Revoke — shows user selection modal
+function bulkGrantFeature(){
+  var features = Array.prototype.slice.call(arguments);
+  _openFeatureAccessModal(features, 'grant');
+}
+
+function bulkRevokeFeature(){
+  var features = Array.prototype.slice.call(arguments);
+  _openFeatureAccessModal(features, 'revoke');
+}
+
+function _openFeatureAccessModal(features, action){
+  var users = getUsers();
+  if(!users.length){ showToast('No registered users found'); return; }
+  var label = features.join(' + ');
+  var isGrant = action === 'grant';
+  var actionLabel = isGrant ? 'Grant' : 'Revoke';
+  var actionColor = isGrant ? '#5b21b6' : '#dc2626';
+  var actionBg    = isGrant ? 'linear-gradient(135deg,#5b21b6,#7c3aed)' : 'linear-gradient(135deg,#dc2626,#ef4444)';
+
+  // Build user rows — pre-check if they already have/don't have the feature
+  var rows = users.map(function(u, idx){
+    var has = features.every(function(f){ return (u.features||[]).includes(f); });
+    var relevantAction = isGrant ? !has : has; // only show relevant users first
+    var statusPill = has
+      ? '<span style="font-size:9px;background:#dcfce7;color:#15803d;border:1px solid #86efac;padding:1px 7px;border-radius:20px;font-weight:700">✅ Has Access</span>'
+      : '<span style="font-size:9px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:1px 7px;border-radius:20px;font-weight:700">❌ No Access</span>';
+    return '<tr style="border-bottom:1px solid #e2e8f0">'
+      + '<td style="padding:7px 10px"><input type="checkbox" class="fa-user-chk" data-idx="'+idx+'" '+(relevantAction?'checked':'')
+      +' style="accent-color:'+actionColor+';cursor:pointer;width:14px;height:14px"></td>'
+      + '<td style="padding:7px 10px;font-size:11px;font-weight:600;color:#0f172a">'+u.name+'</td>'
+      + '<td style="padding:7px 10px;font-size:10px;color:#475569">'+u.mobile+'</td>'
+      + '<td style="padding:7px 10px;font-size:10px"><span style="background:#ede9fe;color:#5b21b6;padding:1px 6px;border-radius:10px;font-size:9px">'+u.type+'</span></td>'
+      + '<td style="padding:7px 10px">'+statusPill+'</td>'
+      + '</tr>';
+  }).join('');
+
+  document.getElementById('modal-title').textContent = actionLabel + ' Access: ' + label;
+  document.getElementById('modal-body').innerHTML =
+    '<div style="background:' + (isGrant?'#f5f3ff':'#fff1f2') + ';border:1px solid '+(isGrant?'#ddd6fe':'#fecaca')+';border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;color:'+(isGrant?'#4c1d95':'#b91c1c')+'">'
+    + (isGrant ? '✅ Check users to <b>grant</b> access to <b>' + label + '</b> features.' : '🚫 Check users to <b>revoke</b> <b>' + label + '</b> access.')
+    + '</div>'
+    + '<div style="display:flex;gap:8px;margin-bottom:8px">'
+    + '<button onclick="_faSelectAll(true)" style="font-size:10px;padding:3px 10px;border:1px solid #c5cde4;border-radius:5px;cursor:pointer;background:#f8fafc">Select All</button>'
+    + '<button onclick="_faSelectAll(false)" style="font-size:10px;padding:3px 10px;border:1px solid #c5cde4;border-radius:5px;cursor:pointer;background:#f8fafc">Deselect All</button>'
+    + '<span style="margin-left:auto;font-size:10px;color:#64748b;align-self:center" id="fa-sel-count">' + users.filter(function(u){ return features.every(function(f){return isGrant?!(u.features||[]).includes(f):(u.features||[]).includes(f);}); }).length + ' users pre-selected</span>'
+    + '</div>'
+    + '<div style="max-height:320px;overflow-y:auto;border:1px solid #e2e8f0;border-radius:8px">'
+    + '<table style="width:100%;border-collapse:collapse">'
+    + '<thead><tr style="background:#f8fafc;font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em">'
+    + '<th style="padding:7px 10px;width:32px"><input type="checkbox" id="fa-sel-all-chk" onchange="_faSelectAll(this.checked)" style="accent-color:'+actionColor+'"></th>'
+    + '<th style="padding:7px 10px;text-align:left">Name</th><th style="padding:7px 10px;text-align:left">Mobile</th>'
+    + '<th style="padding:7px 10px;text-align:left">Type</th><th style="padding:7px 10px;text-align:left">Current Status</th>'
+    + '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+
+  document.getElementById('modal-edit').dataset.type      = 'feature-access';
+  document.getElementById('modal-edit').dataset.feats     = features.join(',');
+  document.getElementById('modal-edit').dataset.faaction  = action;
+  document.getElementById('modal-edit').classList.add('open');
+
+  // Update count as user checks/unchecks
+  document.querySelectorAll('.fa-user-chk').forEach(function(chk){
+    chk.onchange = function(){ _faUpdateCount(); };
+  });
+  _faUpdateCount();
+}
+
+function _faSelectAll(checked){
+  document.querySelectorAll('.fa-user-chk').forEach(function(c){ c.checked=checked; });
+  var allChk = document.getElementById('fa-sel-all-chk');
+  if(allChk) allChk.checked = checked;
+  _faUpdateCount();
+}
+
+function _faUpdateCount(){
+  var n = document.querySelectorAll('.fa-user-chk:checked').length;
+  var el = document.getElementById('fa-sel-count');
+  if(el) el.textContent = n + ' user(s) selected';
+}
+
+// Save feature-access modal
+function _saveFeatureAccess(){
+  var modal    = document.getElementById('modal-edit');
+  var features = (modal.dataset.feats||'').split(',').filter(Boolean);
+  var action   = modal.dataset.faaction;
+  var users    = getUsers();
+  var checks   = document.querySelectorAll('.fa-user-chk');
+  var changed  = 0;
+  checks.forEach(function(chk){
+    var idx = parseInt(chk.dataset.idx);
+    if(isNaN(idx)||!users[idx]) return;
+    if(!chk.checked) return;
+    var ex = users[idx].features || [];
+    if(action === 'grant'){
+      features.forEach(function(f){ if(!ex.includes(f)) ex.push(f); });
+    } else {
+      ex = ex.filter(function(f){ return !features.includes(f); });
+    }
+    users[idx].features = ex;
+    changed++;
+  });
+  if(!changed){ showToast('No users selected'); return; }
+  saveUsers(users);
+  _admWrite('dsacrm_users', users);
+  closeModal();
+  showToast((action==='grant'?'Access granted':'Access revoked')+' for '+changed+' user(s)!');
+  renderUsers();
+}
+
+function getCibil(){ return _admRead('crm_cibil'); }
+
+// ══════════════════════════════════════
+// CIBIL DATA QUEUE — Admin View
+// ══════════════════════════════════════
+function renderAdmCibil(){
+  const search  = (document.getElementById('cibil-search')?.value||'').toLowerCase();
+  const scoreF  = document.getElementById('cibil-score-filter')?.value||'ALL';
+  const userF   = document.getElementById('cibil-user-filter')?.value||'ALL';
+  const users   = getUsers();
+  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
+  const all     = getCibil();
+
+  // Populate Team/DSA dropdown
+  const ddl = document.getElementById('cibil-user-filter');
+  if(ddl && ddl.options.length <= 1){
+    users.forEach(u=>{ const o=document.createElement('option'); o.value=u.mobile; o.textContent=(u.name||u.mobile); ddl.appendChild(o); });
+  }
+
+  // Score range helper
+  function scoreRange(s){
+    if(s>=750) return 'EXCELLENT';
+    if(s>=650) return 'GOOD';
+    if(s>=550) return 'FAIR';
+    return 'POOR';
+  }
+
+  // Count by range
+  const counts = {EXCELLENT:0,GOOD:0,FAIR:0,POOR:0};
+  all.forEach(r=>counts[scoreRange(r.score)]++);
+  document.getElementById('cibil-excellent-count').textContent = counts.EXCELLENT+' Excellent';
+  document.getElementById('cibil-good-count').textContent      = counts.GOOD+' Good';
+  document.getElementById('cibil-fair-count').textContent      = counts.FAIR+' Fair';
+  document.getElementById('cibil-poor-count').textContent      = counts.POOR+' Poor';
+  document.getElementById('cibil-total-count').textContent     = all.length+' total';
+  const badge = document.getElementById('cibil-adm-badge');
+  if(badge) badge.textContent = all.length;
+
+  // Filter
+  const filtered = all.filter(r=>{
+    const q = !search || (r.fname||'').toLowerCase().includes(search)
+      || (r.lname||'').toLowerCase().includes(search)
+      || (r.mobile||'').includes(search)
+      || (r.pan||'').toLowerCase().includes(search);
+    const sr = scoreF==='ALL' || scoreRange(r.score)===scoreF;
+    const ur = userF==='ALL' || r.addedBy===userF;
+    return q && sr && ur;
+  }).sort((a,b)=>b.addedOn-a.addedOn); // newest first
+
+  const tbody = document.getElementById('cibil-adm-tbody');
+  if(!tbody) return;
+  if(!filtered.length){
+    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">📊</div><p>No CIBIL records found.</p></div></td></tr>';
+    return;
+  }
+
+  const RANGE_STYLE = {
+    EXCELLENT: 'background:#dcfce7;color:#15803d;border:1px solid #86efac',
+    GOOD:      'background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd',
+    FAIR:      'background:#fef3c7;color:#b45309;border:1px solid #fcd34d',
+    POOR:      'background:#fee2e2;color:#dc2626;border:1px solid #fca5a5',
+  };
+  const RANGE_LABEL = {EXCELLENT:'Excellent',GOOD:'Good',FAIR:'Fair',POOR:'Poor'};
+
+  tbody.innerHTML = filtered.map((r,i)=>{
+    const owner   = r.addedBy ? (userMap[r.addedBy]||{}) : {};
+    const teamName= owner.name || r.addedBy || '—';
+    const dsaName = owner.dsaName || owner.bankName || owner.type || '—';
+    const range   = scoreRange(r.score);
+    const dateStr = r.addedOn ? new Date(r.addedOn).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : (r.dt||'—');
+    return `<tr>
+      <td style="color:#64748b;text-align:center">${i+1}</td>
+      <td style="font-size:10px;color:#475569;white-space:nowrap">${dateStr}</td>
+      <td style="font-weight:600;color:#0f172a">${r.fname||'—'}</td>
+      <td style="font-weight:600;color:#0f172a">${r.lname||'—'}</td>
+      <td><a href="tel:${r.mobile}" style="color:#1d4ed8;font-size:11px;font-weight:600">📞 ${r.mobile||'—'}</a></td>
+      <td style="font-family:monospace;font-size:11px;font-weight:700;color:#374151;letter-spacing:.05em">${r.pan||'—'}</td>
+      <td style="text-align:center">
+        <div style="font-size:20px;font-weight:800;color:${range==='EXCELLENT'?'#15803d':range==='GOOD'?'#1d4ed8':range==='FAIR'?'#b45309':'#dc2626'};line-height:1.2">${r.score}</div>
+        <span style="font-size:8.5px;padding:1px 7px;border-radius:999px;font-weight:700;${RANGE_STYLE[range]}">${RANGE_LABEL[range]}</span>
+      </td>
+      <td style="font-size:10px;color:#475569;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.remarks||''}">${r.remarks||'—'}</td>
+      <td>
+        <div style="font-size:11px;font-weight:700;color:#0f172a">${teamName}</div>
+        <div style="font-size:9px;color:#64748b">${dsaName}</div>
+      </td>
+      <td>
+        <button onclick="downloadCibilReport('${r.id}')" class="btn btn-p" style="font-size:9px;padding:3px 9px">📄 Report</button>
+        <button onclick="admDeleteCibil('${r.id}')" class="act-btn act-del" style="font-size:9px;margin-left:3px">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function admDeleteCibil(id){
+  if(!confirm('Delete this CIBIL record?')) return;
+  const all  = getCibil().filter(r=>r.id!==id);
+  _admWrite('crm_cibil', all);
+  _admCache.crm_cibil = all;
+  renderAdmCibil();
+  showToast('🗑 CIBIL record deleted');
+}
+
+function downloadCibilReport(id){
+  const r = getCibil().find(x=>x.id===id); if(!r) return;
+  const users   = getUsers();
+  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
+  const owner   = r.addedBy ? (userMap[r.addedBy]||{}) : {};
+  const range   = r.score>=750?'Excellent':r.score>=650?'Good':r.score>=550?'Fair':'Poor';
+  const dateStr = r.addedOn ? new Date(r.addedOn).toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'}) : (r.dt||'');
+  const csv = [
+    'CIBIL Score Report — Cat-Eye Consultancy Services',
+    'Generated: '+new Date().toLocaleString('en-IN'),
+    '',
+    'PERSONAL DETAILS',
+    'First Name,'+r.fname,
+    'Last Name,'+r.lname,
+    'Mobile Number,'+r.mobile,
+    'PAN Number,'+r.pan,
+    '',
+    'CIBIL SCORE',
+    'Score,'+r.score,
+    'Range,'+range,
+    'Date Checked,'+dateStr,
+    'Remarks,'+(r.remarks||''),
+    '',
+    'DSA DETAILS',
+    'Team Member,'+(owner.name||r.addedBy||''),
+    'DSA Company,'+(owner.dsaName||owner.bankName||''),
+    'Mobile,'+(owner.mobile||r.addedBy||''),
+  ].join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download = 'CIBIL_Report_'+r.fname+'_'+r.lname+'_'+r.score+'.csv';
+  a.click();
+  showToast('📄 Report downloaded!');
+}
+
+function exportAdmCibil(){
+  const all   = getCibil();
+  const users = getUsers();
+  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
+  const header= 'S.No,Date,First Name,Last Name,Mobile Number,PAN Number,CIBIL Score,Range,Remarks,Team Member,DSA Name\n';
+  const rows  = all.sort((a,b)=>b.addedOn-a.addedOn).map((r,i)=>{
+    const owner = r.addedBy?(userMap[r.addedBy]||{}):{};
+    const range = r.score>=750?'Excellent':r.score>=650?'Good':r.score>=550?'Fair':'Poor';
+    const dateStr = r.addedOn?new Date(r.addedOn).toLocaleDateString('en-IN'):(r.dt||'');
+    return `${i+1},"${dateStr}","${r.fname||''}","${r.lname||''}","${r.mobile||''}","${r.pan||''}",${r.score},"${range}","${r.remarks||''}","${owner.name||r.addedBy||''}","${owner.dsaName||owner.bankName||''}"`;
+  }).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([header+rows],{type:'text/csv'}));
+  a.download = 'CIBIL_Data_All_'+new Date().toLocaleDateString('en-IN').replace(/\//g,'-')+'.csv';
+  a.click();
+  showToast('📥 CIBIL data exported!');
+}
+
+function exportAdmConnectors(){
+  const all = getConnectors();
+  const users = getUsers();
+  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
+  const header = 'No,Name,DSA Code,Mobile,Status,Business Target,Business Vertical,Follow-Up Date,Added By\n';
+  const rows = all.map((c,i)=>{
+    const owner = c.addedBy?(userMap[c.addedBy]?.name||c.addedBy):'';
+    return `${i+1},"${c.name||''}","${c.dsaCode||''}","${c.phone||''}","${c.status||''}","${c.target?'₹'+c.target+'L/mo':''}","${(c.verticals||[]).join('; ')}","${c.dt?new Date(c.dt).toLocaleDateString('en-IN'):''}","${owner}"`;
+  }).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([header+rows],{type:'text/csv'}));
+  a.download='DSA_Connectors_'+new Date().toLocaleDateString('en-IN').replace(/\//g,'-')+'.csv';
+  a.click();
+  showToast('📥 Connectors exported!');
+}
+
+// ══════════════════════════════════════
+// FREELANCER PROGRAMS — Admin View
+// ══════════════════════════════════════
+var _flSelectedIds = { women:new Set(), biz:new Set() };
+
+function renderAdmFreelancers(){
+  const search = (document.getElementById('fl-adm-search')?.value||'').toLowerCase();
+  const typeF  = document.getElementById('fl-adm-type')?.value||'ALL';
+  const users  = getUsers();
+  const userMap= {}; users.forEach(u=>{ userMap[u.mobile]=u; });
+  const badge  = document.getElementById('fl-adm-badge');
+
+  function renderFL(list, key, tbodyId, cntId, selAllId, bulkBarId, selCountId){
+    const tbody   = document.getElementById(tbodyId);
+    const cntEl   = document.getElementById(cntId);
+    const bulkBar = document.getElementById(bulkBarId);
+    const filt    = list.filter(r=>
+      !search || (r.name||'').toLowerCase().includes(search) || (r.phone||'').includes(search) || (r.location||'').toLowerCase().includes(search)
+    );
+    if(cntEl) cntEl.textContent = filt.length+' entries';
+    if(!tbody) return;
+    if(!filt.length){
+      if(bulkBar) bulkBar.style.display='none';
+      tbody.innerHTML=`<tr><td colspan="11"><div class="empty"><div class="empty-ico">👤</div><p>No registrations yet.</p></div></td></tr>`;
+      return;
+    }
+    tbody.innerHTML = filt.map((r,i)=>{
+      const owner   = r.addedBy ? (userMap[r.addedBy]||{}) : {};
+      const checked = _flSelectedIds[key].has(r.id) ? 'checked' : '';
+      const accent  = key==='women'?'#7c3aed':'#1a5fb4';
+      return `<tr id="fl-row-${r.id}">
+        <td><input type="checkbox" ${checked} data-id="${r.id}" data-key="${key}"
+            onchange="flToggleSel('${key}','${r.id}',this.checked,'${selCountId}','${selAllId}','${bulkBarId}')"
+            style="accent-color:${accent};cursor:pointer"></td>
+        <td style="color:#64748b">${i+1}</td>
+        <td><b style="color:#0f172a">${r.name||'—'}</b></td>
+        <td><a href="tel:${r.phone}" style="color:#1a5fb4;font-size:10px">📞 ${r.phone||'—'}</a></td>
+        <td style="font-size:10px;color:#475569">${r.location||'—'}</td>
+        <td><span class="pill ${r.profile==='Full Time'?'p-green':'p-blue'}" style="font-size:9px">${r.profile||'Part Time'}</span></td>
+        <td style="font-size:11px;color:#e65100;font-weight:600">${r.expected?'₹'+r.expected+'L/mo':'—'}</td>
+        <td style="font-size:10px;color:#475569;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${r.remarks||''}">${r.remarks||'—'}</td>
+        <td style="font-size:10px;color:#1a5fb4;font-weight:500">${owner.name||r.addedBy||'—'}</td>
+        <td style="font-size:10px;color:#64748b">${r.dt||'—'}</td>
+        <td style="white-space:nowrap">
+          <button class="act-btn act-edit" style="font-size:9px" onclick="admEditFreelancer('${key}','${r.id}')">✏ Edit</button>
+          <button class="act-btn act-del"  style="font-size:9px" onclick="admDelFreelancer('${key}','${r.id}')">🗑</button>
+        </td>
+      </tr>`;
+    }).join('');
+    // Sync select-all checkbox state
+    const selAll = document.getElementById(selAllId);
+    if(selAll){
+      const allIds = filt.map(r=>r.id);
+      const allChecked = allIds.length > 0 && allIds.every(id=>_flSelectedIds[key].has(id));
+      selAll.checked = allChecked;
+      selAll.indeterminate = !allChecked && _flSelectedIds[key].size > 0;
+    }
+    // Bulk bar
+    const n = _flSelectedIds[key].size;
+    if(bulkBar){ bulkBar.style.display = n>0 ? 'flex' : 'none'; }
+    const selCnt = document.getElementById(selCountId);
+    if(selCnt) selCnt.textContent = n+' selected';
+  }
+
+  const wf = getWomenFL();
+  const bf = getBizFL();
+  if(badge) badge.textContent = wf.length + bf.length;
+
+  // Show/hide whole card based on type filter
+  const wCard = document.getElementById('fl-card-women');
+  const bCard = document.getElementById('fl-card-biz');
+  if(wCard) wCard.style.display = (typeF==='ALL' || typeF==='women') ? '' : 'none';
+  if(bCard) bCard.style.display = (typeF==='ALL' || typeF==='biz')   ? '' : 'none';
+
+  if(typeF==='ALL' || typeF==='women')
+    renderFL(wf, 'women', 'fl-women-tbody', 'fl-women-count', 'fl-sel-all-women', 'fl-women-bulk', 'fl-women-sel-count');
+  if(typeF==='ALL' || typeF==='biz')
+    renderFL(bf, 'biz',   'fl-biz-tbody',   'fl-biz-count',   'fl-sel-all-biz',   'fl-biz-bulk',   'fl-biz-sel-count');
+}
+
+function flToggleSel(key, id, checked, selCountId, selAllId, bulkBarId){
+  if(checked) _flSelectedIds[key].add(id);
+  else        _flSelectedIds[key].delete(id);
+  // Update select-all checkbox
+  const tbody   = document.getElementById(key==='women'?'fl-women-tbody':'fl-biz-tbody');
+  const allRows = tbody ? tbody.querySelectorAll('input[type=checkbox]') : [];
+  const total   = allRows.length;
+  const checked_ = _flSelectedIds[key].size;
+  const selAll  = document.getElementById(selAllId);
+  if(selAll){
+    selAll.checked = checked_ === total && total > 0;
+    selAll.indeterminate = checked_ > 0 && checked_ < total;
+  }
+  const bulkBar = document.getElementById(bulkBarId);
+  if(bulkBar) bulkBar.style.display = checked_ > 0 ? 'flex' : 'none';
+  const selCnt = document.getElementById(selCountId);
+  if(selCnt) selCnt.textContent = checked_+' selected';
+}
+
+function flSelectAll(key, chkEl){
+  const isChecked = chkEl.checked;
+  const list      = key==='women' ? getWomenFL() : getBizFL();
+  _flSelectedIds[key].clear();
+  if(isChecked) list.forEach(r=>_flSelectedIds[key].add(r.id));
+  // Re-render to reflect checkboxes
+  renderAdmFreelancers();
+}
+
+function flBulkDelete(key){
+  const ids = Array.from(_flSelectedIds[key]);
+  if(!ids.length){ showToast('⚠️ No rows selected'); return; }
+  if(!confirm(`Delete ${ids.length} selected ${key==='women'?'women':'business'} freelancer(s)? Cannot be undone.`)) return;
+  const fbKey = key==='women' ? 'crm_womenfl' : 'crm_bizfl';
+  const list  = key==='women' ? getWomenFL() : getBizFL();
+  const kept  = list.filter(r=>!ids.includes(r.id));
+  _admWrite(fbKey, kept);
+  _admCache[fbKey] = kept;
+  _flSelectedIds[key].clear();
+  renderAdmFreelancers();
+  showToast(`🗑 Deleted ${ids.length} freelancer(s)`);
+}
+
+function admDelFreelancer(key, id){
+  if(!confirm('Delete this freelancer record?')) return;
+  const fbKey = key==='women' ? 'crm_womenfl' : 'crm_bizfl';
+  const list  = key==='women' ? getWomenFL() : getBizFL();
+  const kept  = list.filter(r=>r.id!==id);
+  _admWrite(fbKey, kept);
+  _admCache[fbKey] = kept;
+  _flSelectedIds[key].delete(id);
+  renderAdmFreelancers();
+  showToast('🗑 Freelancer deleted');
+}
+
+function admEditFreelancer(key, id){
+  const list = key==='women' ? getWomenFL() : getBizFL();
+  const r    = list.find(x=>x.id===id); if(!r) return;
+  document.getElementById('modal-title').textContent = '✏ Edit Freelancer — '+r.name;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="mfg" style="grid-column:span 2"><div class="mfl">Full Name</div><input class="minp" id="ef-name" value="${r.name||''}"></div>
+      <div class="mfg"><div class="mfl">Mobile</div><input class="minp" id="ef-phone" value="${r.phone||''}" type="tel"></div>
+      <div class="mfg"><div class="mfl">Location</div><input class="minp" id="ef-location" value="${r.location||''}"></div>
+      <div class="mfg"><div class="mfl">Profile Type</div>
+        <select class="minp" id="ef-profile">
+          <option ${r.profile==='Part Time'?'selected':''}>Part Time</option>
+          <option ${r.profile==='Full Time'?'selected':''}>Full Time</option>
+        </select>
+      </div>
+      <div class="mfg"><div class="mfl">Expected Business (L/mo)</div><input class="minp" id="ef-expected" value="${r.expected||''}" placeholder="e.g. 10"></div>
+      <div class="mfg" style="grid-column:span 2"><div class="mfl">Remarks</div><input class="minp" id="ef-remarks" value="${r.remarks||''}"></div>
+    </div>`;
+  document.getElementById('modal-edit').dataset.type    = 'adm-freelancer';
+  document.getElementById('modal-edit').dataset.flkey   = key;
+  document.getElementById('modal-edit').dataset.flid    = id;
+  document.getElementById('modal-edit').classList.add('open');
+}
+
+function exportAdmFreelancers(){
+  const users = getUsers();
+  const userMap = {}; users.forEach(u=>{ userMap[u.mobile]=u; });
+  const header = 'No,Type,Name,Mobile,Location,Profile,Expected Business,Remarks,Added By,Date\n';
+  const wf = getWomenFL().map((r,i)=>`${i+1},Women,"${r.name||''}","${r.phone||''}","${r.location||''}","${r.profile||''}","${r.expected||''}","${r.remarks||''}","${userMap[r.addedBy]?.name||r.addedBy||''}","${r.dt||''}"`);
+  const bf = getBizFL().map((r,i)=>`${wf.length+i+1},Business,"${r.name||''}","${r.phone||''}","${r.location||''}","${r.profile||''}","${r.expected||''}","${r.remarks||''}","${userMap[r.addedBy]?.name||r.addedBy||''}","${r.dt||''}"`);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([header+[...wf,...bf].join('\n')],{type:'text/csv'}));
+  a.download = 'Freelancers_'+new Date().toLocaleDateString('en-IN').replace(/\//g,'-')+'.csv';
+  a.click();
+  showToast('📥 Freelancers exported!');
 }
 
 // ══════════════════════════════════════
@@ -2480,8 +2969,57 @@ function openAddModal(type){
 
 function saveModalEntry(){
   const modal = document.getElementById('modal-edit');
-  const type = modal.dataset.type;
-  const idx = parseInt(modal.dataset.idx);
+  const type  = modal.dataset.type;
+  const idx   = parseInt(modal.dataset.idx);
+
+  // ── Connector edit ──
+  if(type==='early-access'){ closeModal(); return; }
+  if(type==='feature-access'){ _saveFeatureAccess(); return; }
+  if(type==='adm-connector'){
+    const connid = modal.dataset.connid;
+    const all    = getConnectors();
+    const ci     = all.findIndex(x=>x.id===connid);
+    if(ci>=0){
+      all[ci].name     = document.getElementById('ec-name')?.value     || all[ci].name;
+      all[ci].phone    = document.getElementById('ec-phone')?.value    || all[ci].phone;
+      all[ci].location = document.getElementById('ec-location')?.value || '';
+      all[ci].status   = document.getElementById('ec-status')?.value   || all[ci].status;
+      all[ci].target   = document.getElementById('ec-target')?.value   || '';
+      all[ci].company  = document.getElementById('ec-company')?.value  || '';
+      all[ci].notes    = document.getElementById('ec-notes')?.value    || '';
+      const dtVal = document.getElementById('ec-dt')?.value;
+      if(dtVal) all[ci].dt = new Date(dtVal).getTime();
+      _admWrite('crm_connectors', all);
+      _admCache.crm_connectors = all;
+      renderAdmConnectors();
+      closeModal();
+      showToast('✅ Connector updated');
+    }
+    return;
+  }
+
+  // ── Freelancer edit ──
+  if(type==='adm-freelancer'){
+    const key   = modal.dataset.flkey;
+    const flid  = modal.dataset.flid;
+    const fbKey = key==='women' ? 'crm_womenfl' : 'crm_bizfl';
+    const list  = key==='women' ? getWomenFL() : getBizFL();
+    const fi    = list.findIndex(x=>x.id===flid);
+    if(fi>=0){
+      list[fi].name     = document.getElementById('ef-name')?.value     || list[fi].name;
+      list[fi].phone    = document.getElementById('ef-phone')?.value    || list[fi].phone;
+      list[fi].location = document.getElementById('ef-location')?.value || '';
+      list[fi].profile  = document.getElementById('ef-profile')?.value  || list[fi].profile;
+      list[fi].expected = document.getElementById('ef-expected')?.value || '';
+      list[fi].remarks  = document.getElementById('ef-remarks')?.value  || '';
+      _admWrite(fbKey, list);
+      _admCache[fbKey] = list;
+      renderAdmFreelancers();
+      closeModal();
+      showToast('✅ Freelancer updated');
+    }
+    return;
+  }
 
   if(type==='policy'){
     const p = _policies[idx];
@@ -2552,65 +3090,296 @@ function selQueue(el, val){
   document.getElementById('rpt-sel-queue').textContent = _rptQueueLabel;
 }
 
-function dlReport(format, queue, period){
-  const q = queue||_rptQueue; const p = period||_rptPeriod;
-  const qL = queue ? ({all:'All Queues',bl:'Business Loan',pl:'Personal Loan',hl:'Home Loan',lap:'LAP',insurance:'Insurance',borrowers:'All Borrowers',users:'Users',policies:'Bank Policies',bankerdir:'Banker Directory',filesdump:'Files Dump',followups:'Follow-ups',applications:'Applications'}[q]||q) : _rptQueueLabel;
-  const pL = {day:'Today',week:'This Week',month:'This Month','3m':'Last 3 Months','6m':'Last 6 Months',year:'Yearly',all:'All Time'}[p]||p;
-  const users = getUsers();
-  let csvContent = `Cat-Eye Consultancy Services Pvt Ltd — DSA CRM Admin Report\n`;
-  csvContent += `Queue: ${qL} | Period: ${pL} | Generated: ${new Date().toLocaleString('en-IN')} | Admin: ${_adminMobile}\n`;
-  csvContent += `${'='.repeat(60)}\n\n`;
-  if(q==='users'||q==='all'){
-    csvContent += `REGISTERED USERS\nNo,Mobile,Name,Type,DSA/Bank Name,Status\n`;
-    users.forEach((u,i)=>{ csvContent+=`${i+1},${u.mobile},${u.name||''},${u.type||''},${u.dsaName||u.bankName||''},${u.held?'On Hold':'Active'}\n`; });
-    csvContent+='\n';
+// ══════════════════════════════════════════════════════════
+// REPORTS — Tweakable defaults (editable from Tweaks panel)
+// ══════════════════════════════════════════════════════════
+const RPT_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "companyName": "Cat-Eye Consultancy Services Pvt Ltd",
+  "reportSubtitle": "DSA CRM Admin Report",
+  "defaultPeriod": "month",
+  "defaultQueue": "all",
+  "defaultFormat": "xlsx",
+  "includeBorrowers": true,
+  "includeFollowUps": true,
+  "includeUsers": true,
+  "includePolicies": true,
+  "includeBankers": true,
+  "includeFiles": true,
+  "includeBrandHeader": true,
+  "filenameTemplate": "DSA_CRM_{queue}_{period}_{date}",
+  "showQuickDownloads": true
+}/*EDITMODE-END*/;
+
+// Live state (mutated by Tweaks panel)
+window.RPT_CFG = Object.assign({}, RPT_DEFAULTS);
+
+const QUEUE_LABELS = {
+  all:'All Queues', bl:'Business Loan', pl:'Personal Loan', hl:'Home Loan', lap:'LAP',
+  insurance:'Insurance', borrowers:'All Borrowers', users:'Registered Users',
+  policies:'Bank Policies', bankerdir:'Banker Directory', filesdump:'Files Dump',
+  followups:'Follow-ups', applications:'Applications'
+};
+const PERIOD_LABELS = {
+  day:'Today', week:'This Week', month:'This Month', '3m':'Last 3 Months',
+  '6m':'Last 6 Months', year:'Yearly', all:'All Time', custom:'Custom Range'
+};
+
+// ── Compute date-range start for a period key
+function rptPeriodStart(p){
+  const now = new Date();
+  if(p==='day'){ const d=new Date(now); d.setHours(0,0,0,0); return d.getTime(); }
+  if(p==='week'){ const d=new Date(now); d.setDate(d.getDate()-7); return d.getTime(); }
+  if(p==='month'){ const d=new Date(now.getFullYear(), now.getMonth(), 1); return d.getTime(); }
+  if(p==='3m'){ const d=new Date(now); d.setMonth(d.getMonth()-3); return d.getTime(); }
+  if(p==='6m'){ const d=new Date(now); d.setMonth(d.getMonth()-6); return d.getTime(); }
+  if(p==='year'){ const d=new Date(now.getFullYear(), 0, 1); return d.getTime(); }
+  if(p==='custom'){
+    const from = document.getElementById('rpt-from')?.value;
+    return from ? new Date(from).getTime() : 0;
   }
-  if(q==='policies'||q==='all'){
-    csvContent += `BANK POLICIES\nNo,Bank/NBFC,Product,Min Loan,Max Loan,ROI,Min CIBIL,ABB,Added By,Date\n`;
-    _policies.forEach((p,i)=>{ csvContent+=`${i+1},${p.bank},${p.product},${p.minL},${p.maxL},${p.roi},${p.cibil},${p.abb},${p.addedBy},${p.date}\n`; });
-    csvContent+='\n';
+  return 0; // 'all'
+}
+function rptPeriodEnd(p){
+  if(p==='custom'){
+    const to = document.getElementById('rpt-to')?.value;
+    return to ? new Date(to).getTime() + 86400000 : Date.now() + 86400000;
   }
-  if(q==='bankerdir'||q==='all'){
-    csvContent += `BANKER DIRECTORY\nNo,Name,Role,Bank,Product,Mobile,Location\n`;
-    _bankers.forEach((b,i)=>{ csvContent+=`${i+1},${b.name},${b.role},${b.bank},${b.product},${b.mobile},${b.location}\n`; });
-    csvContent+='\n';
+  return Date.now() + 86400000;
+}
+// Helper to coerce many possible date fields into a ms timestamp
+function rptTs(rec){
+  const fields = ['addedOn','editedOn','date','dt','updatedAt','createdAt','timestamp','ts'];
+  for(const f of fields){
+    if(rec[f]){
+      const v = rec[f];
+      if(typeof v === 'number') return v;
+      const t = new Date(v).getTime();
+      if(!isNaN(t)) return t;
+    }
   }
-  if(q==='filesdump'||q==='all'){
-    csvContent += `FILES DUMP\nNo,File Name,Category,Borrower,Uploaded By,Size,Date,Status\n`;
-    _files.forEach((f,i)=>{ csvContent+=`${i+1},${f.name},${f.category},${f.borrower},${f.by},${f.size},${f.date},${f.status}\n`; });
-  }
-  const ext = format==='csv'?'csv':'csv';
-  download(`DSA_CRM_Admin_${qL.replace(/ /g,'_')}_${pL.replace(/ /g,'_')}_${today()}.${ext}`, csvContent);
-  showToast('📥 Report downloaded: '+qL+' — '+pL);
+  return null;
+}
+function inPeriod(rec, start, end){
+  if(start === 0) return true; // all-time
+  const t = rptTs(rec);
+  if(t === null) return true; // include records w/o date
+  return t >= start && t <= end;
 }
 
-function quickDl(q, p){ dlReport('csv', q, p); }
+// ── BUILD DATA SECTIONS (filtered, per queue) ──
+function rptBuildSections(queue, period){
+  const start = rptPeriodStart(period);
+  const end = rptPeriodEnd(period);
+  const C = window.RPT_CFG;
+  const out = [];
+
+  const borrowers = (_admCache.crm_borrowers||[]).filter(b=>inPeriod(b,start,end));
+  const users     = getUsers();
+  const fups      = (_admCache.crm_followups||[]).filter(f=>inPeriod(f,start,end));
+  const policies  = (window._policies || _admCache.crm_policies || []);
+  const bankers   = (window._bankers || _admCache.crm_contacts || []);
+  const files     = (window._files || _admCache.crm_files || []);
+  const userByPhone = {}; users.forEach(u=>{ userByPhone[u.mobile] = u.name||u.mobile; });
+
+  function includeQueue(q){
+    if(queue === 'all') return true;
+    return queue === q;
+  }
+
+  // Borrowers — also filter by product when queue is bl/pl/hl/lap/insurance
+  if(C.includeBorrowers){
+    const productMap = {bl:'Business Loan', pl:'Personal Loan', hl:'Home Loan', lap:'LAP', insurance:'Insurance'};
+    if(productMap[queue]){
+      const rows = borrowers.filter(b=>b.product===productMap[queue]);
+      out.push({
+        name: productMap[queue] + ' Borrowers',
+        headers: ['#','Name','Phone','Email','Product','Amount','Profile','Location','Status','Added By','Added On'],
+        rows: rows.map((b,i)=>[i+1, b.name||'', b.phone||'', b.email||'', b.product||'', b.amount||'',
+                               b.profile||'', b.location||'', b.status||'',
+                               b.addedBy?(userByPhone[b.addedBy]||b.addedBy):'',
+                               b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):''])
+      });
+    } else if(queue==='borrowers' || queue==='all'){
+      out.push({
+        name: 'All Borrowers',
+        headers: ['#','Name','Phone','Email','Product','Amount','Profile','Location','Status','Added By','Added On'],
+        rows: borrowers.map((b,i)=>[i+1, b.name||'', b.phone||'', b.email||'', b.product||'', b.amount||'',
+                                    b.profile||'', b.location||'', b.status||'',
+                                    b.addedBy?(userByPhone[b.addedBy]||b.addedBy):'',
+                                    b.addedOn?new Date(b.addedOn).toLocaleDateString('en-IN'):''])
+      });
+    }
+  }
+
+  if(C.includeFollowUps && (includeQueue('followups') || queue==='all')){
+    out.push({
+      name: 'Follow-ups',
+      headers: ['#','Date','Time','Customer','Phone','Loan Type','Type','Outcome / Status','Priority','Purpose','Notes'],
+      rows: fups.map((f,i)=>{
+        const d = f.dt ? new Date(f.dt) : null;
+        return [i+1,
+          d?d.toLocaleDateString('en-IN'):'', d?d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'',
+          f.name||'', f.phone||'', f.loan||'', f.type||'', f.outcome||f.status||'', f.priority||'',
+          f.purpose||'', f.notes||''];
+      })
+    });
+  }
+
+  if(C.includeUsers && includeQueue('users')){
+    out.push({
+      name: 'Registered Users',
+      headers: ['#','Mobile','Name','Type','DSA / Bank','Status','Registered On'],
+      rows: users.map((u,i)=>[i+1, u.mobile||'', u.name||'', u.type||'',
+                              u.dsaName||u.bankName||'', u.held?'On Hold':'Active',
+                              u.registeredOn?new Date(u.registeredOn).toLocaleDateString('en-IN'):''])
+    });
+  }
+
+  if(C.includePolicies && includeQueue('policies')){
+    out.push({
+      name: 'Bank Policies',
+      headers: ['#','Bank / NBFC','Product','Min Loan','Max Loan','ROI','Min CIBIL','ABB Required','Added By','Updated'],
+      rows: policies.map((p,i)=>[i+1, p.bank||'', p.product||'', p.minL||'', p.maxL||'', p.roi||'',
+                                 p.cibil||'', p.abb||'', p.addedBy||'', p.date||''])
+    });
+  }
+
+  if(C.includeBankers && includeQueue('bankerdir')){
+    out.push({
+      name: 'Banker Directory',
+      headers: ['#','Name','Role','Bank / NBFC','Product','Mobile','Location'],
+      rows: bankers.map((b,i)=>[i+1, b.name||'', b.role||'', b.bank||'', b.product||'', b.mobile||'', b.location||''])
+    });
+  }
+
+  if(C.includeFiles && includeQueue('filesdump')){
+    out.push({
+      name: 'Files Dump',
+      headers: ['#','File Name','Category','Borrower','Uploaded By','Size','Date','Status'],
+      rows: files.map((f,i)=>[i+1, f.name||'', f.category||'', f.borrower||'', f.by||'', f.size||'', f.date||'', f.status||''])
+    });
+  }
+  return out;
+}
+
+function dlReport(format, queue, period){
+  const C = window.RPT_CFG;
+  const q  = queue  || _rptQueue  || C.defaultQueue;
+  const p  = period || _rptPeriod || C.defaultPeriod;
+  const fmt = format || C.defaultFormat || 'xlsx';
+  const qL  = QUEUE_LABELS[q] || q;
+  const pL  = PERIOD_LABELS[p] || p;
+  const sections = rptBuildSections(q, p);
+  if(!sections.length || sections.every(s=>!s.rows.length)){
+    showToast('⚠️ No data for selected queue & period');
+    return;
+  }
+  const fname = (C.filenameTemplate||'DSA_CRM_{queue}_{period}_{date}')
+    .replace('{queue}', qL.replace(/[^A-Za-z0-9]+/g,'_'))
+    .replace('{period}', pL.replace(/[^A-Za-z0-9]+/g,'_'))
+    .replace('{date}', today())
+    .replace('{company}', (C.companyName||'').replace(/[^A-Za-z0-9]+/g,'_'));
+
+  if(fmt === 'csv'){
+    let csv = '';
+    if(C.includeBrandHeader){
+      csv += `${C.companyName} — ${C.reportSubtitle}\n`;
+      csv += `Queue: ${qL} | Period: ${pL} | Generated: ${new Date().toLocaleString('en-IN')} | Admin: ${_adminMobile}\n`;
+      csv += '='.repeat(60)+'\n\n';
+    }
+    sections.forEach(sec=>{
+      csv += sec.name.toUpperCase()+'\n';
+      csv += sec.headers.map(csvEscape).join(',')+'\n';
+      sec.rows.forEach(r=>{ csv += r.map(csvEscape).join(',')+'\n'; });
+      csv += '\n';
+    });
+    download(fname+'.csv', csv, 'text/csv');
+  } else if(fmt === 'pdf'){
+    if(!window.jspdf){ showToast('⚠️ PDF library not loaded'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'landscape', unit:'pt', format:'a4'});
+    let y = 40;
+    if(C.includeBrandHeader){
+      doc.setFontSize(14); doc.setTextColor(124,58,237);
+      doc.text(C.companyName, 40, y); y += 18;
+      doc.setFontSize(10); doc.setTextColor(80);
+      doc.text(`${C.reportSubtitle}  ·  Queue: ${qL}  ·  Period: ${pL}  ·  ${new Date().toLocaleString('en-IN')}`, 40, y); y += 16;
+    }
+    sections.forEach((sec,i)=>{
+      if(!sec.rows.length) return;
+      if(i>0 && doc.lastAutoTable && doc.lastAutoTable.finalY > 480) doc.addPage();
+      doc.setFontSize(12); doc.setTextColor(15,23,42);
+      doc.text(sec.name+' ('+sec.rows.length+')', 40, y); y += 8;
+      doc.autoTable({
+        startY: y+2, head: [sec.headers], body: sec.rows,
+        styles: {fontSize: 7, cellPadding: 3},
+        headStyles: {fillColor: [124,58,237], textColor: 255, fontStyle:'bold'},
+        alternateRowStyles: {fillColor: [248,250,252]}, theme:'striped'
+      });
+      y = doc.lastAutoTable.finalY + 18;
+    });
+    doc.save(fname+'.pdf');
+  } else {
+    // xlsx
+    if(typeof XLSX === 'undefined'){ showToast('⚠️ Excel library not loaded'); return; }
+    const wb = XLSX.utils.book_new();
+    sections.forEach(sec=>{
+      const aoa = [];
+      if(C.includeBrandHeader){
+        aoa.push([C.companyName]);
+        aoa.push([`${C.reportSubtitle} · ${qL} · ${pL} · ${new Date().toLocaleString('en-IN')}`]);
+        aoa.push([]);
+      }
+      aoa.push(sec.headers);
+      sec.rows.forEach(r=>aoa.push(r));
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      // Auto-fit column widths (rough)
+      ws['!cols'] = sec.headers.map((h,ci)=>{
+        let max = (h||'').toString().length;
+        sec.rows.forEach(r=>{ const v = (r[ci]||'').toString(); if(v.length>max) max=v.length; });
+        return {wch: Math.min(40, Math.max(8, max+2))};
+      });
+      XLSX.utils.book_append_sheet(wb, ws, sec.name.slice(0,30).replace(/[/\\?*[\]]/g,'_'));
+    });
+    XLSX.writeFile(wb, fname+'.xlsx');
+  }
+  const rowCount = sections.reduce((s,sec)=>s+sec.rows.length,0);
+  showToast(`📥 ${qL} — ${pL} (${rowCount} rows · ${fmt.toUpperCase()})`);
+}
+
+function csvEscape(v){
+  if(v===null||v===undefined) return '';
+  v = String(v);
+  if(/[",\n]/.test(v)) return '"'+v.replace(/"/g,'""')+'"';
+  return v;
+}
+
+function quickDl(q, p){
+  // Quick downloads honor the configured default format
+  dlReport(window.RPT_CFG.defaultFormat||'xlsx', q, p);
+}
+
+// ── Apply config from Tweaks panel ──
+function applyRptCfg(patch){
+  Object.assign(window.RPT_CFG, patch || {});
+  // Update Selected display in the report card
+  const selQ = document.getElementById('rpt-sel-queue');
+  const selP = document.getElementById('rpt-sel-period');
+  if(selQ) selQ.textContent = QUEUE_LABELS[_rptQueue] || _rptQueueLabel || 'All Queues';
+  if(selP) selP.textContent = PERIOD_LABELS[_rptPeriod] || 'This Month';
+  // Show/hide quick downloads
+  const qd = document.querySelector('#sec-reports .card:last-child div[style*="border-top"]');
+  if(qd) qd.style.display = window.RPT_CFG.showQuickDownloads ? '' : 'none';
+}
 
 // ══════════════════════════════════════
 // UTILS
 // ══════════════════════════════════════
-function exportAdmCibil(){
-  const all=_admCache.crm_cibil||[];
-  const users=getUsers(); const ownerName={}; users.forEach(u=>{ ownerName[u.mobile]=u.name||u.mobile; });
-  const h='S.No,Date,First Name,Last Name,Mobile,PAN,CIBIL Score,Remarks,Team/DSA\n';
-  const rows=all.map((b,i)=>`${i+1},${b.date||''},${b.firstName||b.name||''},${b.lastName||''},${b.mobile||''},${b.pan||''},${b.cibilScore||''},${(b.remarks||'').replace(/,/g,' ')},${b.addedBy?(ownerName[b.addedBy]||b.addedBy):''}`).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([h+rows],{type:'text/csv'}));
-  a.download='CIBIL_Data_'+today()+'.csv'; a.click(); showToast('📥 CIBIL data exported!');
-}
-
-function exportFreelancers(){
-  const all=[...(_admCache.crm_womenfl||[]).map(r=>({...r,prog:'Women'})),...(_admCache.crm_bizfl||[]).map(r=>({...r,prog:'Business'}))];
-  const h='S.No,Program,Name,Phone,Email,Location,Profile,Expected Business/Mo,Date\n';
-  const rows=all.map((r,i)=>`${i+1},${r.prog},${r.name||''},${r.phone||''},${r.email||''},${r.location||''},${r.profile||''},${r.expected||''},${r.dt||''}`).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([h+rows],{type:'text/csv'}));
-  a.download='Freelancers_'+today()+'.csv'; a.click(); showToast('📥 Freelancer data exported!');
-}
-
 function today(){ return new Date().toISOString().slice(0,10); }
 
-function download(filename, content){
+function download(filename, content, mime){
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([content],{type:'text/csv'}));
+  a.href = URL.createObjectURL(new Blob([content],{type: mime || 'text/csv'}));
   a.download = filename; a.click();
 }
 
@@ -2641,7 +3410,7 @@ function refreshFirebase(){
 
   if(_admDb){
     // Firebase is connected — force re-read all keys
-    const KEYS = ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_cibil','crm_womenfl','crm_bizfl'];
+    const KEYS = ['dsacrm_users','crm_borrowers','crm_followups','crm_contacts','crm_policies','crm_connectors','crm_womenfl','crm_bizfl','crm_cibil'];
     let done = 0;
     KEYS.forEach(function(key){
       _admDb.ref('dsa_crm/'+key).once('value', function(snap){
@@ -2655,8 +3424,9 @@ function refreshFirebase(){
           renderUsers();
           renderBorrowers();
           renderQueueStats();
+          renderAdmConnectors();
+          renderAdmFreelancers();
           if(document.getElementById('sec-followups')?.classList.contains('active')) renderFollowUpsAdm();
-          renderAdmCibil(); // Always refresh CIBIL data & badge after Firebase sync
           // Stop spinner
           if(ico){ ico.style.animation='none'; }
           if(badge){ badge.textContent='🔥 Firebase Live'; badge.style.color='#22c55e'; badge.style.borderColor='rgba(34,197,94,.3)'; badge.style.background='rgba(34,197,94,.07)'; }
@@ -2707,7 +3477,6 @@ function updateDateTime(){
     days[now.getDay()]+', '+now.getDate()+' '+months[now.getMonth()]+' '+now.getFullYear()+
     ' | '+now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
 }
-
 </script>
 
 
@@ -2823,6 +3592,260 @@ function updateDateTime(){
     </div>
   </div>
 </div>
+
+<!-- ════════════════════════════════════════════════
+     TWEAKS PANEL — Reports & Download configuration
+     ════════════════════════════════════════════════ -->
+<style>
+  #tweaks-panel {
+    position: fixed; right: 18px; bottom: 18px;
+    width: 340px; max-height: calc(100vh - 60px);
+    background: #fff; color: #0f172a;
+    border: 1px solid #cbd5e1; border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(15,23,42,.18);
+    z-index: 9999; overflow: hidden; display: none;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+  #tweaks-panel.on { display: flex; flex-direction: column; }
+  #tweaks-panel .tw-hd {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 12px 14px; background: linear-gradient(135deg,#7c3aed,#a855f7);
+    color:#fff; cursor: move; user-select:none;
+  }
+  #tweaks-panel .tw-hd .tw-title { font-weight:700; font-size:13px; letter-spacing:.3px; }
+  #tweaks-panel .tw-close {
+    background: rgba(255,255,255,.18); border:0; color:#fff;
+    width:24px; height:24px; border-radius:50%; cursor:pointer;
+    font-size:14px; line-height:1;
+  }
+  #tweaks-panel .tw-bd { padding: 12px 14px; overflow-y:auto; flex:1; }
+  #tweaks-panel .tw-sec { margin-bottom: 14px; }
+  #tweaks-panel .tw-sec-h {
+    font-size:10px; font-weight:700; text-transform:uppercase;
+    color:#64748b; letter-spacing:.08em; margin-bottom:6px;
+    padding-bottom:4px; border-bottom:1px solid #e2e8f0;
+  }
+  #tweaks-panel .tw-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding: 6px 0; gap: 10px; font-size:12px;
+  }
+  #tweaks-panel .tw-row label { color:#475569; flex:1; }
+  #tweaks-panel select, #tweaks-panel input[type=text] {
+    border: 1px solid #cbd5e1; border-radius: 6px; padding: 5px 8px;
+    font-size: 11px; font-family: inherit; background: #f8fafc;
+    color: #0f172a; min-width: 150px;
+  }
+  #tweaks-panel input[type=checkbox] { accent-color: #7c3aed; cursor:pointer; }
+  #tweaks-panel .tw-radio { display:flex; gap:4px; }
+  #tweaks-panel .tw-radio button {
+    padding: 4px 10px; border-radius: 4px; border: 1px solid #cbd5e1;
+    background: #f8fafc; color: #475569; cursor: pointer; font-size: 11px;
+    font-family: inherit; font-weight: 600;
+  }
+  #tweaks-panel .tw-radio button.on {
+    background: #7c3aed; color: #fff; border-color: #7c3aed;
+  }
+  #tweaks-panel .tw-note {
+    font-size: 10px; color: #64748b; line-height: 1.4;
+    padding: 8px 10px; background: #faf5ff;
+    border-left: 2px solid #a855f7; border-radius: 4px; margin-top: 4px;
+  }
+</style>
+
+<div id="tweaks-panel" role="dialog" aria-label="Reports tweaks">
+  <div class="tw-hd" id="tw-drag-hd">
+    <span class="tw-title">⚙️ Tweaks · Reports & Download</span>
+    <button class="tw-close" onclick="closeTweaks()" title="Close">✕</button>
+  </div>
+  <div class="tw-bd">
+    <div class="tw-note">Customize defaults for the Reports & Download queue. Changes save instantly to the file.</div>
+
+    <div class="tw-sec">
+      <div class="tw-sec-h">Defaults</div>
+      <div class="tw-row">
+        <label>Default Period</label>
+        <select id="tw-period">
+          <option value="day">Today</option>
+          <option value="week">This Week</option>
+          <option value="month">This Month</option>
+          <option value="3m">Last 3 Months</option>
+          <option value="6m">Last 6 Months</option>
+          <option value="year">Yearly</option>
+          <option value="all">All Time</option>
+        </select>
+      </div>
+      <div class="tw-row">
+        <label>Default Queue</label>
+        <select id="tw-queue">
+          <option value="all">All Queues</option>
+          <option value="bl">Business Loan</option>
+          <option value="pl">Personal Loan</option>
+          <option value="hl">Home Loan</option>
+          <option value="lap">LAP</option>
+          <option value="insurance">Insurance</option>
+          <option value="borrowers">All Borrowers</option>
+          <option value="followups">Follow-ups</option>
+          <option value="users">Registered Users</option>
+          <option value="policies">Bank Policies</option>
+          <option value="bankerdir">Banker Directory</option>
+          <option value="filesdump">Files Dump</option>
+        </select>
+      </div>
+      <div class="tw-row">
+        <label>Quick-button Format</label>
+        <div class="tw-radio" id="tw-fmt">
+          <button data-v="xlsx">Excel</button>
+          <button data-v="csv">CSV</button>
+          <button data-v="pdf">PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tw-sec">
+      <div class="tw-sec-h">Include in Report</div>
+      <div class="tw-row"><label>📋 Borrowers</label><input type="checkbox" id="tw-inc-borrowers"></div>
+      <div class="tw-row"><label>☑ Follow-ups</label><input type="checkbox" id="tw-inc-followups"></div>
+      <div class="tw-row"><label>👥 Registered Users</label><input type="checkbox" id="tw-inc-users"></div>
+      <div class="tw-row"><label>⌘ Bank Policies</label><input type="checkbox" id="tw-inc-policies"></div>
+      <div class="tw-row"><label>☏ Banker Directory</label><input type="checkbox" id="tw-inc-bankers"></div>
+      <div class="tw-row"><label>▤ Files Dump</label><input type="checkbox" id="tw-inc-files"></div>
+    </div>
+
+    <div class="tw-sec">
+      <div class="tw-sec-h">Branding</div>
+      <div class="tw-row">
+        <label>Company</label>
+        <input type="text" id="tw-company" style="min-width:175px">
+      </div>
+      <div class="tw-row">
+        <label>Report Subtitle</label>
+        <input type="text" id="tw-subtitle" style="min-width:175px">
+      </div>
+      <div class="tw-row"><label>Include Brand Header</label><input type="checkbox" id="tw-brand"></div>
+    </div>
+
+    <div class="tw-sec">
+      <div class="tw-sec-h">Layout</div>
+      <div class="tw-row"><label>Show ⚡ Quick Downloads</label><input type="checkbox" id="tw-quick"></div>
+      <div class="tw-row">
+        <label>Filename Template</label>
+        <input type="text" id="tw-fname" style="min-width:175px" placeholder="DSA_CRM_{queue}_{period}_{date}">
+      </div>
+      <div class="tw-note" style="font-size:9.5px">Tokens: <b>{queue}</b> · <b>{period}</b> · <b>{date}</b> · <b>{company}</b></div>
+    </div>
+
+    <div class="tw-sec">
+      <button onclick="resetTweaks()"
+        style="width:100%;padding:9px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;
+               font-size:11px;color:#475569;cursor:pointer;font-weight:600">
+        ↺ Reset to Defaults
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Wait for host postMessage protocol
+  let _twDirty = false;
+  function _twDispatch(key, val){
+    try {
+      // Update live state
+      window.RPT_CFG[key] = val;
+      if(typeof applyRptCfg === 'function') applyRptCfg({[key]: val});
+      // Persist to file via design tool host
+      window.parent.postMessage({ type:'__edit_mode_set_keys', edits:{ [key]: val } }, '*');
+    } catch(e) { console.warn('tw set fail', e); }
+    _twDirty = true;
+  }
+  function _twSync(){
+    const C = window.RPT_CFG || {};
+    document.getElementById('tw-period').value     = C.defaultPeriod;
+    document.getElementById('tw-queue').value      = C.defaultQueue;
+    document.getElementById('tw-inc-borrowers').checked = !!C.includeBorrowers;
+    document.getElementById('tw-inc-followups').checked = !!C.includeFollowUps;
+    document.getElementById('tw-inc-users').checked     = !!C.includeUsers;
+    document.getElementById('tw-inc-policies').checked  = !!C.includePolicies;
+    document.getElementById('tw-inc-bankers').checked   = !!C.includeBankers;
+    document.getElementById('tw-inc-files').checked     = !!C.includeFiles;
+    document.getElementById('tw-company').value         = C.companyName||'';
+    document.getElementById('tw-subtitle').value        = C.reportSubtitle||'';
+    document.getElementById('tw-brand').checked         = !!C.includeBrandHeader;
+    document.getElementById('tw-quick').checked         = !!C.showQuickDownloads;
+    document.getElementById('tw-fname').value           = C.filenameTemplate||'';
+    // Format buttons
+    document.querySelectorAll('#tw-fmt button').forEach(b=>{
+      b.classList.toggle('on', b.dataset.v === C.defaultFormat);
+    });
+  }
+  // Wire controls
+  function _twInit(){
+    document.getElementById('tw-period').onchange = e=>_twDispatch('defaultPeriod', e.target.value);
+    document.getElementById('tw-queue').onchange  = e=>_twDispatch('defaultQueue', e.target.value);
+    document.getElementById('tw-inc-borrowers').onchange = e=>_twDispatch('includeBorrowers', e.target.checked);
+    document.getElementById('tw-inc-followups').onchange = e=>_twDispatch('includeFollowUps', e.target.checked);
+    document.getElementById('tw-inc-users').onchange     = e=>_twDispatch('includeUsers', e.target.checked);
+    document.getElementById('tw-inc-policies').onchange  = e=>_twDispatch('includePolicies', e.target.checked);
+    document.getElementById('tw-inc-bankers').onchange   = e=>_twDispatch('includeBankers', e.target.checked);
+    document.getElementById('tw-inc-files').onchange     = e=>_twDispatch('includeFiles', e.target.checked);
+    document.getElementById('tw-company').oninput        = e=>_twDispatch('companyName', e.target.value);
+    document.getElementById('tw-subtitle').oninput       = e=>_twDispatch('reportSubtitle', e.target.value);
+    document.getElementById('tw-brand').onchange         = e=>_twDispatch('includeBrandHeader', e.target.checked);
+    document.getElementById('tw-quick').onchange         = e=>_twDispatch('showQuickDownloads', e.target.checked);
+    document.getElementById('tw-fname').oninput          = e=>_twDispatch('filenameTemplate', e.target.value);
+    document.querySelectorAll('#tw-fmt button').forEach(b=>{
+      b.onclick = ()=>{
+        document.querySelectorAll('#tw-fmt button').forEach(x=>x.classList.remove('on'));
+        b.classList.add('on');
+        _twDispatch('defaultFormat', b.dataset.v);
+      };
+    });
+    // Drag
+    let dragOff = null;
+    const hd = document.getElementById('tw-drag-hd');
+    const panel = document.getElementById('tweaks-panel');
+    hd.addEventListener('mousedown', e=>{
+      const r = panel.getBoundingClientRect();
+      dragOff = {x: e.clientX - r.left, y: e.clientY - r.top};
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', e=>{
+      if(!dragOff) return;
+      panel.style.right = 'auto'; panel.style.bottom = 'auto';
+      panel.style.left = (e.clientX - dragOff.x)+'px';
+      panel.style.top  = (e.clientY - dragOff.y)+'px';
+    });
+    document.addEventListener('mouseup', ()=>{ dragOff = null; });
+  }
+  window.openTweaks = function(){
+    _twSync();
+    document.getElementById('tweaks-panel').classList.add('on');
+  };
+  window.closeTweaks = function(){
+    document.getElementById('tweaks-panel').classList.remove('on');
+    try{ window.parent.postMessage({type:'__edit_mode_dismissed'}, '*'); }catch(e){}
+  };
+  window.resetTweaks = function(){
+    if(!confirm('Reset Reports tweaks to defaults?')) return;
+    Object.keys(RPT_DEFAULTS).forEach(k=>{
+      _twDispatch(k, RPT_DEFAULTS[k]);
+    });
+    _twSync();
+  };
+
+  // Listen for activation from host
+  window.addEventListener('message', e=>{
+    const d = e.data || {};
+    if(d.type === '__activate_edit_mode')   window.openTweaks();
+    if(d.type === '__deactivate_edit_mode') window.closeTweaks();
+  });
+  // Init when DOM ready
+  if(document.readyState !== 'loading') _twInit();
+  else document.addEventListener('DOMContentLoaded', _twInit);
+  // Announce availability after listener is live
+  try{ window.parent.postMessage({type:'__edit_mode_available'}, '*'); }catch(e){}
+})();
+</script>
 
 </body>
 </html>
