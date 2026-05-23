@@ -445,7 +445,7 @@ tr:hover td{background:#f0f7ff;color:#0f172a}
             <span class="pill p-gray" id="usr-count">0 users</span>
           </div>
           <table>
-            <thead><tr><th>#</th><th>Mobile</th><th>Name</th><th>User Type</th><th>Extra Info</th><th>DSA Name / Bank</th><th>Status</th><th>Joined</th><th>Leads</th><th>Actions</th></tr></thead>
+            <thead><tr><th>#</th><th>Mobile</th><th>Name</th><th>User Type</th><th>DSA / Bank Name</th><th>Status</th><th>Joined</th><th>Leads</th><th>Features</th><th>Actions</th></tr></thead>
             <tbody id="usr-tbody"></tbody>
           </table>
         </div>
@@ -1339,20 +1339,32 @@ function loadDashboard(){
 
   // User type breakdown
   const types = {};
-  users.forEach(u=>{ types[u.type] = (types[u.type]||0)+1; });
-  const typeColors = {
-    'Individual DSA':'p-purple','Connector':'p-blue','Sub-DSA':'p-cyan',
-    'DSA Company':'p-green','NBFC':'p-gold','Bank':'p-green',
-    'Credit Team':'p-red','Accounts':'p-gray','Team Member':'p-gray'
+  users.forEach(u=>{ types[u.type||'Unknown'] = (types[u.type||'Unknown']||0)+1; });
+  const typeStyles = {
+    'Individual DSA':{pill:'p-purple',icon:'👤'},'Connector':{pill:'p-blue',icon:'🔗'},
+    'Sub-DSA':{pill:'p-cyan',icon:'🤝'},'DSA Company':{pill:'p-green',icon:'🏢'},
+    'NBFC':{pill:'p-gold',icon:'🏦'},'Bank':{pill:'p-blue',icon:'🏛'},
+    'Credit Team':{pill:'p-red',icon:'💳'},'Accounts':{pill:'p-gray',icon:'📊'},
+    'Team Member':{pill:'p-purple',icon:'👥'},
   };
   const el = document.getElementById('dash-user-types');
   if(!users.length){ el.innerHTML='<div class="empty"><div class="empty-ico">👤</div><p>No registered users yet.</p></div>'; return; }
-  el.innerHTML = Object.entries(types).map(([t,n])=>
-    `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)">
-      <span class="pill ${typeColors[t]||'p-gray'}">${t}</span>
-      <b style="color:#0f172a;font-family:'Syne',sans-serif">${n}</b>
-    </div>`
-  ).join('');
+  // Show all 9 types — greyed out if count is 0
+  const ALL_TYPES = ['Individual DSA','Connector','Sub-DSA','DSA Company','NBFC','Bank','Credit Team','Accounts','Team Member'];
+  el.innerHTML = ALL_TYPES.map(t=>{
+    const n  = types[t]||0;
+    const ts = typeStyles[t]||{pill:'p-gray',icon:'👤'};
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 2px;border-bottom:1px solid #f1f5f9;opacity:${n>0?1:.45}">
+      <span class="pill ${ts.pill}" style="font-size:9.5px">${ts.icon} ${t}</span>
+      <b style="color:${n>0?'#0f172a':'#94a3b8'};font-family:'Syne',sans-serif;font-size:13px">${n}</b>
+    </div>`;
+  }).join('')+(Object.keys(types).some(t=>!ALL_TYPES.includes(t))?
+    Object.entries(types).filter(([t])=>!ALL_TYPES.includes(t)).map(([t,n])=>
+      `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 2px;border-bottom:1px solid #f1f5f9">
+        <span class="pill p-gray" style="font-size:9.5px">👤 ${t}</span>
+        <b style="color:#0f172a;font-family:'Syne',sans-serif;font-size:13px">${n}</b>
+      </div>`
+    ).join('') : '');
   // Update report queue count
   const rqEl = document.getElementById('rq-users-count');
   if(rqEl) rqEl.textContent = users.length+' entries';
@@ -1361,49 +1373,72 @@ function loadDashboard(){
 // ══════════════════════════════════════
 // USER MANAGEMENT
 // ══════════════════════════════════════
+// ── User type pill colours + icons ──
+const USER_TYPE_STYLE = {
+  'Individual DSA': {pill:'p-purple', icon:'👤'},
+  'Connector':      {pill:'p-blue',   icon:'🔗'},
+  'Sub-DSA':        {pill:'p-cyan',   icon:'🤝'},
+  'DSA Company':    {pill:'p-green',  icon:'🏢'},
+  'NBFC':           {pill:'p-gold',   icon:'🏦'},
+  'Bank':           {pill:'p-blue',   icon:'🏛'},
+  'Credit Team':    {pill:'p-red',    icon:'💳'},
+  'Accounts':       {pill:'p-gray',   icon:'📊'},
+  'Team Member':    {pill:'p-purple', icon:'👥'},
+};
+
 function renderUsers(){
-  const users = getUsers();
+  const users  = getUsers();
   const search = document.getElementById('usr-search')?.value.toLowerCase()||'';
-  const type = document.getElementById('usr-type')?.value||'ALL';
+  const type   = document.getElementById('usr-type')?.value||'ALL';
   const status = document.getElementById('usr-status')?.value||'ALL';
   const filtered = users.filter((u,i)=>{
-    const matchSearch = !search || u.name?.toLowerCase().includes(search) || u.mobile?.includes(search);
-    const matchType = type==='ALL' || u.type===type;
-    const uStatus = u.held ? 'On Hold' : 'Active';
+    const matchSearch = !search || u.name?.toLowerCase().includes(search) || u.mobile?.includes(search) || u.dsaName?.toLowerCase().includes(search);
+    const matchType   = type==='ALL' || u.type===type;
+    const uStatus     = u.held ? 'On Hold' : 'Active';
     const matchStatus = status==='ALL' || uStatus===status;
     return matchSearch && matchType && matchStatus;
   });
   document.getElementById('usr-count').textContent = filtered.length+' users';
   const tbody = document.getElementById('usr-tbody');
   if(!filtered.length){
-    tbody.innerHTML='<tr><td colspan="9"><div class="empty"><div class="empty-ico">👥</div><p>No users found.<br>Users appear here when they register in the main CRM dashboard.</p></div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="10"><div class="empty"><div class="empty-ico">👥</div><p>No users found.<br>Users appear here when they register in the main CRM dashboard.</p></div></td></tr>';
     return;
   }
+  const borMap = {};
+  getBorrowers().forEach(b=>{ borMap[b.addedBy] = (borMap[b.addedBy]||0)+1; });
+
   tbody.innerHTML = filtered.map((u,idx)=>{
-    const globalIdx = users.findIndex(x=>x.mobile===u.mobile);
-    const heldClass = u.held ? 'row-held' : '';
-    const statusPill = u.held
-      ? '<span class="pill p-gold">⏸ On Hold</span>'
-      : '<span class="pill p-green">● Active</span>';
-    const extra = u.dsaName ? u.dsaName : (u.bankName ? u.bankName : '—');
-    // Support both registeredOn (new) and joinedAt (legacy)
-    const regTs = u.registeredOn || u.joinedAt;
-    const joined = regTs ? new Date(regTs).toLocaleDateString('en-IN') : 'N/A';
-    const borrowerCount = getBorrowers().filter(b=>b.addedBy===u.mobile).length;
+    const globalIdx    = users.findIndex(x=>x.mobile===u.mobile);
+    const heldClass    = u.held ? 'row-held' : '';
+    const ts           = USER_TYPE_STYLE[u.type] || {pill:'p-gray', icon:'👤'};
+    const statusPill   = u.held
+      ? '<span class="pill p-gold" style="font-size:9px">⏸ On Hold</span>'
+      : '<span class="pill p-green" style="font-size:9px">● Active</span>';
+    const extra        = u.dsaName || u.bankName || '—';
+    const regTs        = u.registeredOn || u.joinedAt;
+    const joined       = regTs ? new Date(regTs).toLocaleDateString('en-IN') : 'N/A';
+    const borCount     = borMap[u.mobile] || 0;
+    const features     = u.features || [];
+    const featTags     = features.map(f=>({
+      womenfl:'👩FL', bizfl:'🏢FL', dsaconn:'🤝DSA', instantloan:'⚡Loan'
+    }[f]||f)).filter(Boolean).map(f=>`<span style="font-size:8px;background:#ede9fe;color:#5b21b6;padding:1px 5px;border-radius:8px;margin:1px">${f}</span>`).join('');
+
     return `<tr class="${heldClass}" id="urow-${globalIdx}">
-      <td style="color:#64748b">${idx+1}</td>
-      <td><b style="color:#0f172a">${u.mobile}</b></td>
-      <td>${u.name||'—'}</td>
-      <td><span class="pill p-purple">${u.type||'—'}</span></td>
-      <td style="font-size:10px;color:var(--text3)">${u.dsaName?'DSA':u.bankName?'Bank':'—'}</td>
-      <td style="font-size:10px">${extra}</td>
-      <td>${statusPill}</td>
-      <td style="font-size:10px;color:var(--text3)">${joined}</td>
-      <td style="font-size:11px;color:#60a5fa;font-weight:600">${borrowerCount}</td>
+      <td style="color:#64748b;font-size:10px">${idx+1}</td>
+      <td><b style="color:#0f172a;font-size:11px">${u.mobile}</b></td>
+      <td style="font-weight:600;color:#0f172a">${u.name||'—'}</td>
       <td>
+        <span class="pill ${ts.pill}" style="font-size:9px">${ts.icon} ${u.type||'—'}</span>
+      </td>
+      <td style="font-size:10px;color:#334155;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${extra}">${extra}</td>
+      <td>${statusPill}</td>
+      <td style="font-size:10px;color:#475569">${joined}</td>
+      <td style="font-size:12px;font-weight:700;color:#1d4ed8;text-align:center">${borCount}</td>
+      <td style="max-width:100px">${featTags||'<span style="font-size:9px;color:#94a3b8">No features</span>'}</td>
+      <td style="white-space:nowrap">
         <button class="act-btn act-view" onclick="viewUser(${globalIdx})">👁 View</button>
-        <button class="act-btn ${u.held?'act-held':'act-hold'}" onclick="toggleHold(${globalIdx})">${u.held?'▶ Unhold':'⏸ Hold'}</button>
-        <button class="act-btn act-del" onclick="deleteUser(${globalIdx})">🗑 Delete</button>
+        <button class="act-btn ${u.held?'act-held':'act-hold'}" onclick="toggleHold(${globalIdx})">${u.held?'▶':'⏸'}</button>
+        <button class="act-btn act-del" onclick="deleteUser(${globalIdx})">🗑</button>
       </td>
     </tr>`;
   }).join('');
@@ -2588,6 +2623,21 @@ function getCibil(){ return _admRead('crm_cibil'); }
 // CIBIL DATA QUEUE — Admin View
 // ══════════════════════════════════════
 function renderAdmCibil(){
+  // Always pull fresh from Firebase if connected
+  if(_admDb && (!_admCache.crm_cibil || _admCache.crm_cibil.length===0)){
+    _admDb.ref('dsa_crm/crm_cibil').once('value', snap=>{
+      const v=snap.val();
+      _admCache.crm_cibil = Array.isArray(v)?v:(v?Object.values(v):[]);
+      try{ localStorage.setItem('crm_cibil',JSON.stringify(_admCache.crm_cibil)); }catch(e){}
+      _renderAdmCibilTable();
+    }).catch(()=>_renderAdmCibilTable());
+    return;
+  }
+  _renderAdmCibilTable();
+}
+
+function _renderAdmCibilTable(){
+function _renderAdmCibilTable(){
   const search  = (document.getElementById('cibil-search')?.value||'').toLowerCase();
   const scoreF  = document.getElementById('cibil-score-filter')?.value||'ALL';
   const userF   = document.getElementById('cibil-user-filter')?.value||'ALL';
