@@ -394,7 +394,7 @@ tr:hover td{background:#f0f7ff;color:#0f172a}
         </div>
 
         <!-- User type breakdown -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
           <div class="card">
             <div class="card-head"><span class="card-title">👥 Users by Type</span></div>
             <div class="card-body" id="dash-user-types">
@@ -405,12 +405,38 @@ tr:hover td{background:#f0f7ff;color:#0f172a}
             <div class="card-head"><span class="card-title">⚡ Quick Actions</span></div>
             <div class="card-body">
               <div style="display:flex;flex-direction:column;gap:8px">
-                <button class="btn btn-p" onclick="navTo(document.querySelector('.ni'),\'users\')" style="text-align:left">👥 Manage Users & Access</button>
-                <button class="btn btn-gold" onclick="navTo(document.querySelector('.ni'),\'reports\')" style="text-align:left">📥 Download Reports</button>
-                <button class="btn btn-g" onclick="navTo(document.querySelector('.ni'),\'borrowers\')" style="text-align:left">📊 View Borrowers Overview</button>
-                <button class="btn" onclick="navTo(document.querySelector('.ni'),\'policies\')" style="text-align:left">⌘ Review Bank Policies</button>
-                <button class="btn" onclick="navTo(document.querySelector('.ni'),\'market\')" style="text-align:left">🚀 Feature Marketplace</button>
+                <button class="btn btn-p" onclick="navTo(document.querySelector('.ni'),'users')" style="text-align:left">👥 Manage Users & Access</button>
+                <button class="btn btn-gold" onclick="navTo(document.querySelector('.ni'),'reports')" style="text-align:left">📥 Download Reports</button>
+                <button class="btn btn-g" onclick="navTo(document.querySelector('.ni'),'borrowers')" style="text-align:left">📊 View Borrowers Overview</button>
+                <button class="btn" onclick="navTo(document.querySelector('.ni'),'policies')" style="text-align:left">⌘ Review Bank Policies</button>
+                <button class="btn" onclick="navTo(document.querySelector('.ni'),'market')" style="text-align:left">🚀 Feature Marketplace</button>
               </div>
+            </div>
+          </div>
+
+          <!-- ── User Lookup Tool ── -->
+          <div class="card">
+            <div class="card-head"><span class="card-title">🔍 User Lookup — Verify Registration</span></div>
+            <div class="card-body">
+              <div style="display:flex;gap:6px;margin-bottom:10px">
+                <input id="lookup-mobile" class="finp" placeholder="Enter mobile number…" maxlength="10"
+                  type="tel" oninput="this.value=this.value.replace(/\D/g,'')"
+                  onkeydown="if(event.key==='Enter')lookupUser()"
+                  style="flex:1;font-size:12px;padding:8px 10px;border:1px solid #c5cde4;border-radius:7px;outline:none;font-family:'DM Sans',sans-serif">
+                <button onclick="lookupUser()" class="btn btn-p" style="padding:8px 14px;font-size:12px;white-space:nowrap">🔍 Check</button>
+              </div>
+              <!-- Quick check buttons for the specific numbers -->
+              <div style="display:flex;gap:6px;margin-bottom:10px">
+                <button onclick="document.getElementById('lookup-mobile').value='8522022548';lookupUser()"
+                  style="flex:1;font-size:10px;padding:5px 8px;border:1px solid #c5cde4;border-radius:6px;cursor:pointer;background:#f8fafc;font-family:'DM Sans',sans-serif">
+                  📞 8522022548
+                </button>
+                <button onclick="document.getElementById('lookup-mobile').value='9989435743';lookupUser()"
+                  style="flex:1;font-size:10px;padding:5px 8px;border:1px solid #c5cde4;border-radius:6px;cursor:pointer;background:#f8fafc;font-family:'DM Sans',sans-serif">
+                  📞 9989435743
+                </button>
+              </div>
+              <div id="lookup-result" style="font-size:11px"></div>
             </div>
           </div>
         </div>
@@ -1318,6 +1344,62 @@ function _startAdmListeners(){
 // ══════════════════════════════════════
 // DASHBOARD LOAD
 // ══════════════════════════════════════
+// ══ USER LOOKUP TOOL ══
+function lookupUser(){
+  var mobile = (document.getElementById('lookup-mobile')?.value||'').trim();
+  var el     = document.getElementById('lookup-result');
+  if(!el) return;
+  if(!mobile || mobile.length < 10){
+    el.innerHTML = '<div style="color:#b45309;background:#fef3c7;padding:8px 10px;border-radius:7px;border:1px solid #fcd34d">⚠️ Enter a valid 10-digit mobile number</div>';
+    return;
+  }
+  el.innerHTML = '<div style="color:#475569;padding:6px 0">🔄 Checking Firebase…</div>';
+
+  function searchAndShow(allUsers){
+    var u = allUsers.find(function(x){ return String(x.mobile||'').trim()===mobile; });
+    if(!u){
+      el.innerHTML = '<div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:10px 12px">'
+        +'<div style="font-size:13px;font-weight:700;color:#dc2626">❌ Not Registered</div>'
+        +'<div style="font-size:10px;color:#7f1d1d;margin-top:4px">Mobile <b>'+mobile+'</b> is not registered in the CRM.</div>'
+        +'<div style="font-size:10px;color:#7f1d1d;margin-top:2px">Ask them to sign up via the User Dashboard.</div>'
+        +'</div>';
+      return;
+    }
+    var regTs  = u.registeredOn || u.joinedAt;
+    var joined = regTs ? new Date(parseInt(regTs)).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : 'Unknown';
+    var feats  = (u.features||[]).join(', ') || 'None granted';
+    var icons  = {'Individual DSA':'👤','Connector':'🔗','Sub-DSA':'🤝','DSA Company':'🏢','NBFC':'🏦','Bank':'🏛','Credit Team':'💳','Accounts':'📊','Team Member':'👥'};
+    var icon   = icons[u.type]||'👤';
+    var leads  = (_admCache.crm_borrowers||[]).filter(function(b){ return b.addedBy===u.mobile; }).length;
+    el.innerHTML = '<div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px">'
+      +'<div style="font-size:13px;font-weight:700;color:#15803d;margin-bottom:8px">✅ Registered — Found in Database</div>'
+      +'<table style="width:100%;font-size:10.5px;border-collapse:collapse">'
+      +'<tr><td style="color:#64748b;padding:3px 0;width:90px">Mobile</td><td style="font-weight:700;color:#0f172a">'+u.mobile+'</td></tr>'
+      +'<tr><td style="color:#64748b;padding:3px 0">Name</td><td style="font-weight:700;color:#0f172a">'+(u.name||'—')+'</td></tr>'
+      +'<tr><td style="color:#64748b;padding:3px 0">User Type</td><td>'+icon+' '+(u.type||'—')+'</td></tr>'
+      +'<tr><td style="color:#64748b;padding:3px 0">DSA / Bank</td><td>'+(u.dsaName||u.bankName||'—')+'</td></tr>'
+      +'<tr><td style="color:#64748b;padding:3px 0">Status</td><td style="font-weight:600;color:'+(u.held?'#b45309':'#15803d')+'">'+(u.held?'⏸ On Hold':'● Active')+'</td></tr>'
+      +'<tr><td style="color:#64748b;padding:3px 0">Joined</td><td>'+joined+'</td></tr>'
+      +'<tr><td style="color:#64748b;padding:3px 0">Leads Added</td><td style="font-weight:700;color:#1d4ed8">'+leads+'</td></tr>'
+      +'<tr><td style="color:#64748b;padding:3px 0">Features</td><td style="font-size:9.5px">'+feats+'</td></tr>'
+      +'</table>'
+      +'<button onclick="navTo(document.querySelector(\'[onclick*=users]\'),\'users\');setTimeout(function(){document.getElementById(\'usr-search\').value=\''+mobile+'\';renderUsers();},400)"'
+      +' style="margin-top:8px;width:100%;padding:7px;background:linear-gradient(135deg,#5b21b6,#7c3aed);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">'
+      +'→ View in User Management</button>'
+      +'</div>';
+  }
+
+  if(_admDb){
+    _admDb.ref('dsa_crm/dsacrm_users').once('value', function(snap){
+      var raw = snap.val();
+      var all = Array.isArray(raw) ? raw.filter(Boolean) : (raw ? Object.values(raw).filter(Boolean) : []);
+      searchAndShow(all.length ? all : (_admCache.dsacrm_users||[]));
+    }, function(){ searchAndShow(_admCache.dsacrm_users||[]); });
+  } else {
+    searchAndShow(_admCache.dsacrm_users||[]);
+  }
+}
+
 function loadDashboard(){
   const users     = getUsers();
   const borrowers = _admCache.crm_borrowers||[];  // ALL borrowers — not filtered by user
